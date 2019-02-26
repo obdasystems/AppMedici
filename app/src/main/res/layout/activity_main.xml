@@ -1,22 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<android.support.constraint.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="vertical"
-    android:gravity="bottom|center"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".activity.MainActivity">
 
+    <fragment
+        android:id="@+id/fragment_home"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/bottom_navigation_view"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:name="com.obdasystems.pocmedici.activity.HomeFragment"/>
+
     <android.support.design.widget.BottomNavigationView
         android:id="@+id/bottom_navigation_view"
-        android:layout_gravity="bottom"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:menu="@menu/navigation"
         app:itemBackground="@color/navigation_tab_item_bg_color"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
-
     </android.support.design.widget.BottomNavigationView>
 
-</LinearLayout>
+</android.support.constraint.ConstraintLayout>
