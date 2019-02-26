@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/tab_item_home"
+        android:icon="@drawable/ic_home_black_24dp"
+        android:title="@string/tab_label_home"/>
+    <item
+        android:id="@+id/tab_item_messages"
+        android:icon="@drawable/ic_message_black_24dp"
+        android:title="@string/tab_label_messages"/>
+    <item
+        android:id="@+id/tab_item_user_profile"
+        android:icon="@drawable/ic_person_black_24dp"
+        android:title="@string/tab_label_user_profile"/>
+    <item
+        android:id="@+id/tab_item_settings"
+        android:icon="@drawable/ic_settings_black_24dp"
+        android:title="@string/tab_label_settings"/>
+
+</menu>
