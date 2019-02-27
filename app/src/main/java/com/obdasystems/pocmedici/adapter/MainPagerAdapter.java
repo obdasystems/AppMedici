@@ -4,7 +4,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
-import com.obdasystems.pocmedici.activity.HomeFragment;
+import com.obdasystems.pocmedici.fragment.HomeFragment;
 
 public class MainPagerAdapter extends FragmentStatePagerAdapter {
     private final int tabCount;
