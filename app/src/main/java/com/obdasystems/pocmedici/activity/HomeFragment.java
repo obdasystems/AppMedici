@@ -3,10 +3,16 @@ package com.obdasystems.pocmedici.activity;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.CardView;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.Toast;
 
 import com.obdasystems.pocmedici.R;
 
@@ -68,7 +74,20 @@ public class HomeFragment extends Fragment {
                              ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_home, container, false);
+        View view = inflater.inflate(R.layout.fragment_home, container, false);
+
+        return view;
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        CardView cardView = getActivity().findViewById(R.id.button_questionnaire);
+
+        cardView.setOnClickListener(view -> {
+            Log.i("ClickEvent", "Bravo!!!!");
+        });
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -78,6 +97,7 @@ public class HomeFragment extends Fragment {
         }
     }
 
+    /*
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -94,6 +114,7 @@ public class HomeFragment extends Fragment {
         super.onDetach();
         mListener = null;
     }
+    */
 
     /**
      * This interface must be implemented by activities that contain this
