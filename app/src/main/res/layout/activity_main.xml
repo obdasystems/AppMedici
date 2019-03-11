@@ -37,13 +37,13 @@
                     <ImageView
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
-                        android:src="@drawable/ic_description_black_24dp"/>
+                        android:contentDescription="TODO" android:src="@drawable/ic_description_black_24dp"/>
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textSize="16pt"
-                        android:text="@string/card_form_home" />
+                        android:text="@string/card_form_ctcae_form" />
                 </LinearLayout>
             </android.support.v7.widget.CardView>
 
@@ -63,7 +63,7 @@
                     <ImageView
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
-                        android:src="@drawable/ic_widgets_black_24dp"/>
+                        android:contentDescription="TODO" android:src="@drawable/ic_widgets_black_24dp"/>
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -89,7 +89,7 @@
                     <ImageView
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
-                        android:src="@drawable/ic_message_black_24dp"/>
+                        android:contentDescription="TODO" android:src="@drawable/ic_message_black_24dp"/>
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -115,7 +115,7 @@
                     <ImageView
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
-                        android:src="@drawable/ic_date_range_black_24dp"/>
+                        android:contentDescription="TODO" android:src="@drawable/ic_date_range_black_24dp"/>
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -141,7 +141,7 @@
                     <ImageView
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
-                        android:src="@drawable/ic_add_alarm_black_24dp"/>
+                        android:contentDescription="TODO" android:src="@drawable/ic_add_alarm_black_24dp"/>
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -167,7 +167,7 @@
                     <ImageView
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
-                        android:src="@drawable/ic_local_pharmacy_black_24dp"/>
+                        android:contentDescription="TODO" android:src="@drawable/ic_local_pharmacy_black_24dp"/>
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -193,7 +193,7 @@
                     <ImageView
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
-                        android:src="@drawable/ic_person_black_24dp"/>
+                        android:contentDescription="TODO" android:src="@drawable/ic_person_black_24dp"/>
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -219,7 +219,7 @@
                     <ImageView
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
-                        android:src="@drawable/ic_settings_black_24dp"/>
+                        android:contentDescription="TODO" android:src="@drawable/ic_settings_black_24dp"/>
 
                     <TextView
                         android:layout_width="wrap_content"

@@ -18,13 +18,13 @@
         />-->
 
     <android.support.v7.widget.RecyclerView
-        android:id="@+id/formRecyclerView"
+        android:id="@+id/formPageRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="555dp"
         android:layout_marginTop="8dp"
         android:background="@android:color/darker_gray"
         app:layout_constraintTop_toTopOf="parent" />
-        <!--tools:listitem="@layout/form_reciclerview_item"-->
+    <!--tools:listitem="@layout/form_reciclerview_item"-->
 
     <!--<Button
         android:id="@+id/addButton"

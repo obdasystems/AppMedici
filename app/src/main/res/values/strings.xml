@@ -30,4 +30,10 @@
     <string name="card_form_negative_event">Signal Event</string>
     <string name="card_form_prescriptions">Prescriptions</string>
 
+    <!-- Array holding the ctcae questionnaires to visualize in FormListActivity -->
+    <string-array name="questionnaire_array">
+        <!--<item>Questionnaire 1</item>
+        <item>Questionnaire 2</item>
+        <item>Questionnaire 3</item>-->
+    </string-array>
 </resources>
