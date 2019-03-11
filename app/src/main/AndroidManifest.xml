@@ -19,6 +19,9 @@
             android:name=".activity.FormListActivity"
             android:label="@string/card_form_ctcae_form"></activity> <!-- Main Activity -->
         <activity
+            android:name=".activity.FormPageActivity"
+            android:label="@string/card_form_ctcae_form_page"></activity> <!-- Main Activity -->
+        <activity
             android:name=".activity.MainActivity"
             android:label="@string/app_name">
 

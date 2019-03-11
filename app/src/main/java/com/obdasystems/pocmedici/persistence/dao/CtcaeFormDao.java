@@ -68,8 +68,11 @@ public interface CtcaeFormDao {
     @Query("SELECT * FROM ctcae_form_page WHERE form_id=:formId")
     LiveData<List<CtcaeFormPage>> getPagesByFormId(int formId);
 
+    /*@Query("SELECT * FROM ctcae_form_page WHERE form_id=:formId ORDER BY page_number ASC")
+    LiveData<List<CtcaeFormPage>> getPagesByFormIdSortedByNumber(int formId);*/
+
     @Query("SELECT * FROM ctcae_form_page WHERE form_id=:formId ORDER BY page_number ASC")
-    LiveData<List<CtcaeFormPage>> getPagesByFormIdSortedByNumber(int formId);
+    List<CtcaeFormPage> getPagesByFormIdSortedByNumber(int formId);
 
     @Query("SELECT * FROM ctcae_form_page WHERE form_id=:formId AND page_number=:formPage")
     CtcaeFormPage getPageByFormIdAndPageNumber(int formId, int formPage);

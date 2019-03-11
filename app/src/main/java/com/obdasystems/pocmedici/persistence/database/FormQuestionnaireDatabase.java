@@ -39,10 +39,10 @@ public abstract class FormQuestionnaireDatabase extends RoomDatabase {
         if(INSTANCE == null){
             synchronized (FormQuestionnaireDatabase.class) {
                 if(INSTANCE == null) {
-                    INSTANCE = Room.databaseBuilder(context.getApplicationContext(),FormQuestionnaireDatabase.class,
-                                                    "form_questionnaire_database_2").addCallback(callBack).build();
                     /*INSTANCE = Room.databaseBuilder(context.getApplicationContext(),FormQuestionnaireDatabase.class,
-                            "form_questionnaire_database_2").addMigrations(MIGRATION_1_1).build();*/
+                                                    "form_questionnaire_database_2").addCallback(callBack).build();*/
+                    INSTANCE = Room.databaseBuilder(context.getApplicationContext(),FormQuestionnaireDatabase.class,
+                            "form_questionnaire_database_2").addMigrations(MIGRATION_1_1).build();
                 }
             }
 

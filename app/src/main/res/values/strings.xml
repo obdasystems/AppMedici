@@ -30,6 +30,9 @@
     <string name="card_form_negative_event">Signal Event</string>
     <string name="card_form_prescriptions">Prescriptions</string>
 
+
+    <string name="card_form_ctcae_form_page">Pro-CTCAE Form Page</string>
+
     <!-- Array holding the ctcae questionnaires to visualize in FormListActivity -->
     <string-array name="questionnaire_array">
         <!--<item>Questionnaire 1</item>
