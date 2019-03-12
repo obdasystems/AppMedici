@@ -56,8 +56,9 @@ public class CtcaeFormActivity extends AppCompatActivity implements FormPagesAsy
             String pageExtraBaseName = "page_";
             for (int i = 0; i < displayedFormPages.size(); i++) {
                 int actualPageNumber = i + 1;
-                String currExtraName = pageExtraBaseName + i;
-                intent.putExtra(currExtraName, displayedFormPages.get(i));
+                String currExtraName = pageExtraBaseName + actualPageNumber;
+                CtcaeFormPage currExtraPage = displayedFormPages.get(i);
+                intent.putExtra(currExtraName, currExtraPage);
             }
             Log.i("formActivity","son qui");
             startActivity(intent);

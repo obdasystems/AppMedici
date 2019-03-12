@@ -41,12 +41,17 @@ public class FormQuestionListAdapter extends RecyclerView.Adapter<FormQuestionLi
     @Override
     public void onBindViewHolder(@NonNull FormQuestionListAdapter.FormQuestionViewHolder holder, int position) {
         if(questions!=null) {
+            for(int i=0;i<holder.possAnswRadioGroupView.getChildCount();i++){
+                holder.possAnswRadioGroupView.removeViewAt(i);
+            }
+            holder.possAnswRadioGroupView.removeAllViews();
+
             CtcaeFormQuestion currQuestion = questions.get(position);
             int currQuestionId = currQuestion.getId();
             holder.formQuestionIdView.setText("QuestionId: "+currQuestionId);
             holder.formQuestionTextView.setText(currQuestion.getText());
             RadioGroup.LayoutParams rprms;
-            int id = (position+1)*100;
+            int id = (int) System.currentTimeMillis(); //(position+1)*100;
             for(JoinFormPageQuestionsWithPossibleAnswerData join:questionsWithAnswers) {
                 if(join.getQuestionId()==currQuestionId) {
                     RadioButton rb = new RadioButton(FormQuestionListAdapter.this.ctx);
@@ -111,9 +116,9 @@ public class FormQuestionListAdapter extends RecyclerView.Adapter<FormQuestionLi
         private FormQuestionViewHolder(View itemView) {
             super(itemView);
             formCardView = itemView.findViewById(R.id.formCardView);
-            formQuestionIdView = itemView.findViewById(R.id.formTitleTextView);
-            formQuestionTextView = itemView.findViewById(R.id.formDescriptionTextView);
-            possAnswRadioGroupView = itemView.findViewById(R.id.formImageView);
+            formQuestionIdView = itemView.findViewById(R.id.formQuestionIdTextView);
+            formQuestionTextView = itemView.findViewById(R.id.formQuestionTextView);
+            possAnswRadioGroupView = itemView.findViewById(R.id.answersRadioGroup);
         }
 
     }

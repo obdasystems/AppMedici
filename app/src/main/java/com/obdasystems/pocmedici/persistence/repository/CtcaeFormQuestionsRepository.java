@@ -16,8 +16,8 @@ import java.util.List;
 public class CtcaeFormQuestionsRepository {
 
     private CtcaeFormDao dao;
-    private LiveData<List<JoinFormPageQuestionsWithPossibleAnswerData>> allQuestionsWithAnswers;
-    LiveData<List<CtcaeFormQuestion>> allQuestions;
+    private List<JoinFormPageQuestionsWithPossibleAnswerData> allQuestionsWithAnswers;
+    private List<CtcaeFormQuestion> allQuestions;
 
     public CtcaeFormQuestionsRepository(Application app, int pageId) {
         FormQuestionnaireDatabase db = FormQuestionnaireDatabase.getDatabase(app);
@@ -27,11 +27,11 @@ public class CtcaeFormQuestionsRepository {
         //Log.i("ROOM","CtcaeFormRepository "+allForms.getValue().size());
     }
 
-    public LiveData<List<CtcaeFormQuestion>> getAllQuestions() {
+    public List<CtcaeFormQuestion> getAllQuestions() {
         return allQuestions;
     }
 
-    public LiveData<List<JoinFormPageQuestionsWithPossibleAnswerData>> getAllQuestionsWithAnswers() {
+    public List<JoinFormPageQuestionsWithPossibleAnswerData> getAllQuestionsWithAnswers() {
         return allQuestionsWithAnswers;
     }
 

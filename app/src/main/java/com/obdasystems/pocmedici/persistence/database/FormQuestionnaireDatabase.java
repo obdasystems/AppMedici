@@ -112,7 +112,7 @@ public abstract class FormQuestionnaireDatabase extends RoomDatabase {
             CtcaeFormPage form1Page2 = new CtcaeFormPage(2,form1.getId(),2, "Confronto ad un anno", "Selezioni una risposta per ognuna delle seguenti domande");
             mDao.insertFormPage(form1Page2);
 
-            CtcaeFormQuestion form1Page2Question1 = new CtcaeFormQuestion(2,form1.getId(),form1Page2.getId(),"In generale direbbe che la sua salute è:");
+            CtcaeFormQuestion form1Page2Question1 = new CtcaeFormQuestion(2,form1.getId(),form1Page2.getId(),"Rispetto ad un anno fa, in generale direbbe che la sua salute è:");
             mDao.insertFormQuestion(form1Page2Question1);
             CtcaePossibleAnswer form1Page2Question1Poss1 = new CtcaePossibleAnswer(1211,form1.getId(),form1Page2.getId(),form1Page2Question1.getId(),"Decisamente migliore adesso");
             mDao.insertPossibleAnswer(form1Page2Question1Poss1);
@@ -160,7 +160,7 @@ public abstract class FormQuestionnaireDatabase extends RoomDatabase {
             mDao.insertPossibleAnswer(form1Page3Question3Poss3);
 
             CtcaeFormQuestion form1Page3Question4 = new CtcaeFormQuestion(6,form1.getId(),form1Page3.getId(),"La Sua salute la limita attualmente nel " +
-                    "zsalire qualche piano di scale");
+                    " salire qualche piano di scale");
             mDao.insertFormQuestion(form1Page3Question4);
             CtcaePossibleAnswer form1Page3Question4Poss1 = new CtcaePossibleAnswer(1341,form1.getId(),form1Page3.getId(),form1Page3Question4.getId(),"SI, mi limita parecchio");
             mDao.insertPossibleAnswer(form1Page3Question4Poss1);
@@ -223,7 +223,7 @@ public abstract class FormQuestionnaireDatabase extends RoomDatabase {
             CtcaeFormPage form1Page4 = new CtcaeFormPage(4,form1.getId(),4, "Impatto a medio termine su attività giornaliere", "Risponda SI o NO ad ognuna delle seguenti domande");
             mDao.insertFormPage(form1Page4);
             CtcaeFormQuestion form1Page4Question1 = new CtcaeFormQuestion(12,form1.getId(),form1Page4.getId(),"Nelle ultime 4 settimane ha ridotto" +
-                    "il tempo dedicato al lavoro o ad altre attività");
+                    " il tempo dedicato al lavoro o ad altre attività");
             mDao.insertFormQuestion(form1Page4Question1);
             CtcaePossibleAnswer form1Page4Question1Poss1 = new CtcaePossibleAnswer(1411,form1.getId(),form1Page4.getId(),form1Page4Question1.getId(),"SI");
             mDao.insertPossibleAnswer(form1Page4Question1Poss1);

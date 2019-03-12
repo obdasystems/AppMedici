@@ -15,8 +15,8 @@ import java.util.List;
 public class CtcaeFormPageViewModel extends AndroidViewModel {
 
     private CtcaeFormQuestionsRepository repository;
-    private LiveData<List<CtcaeFormQuestion>> pageQuestions;
-    private LiveData<List<JoinFormPageQuestionsWithPossibleAnswerData>> pageQuestionsWithAnswers;
+    private List<CtcaeFormQuestion> pageQuestions;
+    private List<JoinFormPageQuestionsWithPossibleAnswerData> pageQuestionsWithAnswers;
 
     public CtcaeFormPageViewModel(Application app, int pageId) {
         super(app);
@@ -25,11 +25,11 @@ public class CtcaeFormPageViewModel extends AndroidViewModel {
         pageQuestionsWithAnswers = repository.getAllQuestionsWithAnswers();
     }
 
-    public LiveData<List<CtcaeFormQuestion>> getPageQuestions() {
+    public List<CtcaeFormQuestion> getPageQuestions() {
         return pageQuestions;
     }
 
-    public LiveData<List<JoinFormPageQuestionsWithPossibleAnswerData>> getPageQuestionsWithAnswers() {
+    public List<JoinFormPageQuestionsWithPossibleAnswerData> getPageQuestionsWithAnswers() {
         return pageQuestionsWithAnswers;
     }
 

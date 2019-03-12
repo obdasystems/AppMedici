@@ -94,7 +94,7 @@ public interface CtcaeFormDao {
     LiveData<List<CtcaeFormQuestion>> getQuestionsByFormId(int formId);
 
     @Query("SELECT * FROM ctcae_form_question WHERE page_id=:pageId")
-    LiveData<List<CtcaeFormQuestion>> getQuestionsByPageId(int pageId);
+    List<CtcaeFormQuestion> getQuestionsByPageId(int pageId);
 
     @Query("SELECT * FROM ctcae_form_question WHERE page_id IN (SELECT id FROM ctcae_form_page WHERE form_id=:formId AND page_number=:pageNumber)")
     LiveData<List<CtcaeFormQuestion>> getQuestionsByFormIdAndPageNumber(int formId, int pageNumber);
@@ -276,7 +276,7 @@ public interface CtcaeFormDao {
             "FROM ctcae_form_question quest, ctcae_form_possible_answer answ  " +
             "WHERE quest.page_id=:pageId AND quest.id=answ.question_id " +
             "ORDER BY quest.page_id, answ.id")
-    LiveData<List<JoinFormPageQuestionsWithPossibleAnswerData>> getQuestionsAndPossAnswersByPageId(int pageId);
+    List<JoinFormPageQuestionsWithPossibleAnswerData> getQuestionsAndPossAnswersByPageId(int pageId);
 
     //Questions to be answered to complete a filling process by ID
     @Query("SELECT * FROM ctcae_form_question " +

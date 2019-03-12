@@ -22,9 +22,14 @@
         android:layout_width="match_parent"
         android:layout_height="555dp"
         android:layout_marginTop="8dp"
+        android:layout_marginBottom="136dp"
         android:background="@android:color/darker_gray"
-        app:layout_constraintTop_toTopOf="parent" />
-        <!--tools:listitem="@layout/form_reciclerview_item"-->
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:layout_editor_absoluteX="0dp" />
+
+
+    <!--tools:listitem="@layout/form_reciclerview_item"-->
 
     <!--<Button
         android:id="@+id/addButton"
