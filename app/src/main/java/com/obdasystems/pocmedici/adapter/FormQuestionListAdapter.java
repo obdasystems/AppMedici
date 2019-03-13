@@ -4,20 +4,15 @@ import android.app.Application;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
-import android.support.annotation.NonNull;
-import android.support.v7.widget.CardView;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.obdasystems.pocmedici.R;
-import com.obdasystems.pocmedici.listener.OnFormQuestionRecyclerViewItemClickListener;
 import com.obdasystems.pocmedici.persistence.entities.CtcaeFormQuestion;
 import com.obdasystems.pocmedici.persistence.entities.CtcaeFormQuestionAnswered;
 import com.obdasystems.pocmedici.persistence.entities.JoinFormPageQuestionsWithPossibleAnswerData;
@@ -26,6 +21,10 @@ import com.obdasystems.pocmedici.persistence.repository.CtcaeFillingProcessAnswe
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
+import androidx.recyclerview.widget.RecyclerView;
 
 public class FormQuestionListAdapter extends RecyclerView.Adapter<FormQuestionListAdapter.FormQuestionViewHolder> {
 

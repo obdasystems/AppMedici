@@ -1,16 +1,14 @@
 package com.obdasystems.pocmedici.persistence.viewmodel;
 
 import android.app.Application;
-import android.arch.lifecycle.AndroidViewModel;
-import android.arch.lifecycle.LiveData;
 
-import com.obdasystems.pocmedici.persistence.entities.CtcaeForm;
-import com.obdasystems.pocmedici.persistence.entities.CtcaeFormPage;
 import com.obdasystems.pocmedici.persistence.entities.CtcaeFormQuestion;
 import com.obdasystems.pocmedici.persistence.entities.JoinFormPageQuestionsWithPossibleAnswerData;
 import com.obdasystems.pocmedici.persistence.repository.CtcaeFormQuestionsRepository;
 
 import java.util.List;
+
+import androidx.lifecycle.AndroidViewModel;
 
 public class CtcaeFormPageViewModel extends AndroidViewModel {
 

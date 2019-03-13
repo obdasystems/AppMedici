@@ -3,19 +3,11 @@ package com.obdasystems.pocmedici.activity;
 import android.app.AlertDialog;
 import android.app.Application;
 import android.app.ProgressDialog;
-import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.PersistableBundle;
-import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -37,6 +29,10 @@ import com.obdasystems.pocmedici.persistence.viewmodel.CtcaeFormPageViewModel;
 import java.util.GregorianCalendar;
 import java.util.LinkedList;
 import java.util.List;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 public class FormPageActivity extends AppCompatActivity implements PageQuestionsAsyncResponse {
 

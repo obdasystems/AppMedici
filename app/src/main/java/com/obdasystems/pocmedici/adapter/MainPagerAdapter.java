@@ -1,10 +1,12 @@
 package com.obdasystems.pocmedici.adapter;
 
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentStatePagerAdapter;
+
 
 import com.obdasystems.pocmedici.fragment.HomeFragment;
+
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentStatePagerAdapter;
 
 public class MainPagerAdapter extends FragmentStatePagerAdapter {
     private final int tabCount;

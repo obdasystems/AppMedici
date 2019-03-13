@@ -1,10 +1,10 @@
 package com.obdasystems.pocmedici.persistence.entities;
 
-import android.arch.persistence.room.ColumnInfo;
-import android.arch.persistence.room.Entity;
-import android.arch.persistence.room.ForeignKey;
-import android.arch.persistence.room.Index;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
+import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+import androidx.room.ForeignKey;
+import androidx.room.Index;
 
 @Entity(tableName = "ctcae_form_possible_answer",
         primaryKeys = {"id", "question_id"} ,

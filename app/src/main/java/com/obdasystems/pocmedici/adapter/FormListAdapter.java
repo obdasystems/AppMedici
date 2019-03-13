@@ -1,9 +1,6 @@
 package com.obdasystems.pocmedici.adapter;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.v7.widget.CardView;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +13,10 @@ import com.obdasystems.pocmedici.persistence.entities.CtcaeForm;
 import com.obdasystems.pocmedici.persistence.entities.JoinFormWithMaxPageNumberData;
 
 import java.util.List;
+
+import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
+import androidx.recyclerview.widget.RecyclerView;
 
 public class FormListAdapter extends RecyclerView.Adapter<FormListAdapter.FormViewHolder> {
 

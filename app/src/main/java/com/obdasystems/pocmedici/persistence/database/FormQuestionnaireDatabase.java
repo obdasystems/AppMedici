@@ -1,15 +1,8 @@
 package com.obdasystems.pocmedici.persistence.database;
 
-import android.arch.persistence.db.SupportSQLiteDatabase;
-import android.arch.persistence.room.Database;
-import android.arch.persistence.room.Room;
-import android.arch.persistence.room.RoomDatabase;
-import android.arch.persistence.room.TypeConverters;
-import android.arch.persistence.room.migration.Migration;
+
 import android.content.Context;
 import android.os.AsyncTask;
-import android.support.annotation.NonNull;
-import android.util.Log;
 
 import com.obdasystems.pocmedici.persistence.converter.DateTypeConverter;
 import com.obdasystems.pocmedici.persistence.dao.CtcaeFormDao;
@@ -19,6 +12,14 @@ import com.obdasystems.pocmedici.persistence.entities.CtcaeFormPage;
 import com.obdasystems.pocmedici.persistence.entities.CtcaeFormQuestion;
 import com.obdasystems.pocmedici.persistence.entities.CtcaeFormQuestionAnswered;
 import com.obdasystems.pocmedici.persistence.entities.CtcaePossibleAnswer;
+
+import androidx.annotation.NonNull;
+import androidx.room.Database;
+import androidx.room.Room;
+import androidx.room.RoomDatabase;
+import androidx.room.TypeConverters;
+import androidx.room.migration.Migration;
+import androidx.sqlite.db.SupportSQLiteDatabase;
 
 @Database(entities = {CtcaeForm.class, CtcaeFormFillingProcess.class, CtcaeFormPage.class, CtcaeFormQuestion.class,
                       CtcaeFormQuestionAnswered.class, CtcaePossibleAnswer.class},

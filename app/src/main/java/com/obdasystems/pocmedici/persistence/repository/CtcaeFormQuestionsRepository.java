@@ -1,8 +1,6 @@
 package com.obdasystems.pocmedici.persistence.repository;
 
 import android.app.Application;
-import android.arch.lifecycle.LiveData;
-import android.os.AsyncTask;
 
 import com.obdasystems.pocmedici.persistence.dao.CtcaeFormDao;
 import com.obdasystems.pocmedici.persistence.database.FormQuestionnaireDatabase;

@@ -1,11 +1,12 @@
 package com.obdasystems.pocmedici.persistence.viewmodel.factory;
 
 import android.app.Application;
-import android.arch.lifecycle.ViewModel;
-import android.arch.lifecycle.ViewModelProvider;
-import android.support.annotation.NonNull;
 
 import com.obdasystems.pocmedici.persistence.viewmodel.CtcaeFormPageViewModel;
+
+import androidx.annotation.NonNull;
+import androidx.lifecycle.ViewModel;
+import androidx.lifecycle.ViewModelProvider;
 
 public class FormPageViewModelFactory implements ViewModelProvider.Factory {
 

@@ -1,9 +1,8 @@
 package com.obdasystems.pocmedici.persistence.converter;
 
-import android.arch.persistence.room.TypeConverter;
-
-import java.util.Calendar;
 import java.util.GregorianCalendar;
+
+import androidx.room.TypeConverter;
 
 public class DateTypeConverter {
 

@@ -1,7 +1,6 @@
 package com.obdasystems.pocmedici.persistence.repository;
 
 import android.app.Application;
-import android.arch.lifecycle.LiveData;
 import android.util.Log;
 
 import com.obdasystems.pocmedici.persistence.dao.CtcaeFormDao;

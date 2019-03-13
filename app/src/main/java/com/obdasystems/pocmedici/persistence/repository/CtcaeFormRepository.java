@@ -1,9 +1,6 @@
 package com.obdasystems.pocmedici.persistence.repository;
 
 import android.app.Application;
-import android.arch.lifecycle.LiveData;
-import android.os.AsyncTask;
-import android.util.Log;
 
 import com.obdasystems.pocmedici.persistence.dao.CtcaeFormDao;
 import com.obdasystems.pocmedici.persistence.database.FormQuestionnaireDatabase;
@@ -11,6 +8,8 @@ import com.obdasystems.pocmedici.persistence.entities.CtcaeForm;
 import com.obdasystems.pocmedici.persistence.entities.JoinFormWithMaxPageNumberData;
 
 import java.util.List;
+
+import androidx.lifecycle.LiveData;
 
 public class CtcaeFormRepository {
 

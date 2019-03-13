@@ -2,16 +2,10 @@ package com.obdasystems.pocmedici.activity;
 
 import android.app.Application;
 import android.app.ProgressDialog;
-import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
-import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.ListView;
@@ -19,7 +13,6 @@ import android.widget.ListView;
 import com.obdasystems.pocmedici.R;
 import com.obdasystems.pocmedici.adapter.FormListAdapter;
 import com.obdasystems.pocmedici.asyncresponse.FinalizedFormAsyncResponse;
-import com.obdasystems.pocmedici.asyncresponse.PageQuestionsAsyncResponse;
 import com.obdasystems.pocmedici.listener.OnFormRecyclerViewItemClickListener;
 import com.obdasystems.pocmedici.persistence.entities.CtcaeFormFillingProcess;
 import com.obdasystems.pocmedici.persistence.entities.JoinFormWithMaxPageNumberData;
@@ -30,6 +23,13 @@ import com.obdasystems.pocmedici.persistence.viewmodel.CtcaeFormListViewModel;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.List;
+
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 public class FormListActivity extends AppCompatActivity implements FinalizedFormAsyncResponse {
     private CtcaeFormListViewModel formListViewModel;
