@@ -1,8 +1,12 @@
 package com.obdasystems.pocmedici.activity;
 
+import android.app.Application;
+import android.app.ProgressDialog;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -11,22 +15,23 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import com.obdasystems.pocmedici.R;
 import com.obdasystems.pocmedici.adapter.FormListAdapter;
+import com.obdasystems.pocmedici.asyncresponse.FinalizedFormAsyncResponse;
+import com.obdasystems.pocmedici.asyncresponse.PageQuestionsAsyncResponse;
 import com.obdasystems.pocmedici.listener.OnFormRecyclerViewItemClickListener;
-import com.obdasystems.pocmedici.persistence.entities.CtcaeForm;
+import com.obdasystems.pocmedici.persistence.entities.CtcaeFormFillingProcess;
 import com.obdasystems.pocmedici.persistence.entities.JoinFormWithMaxPageNumberData;
 import com.obdasystems.pocmedici.persistence.repository.CtcaeFormRepository;
+import com.obdasystems.pocmedici.persistence.repository.CtcaeGetFinalizedFillingProcessRepository;
 import com.obdasystems.pocmedici.persistence.viewmodel.CtcaeFormListViewModel;
 
 import java.util.ArrayList;
+import java.util.GregorianCalendar;
 import java.util.List;
 
-public class FormListActivity extends AppCompatActivity {
-
-    private final int CTCAE_FORM_SUBMITTED_CODE = 11111;
+public class FormListActivity extends AppCompatActivity implements FinalizedFormAsyncResponse {
     private CtcaeFormListViewModel formListViewModel;
 
     private ArrayList<String> items;
@@ -41,27 +46,6 @@ public class FormListActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_form_list);
-        /*listView = findViewById(R.id.questionnaire_list);
-
-        items = new ArrayList<>();
-        items.add("Questionnaire 1");
-        items.add("Questionnaire 2");
-        items.add("Questionnaire 3");
-        items.add("Questionnaire 4");
-
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, items);
-        listView.setAdapter(adapter);
-
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Object itemAtPosition = parent.getItemAtPosition(position);
-                Intent intent = new Intent(view.getContext(),CtcaeFormActivity.class);
-                intent.putExtra("clickedItem",itemAtPosition.toString());
-                intent.putExtra("clickedItemPosition",position);
-                startActivityForResult(intent, CTCAE_FORM_SUBMITTED_CODE);
-            }
-        });*/
 
         RecyclerView recyclerView = findViewById(R.id.formRecyclerView);
         final FormListAdapter adapter = new FormListAdapter(this);
@@ -88,10 +72,16 @@ public class FormListActivity extends AppCompatActivity {
                 adapter.notifyDataSetChanged();
             }
         });
+
+        Intent intent = getIntent();
+        if(intent!=null) {
+            if(intent.hasExtra("fillingProcess") && intent.hasExtra("filledForm")) {
+                int fpId = intent.getIntExtra("fillingProcess", -1);
+                int fId = intent.getIntExtra("filledForm", -1);
+            }
+        }
+
     }
-
-
-
 
     /*@Override
     protected void onResume() {
@@ -111,18 +101,80 @@ public class FormListActivity extends AppCompatActivity {
         });
     }*/
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode==CTCAE_FORM_SUBMITTED_CODE){
-            if(resultCode == RESULT_OK) {
-                CtcaeForm submittedForm = data.getParcelableExtra("submittedForm");
 
-                /*String removedItem = items.get(submittedItemPosition);
-                items.remove(submittedItemPosition);
-                ((BaseAdapter)listView.getAdapter()).notifyDataSetChanged();*/
-                Toast.makeText(this,"You have just submitted form with id="+submittedForm.getId(), Toast.LENGTH_SHORT).show();
-            }
+    /*****************************
+     * ASYNC TASKS CALLBACK
+     *****************************/
+
+    @Override
+    public void getFinalizedTaskFinished(CtcaeFormFillingProcess finalized) {
+        int fpId = finalized.getId();
+        int fId = finalized.getFormId();
+        GregorianCalendar start = finalized.getStartDate();
+        String startStr = getCalendarString(start);
+        GregorianCalendar end = finalized.getEndDate();
+        String endStr = getCalendarString(end);
+        int sentToServer = finalized.getSentToServer();
+
+        Log.i("appMedici","["+this.getClass()+"]finalized fillingProcessId="+fpId+" " +
+                "start="+startStr+ " end="+endStr+ " sentToServer="+sentToServer);
+    }
+
+    private String getCalendarString(GregorianCalendar cal) {
+        int year = cal.get(GregorianCalendar.YEAR);
+        int month = cal.get(GregorianCalendar.MONTH);
+        int day = cal.get(GregorianCalendar.DAY_OF_YEAR);
+        int hour = cal.get(GregorianCalendar.HOUR_OF_DAY);
+        int minute = cal.get(GregorianCalendar.MINUTE);
+        String dateStr = year+"/"+month+"/"+day+" "+hour+":"+minute;
+        return dateStr;
+    }
+
+    /*****************************
+     * ASYNC TASKS
+     *****************************/
+
+    //get the finalized filled form (for logging purposes ONLY)
+    private static class GetFinalizedFillingProcessQueryAsyncTask extends AsyncTask<Void, Void, CtcaeFormFillingProcess> {
+        private Context ctx;
+        private ProgressDialog progDial;
+        private int fpId;
+        private CtcaeGetFinalizedFillingProcessRepository repository;
+
+        private Application app;
+        private FinalizedFormAsyncResponse delegate;
+
+        GetFinalizedFillingProcessQueryAsyncTask( int fillingProcId, Context context, Application app, FinalizedFormAsyncResponse delegate) {
+            ctx = context;
+            this.fpId = fillingProcId;
+            progDial = new ProgressDialog(ctx);
+            this.app = app;
+            this.delegate = delegate;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progDial.setMessage("Retrieving just submitted form...");
+            progDial.setIndeterminate(false);
+            progDial.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            progDial.setCancelable(false);
+            progDial.show();
+        }
+
+        @Override
+        protected CtcaeFormFillingProcess doInBackground(Void... voids) {
+            repository = new CtcaeGetFinalizedFillingProcessRepository(app, fpId);
+            CtcaeFormFillingProcess res = repository.getFinalized();
+            return res;
+        }
+
+        @Override
+        protected void onPostExecute(CtcaeFormFillingProcess res) {
+            super.onPostExecute(res);
+            progDial.dismiss();
+            delegate.getFinalizedTaskFinished(res);
         }
     }
+
 }

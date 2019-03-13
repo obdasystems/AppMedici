@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activity.FormListActivity">
+    tools:context=".activity.FormPageActivity">
 
     <!--<ListView
         android:id="@+id/questionnaire_list"
@@ -74,7 +74,8 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/formPageRecyclerView" />
+        app:layout_constraintTop_toBottomOf="@+id/formPageRecyclerView"
+        android:onClick="onClickSubmit"/>
     <!--tools:listitem="@layout/form_reciclerview_item"-->
 
     <!--<Button

@@ -74,6 +74,9 @@ public interface CtcaeFormDao {
     @Query("SELECT * FROM ctcae_form_page WHERE form_id=:formId ORDER BY page_number ASC")
     List<CtcaeFormPage> getPagesByFormIdSortedByNumber(int formId);
 
+    @Query("SELECT * FROM ctcae_form_page WHERE id=:pageId")
+    CtcaeFormPage getPageById(int pageId);
+
     @Query("SELECT * FROM ctcae_form_page WHERE form_id=:formId AND page_number=:formPage")
     CtcaeFormPage getPageByFormIdAndPageNumber(int formId, int formPage);
 
@@ -171,10 +174,13 @@ public interface CtcaeFormDao {
     int updateFillingProcess(int fillProcId, GregorianCalendar endDate);*/
 
     @Query("UPDATE ctcae_form_filling_process SET end_date=:endDate WHERE id=:fillProcId")
-    int updateFillingProcessEndDate(int fillProcId, String endDate);
+    int updateFillingProcessEndDate(int fillProcId, GregorianCalendar endDate);
 
     @Query("UPDATE ctcae_form_filling_process SET sent_to_server=:sent WHERE id=:fillProcId")
     int updateFillingProcessSentToServer(int fillProcId, int sent);
+
+    @Query("SELECT * from ctcae_form_filling_process where id=:fpId")
+    CtcaeFormFillingProcess getFillingProcesseById(int fpId);
 
     @Query("SELECT * from ctcae_form_filling_process")
     LiveData<List<CtcaeFormFillingProcess>> getAllFillingProcesses();
@@ -247,7 +253,7 @@ public interface CtcaeFormDao {
     LiveData<List<CtcaeFormQuestionAnswered>> getAllQuestionAnswered();
 
     @Query("SELECT * FROM ctcae_form_question_answered WHERE proc_id=:procId")
-    LiveData<List<CtcaeFormQuestionAnswered>> getAllQuestionAnsweredByProcessId(int procId);
+    List<CtcaeFormQuestionAnswered> getAllQuestionAnsweredByProcessId(int procId);
 
     @Query("SELECT * FROM ctcae_form_question_answered WHERE form_id=:formId")
     LiveData<List<CtcaeFormQuestionAnswered>> getAllQuestionAnsweredByFormId(int formId);

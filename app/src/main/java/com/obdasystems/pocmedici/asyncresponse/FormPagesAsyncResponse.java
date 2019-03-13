@@ -6,4 +6,6 @@ import java.util.List;
 
 public interface FormPagesAsyncResponse {
     void taskFinished(List<CtcaeFormPage> pages);
+
+    void fillingProcessTaskFinished(int fillingProcessId);
 }

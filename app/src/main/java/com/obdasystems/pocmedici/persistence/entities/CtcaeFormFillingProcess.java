@@ -41,8 +41,8 @@ public class CtcaeFormFillingProcess {
     @ColumnInfo(name = "sent_to_server")
     private int sentToServer;
 
-    public CtcaeFormFillingProcess(int id, GregorianCalendar startDate) {
-        this.id = id;
+    public CtcaeFormFillingProcess(int formId, GregorianCalendar startDate) {
+        this.formId = formId;
         this.startDate = startDate;
         this.sentToServer = 0;
     }

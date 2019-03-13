@@ -4,12 +4,14 @@ import android.arch.persistence.db.SupportSQLiteDatabase;
 import android.arch.persistence.room.Database;
 import android.arch.persistence.room.Room;
 import android.arch.persistence.room.RoomDatabase;
+import android.arch.persistence.room.TypeConverters;
 import android.arch.persistence.room.migration.Migration;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import com.obdasystems.pocmedici.persistence.converter.DateTypeConverter;
 import com.obdasystems.pocmedici.persistence.dao.CtcaeFormDao;
 import com.obdasystems.pocmedici.persistence.entities.CtcaeForm;
 import com.obdasystems.pocmedici.persistence.entities.CtcaeFormFillingProcess;
@@ -21,6 +23,7 @@ import com.obdasystems.pocmedici.persistence.entities.CtcaePossibleAnswer;
 @Database(entities = {CtcaeForm.class, CtcaeFormFillingProcess.class, CtcaeFormPage.class, CtcaeFormQuestion.class,
                       CtcaeFormQuestionAnswered.class, CtcaePossibleAnswer.class},
           version = 1)
+@TypeConverters({DateTypeConverter.class})
 public abstract class FormQuestionnaireDatabase extends RoomDatabase {
 
     public abstract CtcaeFormDao formDao();

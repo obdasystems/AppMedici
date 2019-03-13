@@ -17,6 +17,7 @@ import com.obdasystems.pocmedici.asyncresponse.FormPagesAsyncResponse;
 import com.obdasystems.pocmedici.persistence.entities.CtcaeForm;
 import com.obdasystems.pocmedici.persistence.entities.CtcaeFormPage;
 import com.obdasystems.pocmedici.persistence.entities.JoinFormWithMaxPageNumberData;
+import com.obdasystems.pocmedici.persistence.repository.CtcaeCreateFillingProcessRepository;
 import com.obdasystems.pocmedici.persistence.repository.CtcaePagesByFormIdRepository;
 
 import java.util.List;
@@ -49,8 +50,20 @@ public class CtcaeFormActivity extends AppCompatActivity implements FormPagesAsy
     }
 
     public void onClickFillForm(View v) {
-        Intent intent = new Intent(v.getContext(), FormPageActivity.class);
-        intent.putExtra("submittedForm", displayedForm);
+        FillingProcessAsyncTask task = new FillingProcessAsyncTask(displayedForm.getFormId(), this, this.getApplication(), this);
+        task.execute();
+    }
+
+    @Override
+    public void taskFinished(List<CtcaeFormPage> pages) {
+        displayedFormPages = pages;
+    }
+
+    @Override
+    public void fillingProcessTaskFinished(int fillingProcessId) {
+        Intent intent = new Intent(this, FormPageActivity.class);
+        intent.putExtra("fillingProcessId", fillingProcessId);
+        intent.putExtra("formId", displayedForm.getFormId());
         if(displayedFormPages!=null) {
             intent.putExtra("pageCount", displayedFormPages.size());
             String pageExtraBaseName = "page_";
@@ -65,9 +78,45 @@ public class CtcaeFormActivity extends AppCompatActivity implements FormPagesAsy
         }
     }
 
-    @Override
-    public void taskFinished(List<CtcaeFormPage> pages) {
-        displayedFormPages = pages;
+    private static class FillingProcessAsyncTask extends AsyncTask<Void, Void, Integer> {
+
+        private Context ctx;
+        private ProgressDialog progDial;
+        private int formId;
+        private CtcaeCreateFillingProcessRepository fpRepository;
+        private Application app;
+        private FormPagesAsyncResponse delegate;
+
+        FillingProcessAsyncTask(int formId, Context context, Application app, FormPagesAsyncResponse delegate) {
+            ctx = context;
+            this.formId = formId;
+            progDial = new ProgressDialog(ctx);
+            this.app = app;
+            this.delegate = delegate;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progDial.setMessage("Creating filling process...");
+            progDial.setIndeterminate(false);
+            progDial.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            progDial.setCancelable(false);
+            progDial.show();
+        }
+
+        @Override
+        protected Integer doInBackground(Void... voids) {
+            fpRepository = new CtcaeCreateFillingProcessRepository(app, formId);
+            return fpRepository.getFillingProcessId();
+        }
+
+        @Override
+        protected void onPostExecute(Integer fillingProcessId) {
+            super.onPostExecute(fillingProcessId);
+            progDial.dismiss();
+            delegate.fillingProcessTaskFinished(fillingProcessId);
+        }
     }
 
     private static class QueryAsyncTask extends AsyncTask<Void, Void, List<CtcaeFormPage>> {
