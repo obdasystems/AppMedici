@@ -68,11 +68,13 @@ public class FormQuestionListAdapter extends RecyclerView.Adapter<FormQuestionLi
             holder.questionId = currQuestionId;
 
             RadioGroup.LayoutParams rprms;
-            int rbId = (int) System.currentTimeMillis(); //(position+1)*100;
+            int baseRbId = (int) System.currentTimeMillis(); //(position+1)*100;
+            int counter = 0;
             int checkedRbId = -1;
             for(JoinFormPageQuestionsWithPossibleAnswerData join:questionsWithAnswers) {
                 if(join.getQuestionId()==currQuestionId) {
                     RadioButton rb = new RadioButton(FormQuestionListAdapter.this.ctx);
+                    int rbId = baseRbId + counter++;
                     rb.setId(rbId);
                     rb.setText(join.getPossibleAnswerText());
                     holder.possAnswRadioGroupView.addView(rb);
