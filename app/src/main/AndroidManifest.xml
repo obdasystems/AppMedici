@@ -23,6 +23,8 @@
         <activity android:name=".activity.CustomCalendarActivity"></activity>
         <activity android:name=".activity.CalendarMaterialActivity"
             android:label="Calendar"></activity>
+        <activity android:name=".activity.EventResumeeActivity"
+            android:label="Event reminder"></activity>
 
         <!-- Message activities -->
         <activity android:name=".activity.MessageListActivity"

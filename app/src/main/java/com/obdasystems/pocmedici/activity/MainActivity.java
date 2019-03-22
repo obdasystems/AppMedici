@@ -98,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
             //case R.id.card_user_profile:
             //case R.id.card_settings:
             default:
-                activityClass = FormListActivity.class;
+                activityClass = NewFormListActivity.class;
                 break;
         }
 

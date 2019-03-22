@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -18,6 +19,7 @@ import com.obdasystems.pocmedici.calendar.material.DrawableUtils;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Random;
 
@@ -44,6 +46,18 @@ public class CalendarMaterialActivity extends AppCompatActivity {
         });
 
         List<EventDay> events = new ArrayList<>();
+
+
+        GregorianCalendar gregCal = new GregorianCalendar();
+        gregCal.set(2019,Calendar.MARCH,30);
+        Log.i("appMedici", "gregCal= "+gregCal.toString());
+        events.add(new EventDay(gregCal, DrawableUtils.getCircleDrawableWithText(this, "Visit")));
+
+        Calendar testCal = Calendar.getInstance();
+        testCal.set(2019,Calendar.MARCH,14);
+        Log.i("appMedici", "testCal= "+testCal.toString());
+        EventDay ed = new EventDay(testCal, DrawableUtils.getCircleDrawableWithText(this, "V"));
+        events.add(ed);
 
         Calendar calendar = Calendar.getInstance();
         events.add(new EventDay(calendar, DrawableUtils.getCircleDrawableWithText(this, "M")));
@@ -77,15 +91,122 @@ public class CalendarMaterialActivity extends AppCompatActivity {
 
         calendarView.setEvents(events);
 
-        calendarView.setDisabledDays(getDisabledDays());
+        //calendarView.setDisabledDays(getDisabledDays());
 
-        calendarView.setOnDayClickListener(eventDay ->
-                Toast.makeText(getApplicationContext(),
-                        eventDay.getCalendar().getTime().toString() + " "
-                                + eventDay.isEnabled(),
-                        Toast.LENGTH_SHORT).show());
+        calendarView.setOnDayClickListener(eventDay ->{
+                if(events.contains(eventDay)) {
+                    Toast.makeText(getApplicationContext(),
+                            "there is an event on this date!!",
+                            Toast.LENGTH_SHORT).show();
+                    launchEventIntent(eventDay);
+                }
+                else {
+                    Toast.makeText(getApplicationContext(),
+                            "NO events on this date!!",
+                            Toast.LENGTH_SHORT).show();
+                    Calendar getCalendar = eventDay.getCalendar();
+                    Log.i("appMedici", "getCalendar= "+getCalendar.toString());
+                }
+        });
 
 
+
+    }
+
+    private void launchEventIntent(EventDay eventDay) {
+        Intent eventIntent = new Intent(this, EventResumeeActivity.class);
+        Calendar cal = eventDay.getCalendar();
+        eventIntent.putExtra("eventTitle","TITOLO EVENTO");
+        eventIntent.putExtra("notes","NOTE EVENTO IN UFFICIO 18. PORTARE ANALISI DEL SANGUE");
+
+        int year = cal.get(Calendar.YEAR);
+        eventIntent.putExtra("year",year);
+        int month = cal.get(Calendar.MONTH);
+        eventIntent.putExtra("month",month);
+        String monthName = getMonthString(month);
+        eventIntent.putExtra("monthName",monthName);
+        int day = cal.get(Calendar.DAY_OF_MONTH);
+        eventIntent.putExtra("day",day);
+        int dayOfWeek = cal.get(Calendar.DAY_OF_WEEK);
+        String dayName = getDayString(dayOfWeek);
+        eventIntent.putExtra("dayName",dayName);
+        int hourOfDay = cal.get(Calendar.HOUR_OF_DAY);
+        eventIntent.putExtra("hourOfDay",hourOfDay);
+        int minutes = cal.get(Calendar.MINUTE);
+        eventIntent.putExtra("minutes",minutes);
+
+        startActivity(eventIntent);
+    }
+
+    private String getMonthString(int month) {
+        String res = "";
+        switch (month) {
+            case Calendar.JANUARY:
+                res = "January";
+                break;
+            case Calendar.FEBRUARY:
+                res = "February";
+                break;
+            case Calendar.MARCH:
+                res = "March";
+                break;
+            case Calendar.APRIL:
+                res = "April";
+                break;
+            case Calendar.MAY:
+                res = "May";
+                break;
+            case Calendar.JUNE:
+                res = "June";
+                break;
+            case Calendar.JULY:
+                res = "July";
+                break;
+            case Calendar.AUGUST:
+                res = "August";
+                break;
+            case Calendar.SEPTEMBER:
+                res = "September";
+                break;
+            case Calendar.OCTOBER:
+                res = "October";
+                break;
+            case Calendar.NOVEMBER:
+                res = "November";
+                break;
+            case Calendar.DECEMBER:
+                res = "December";
+                break;
+        }
+        return res;
+    }
+
+    private String getDayString(int day) {
+        String res = "";
+        switch (day) {
+            case Calendar.MONDAY:
+                res = "Monday";
+                break;
+            case Calendar.TUESDAY:
+                res = "Tuesday";
+                break;
+            case Calendar.WEDNESDAY:
+                res = "Wednesday";
+                break;
+            case Calendar.THURSDAY:
+                res = "Thursday";
+                break;
+            case Calendar.FRIDAY:
+                res = "Friday";
+                break;
+            case Calendar.SATURDAY:
+                res = "Saturday";
+                break;
+            case Calendar.SUNDAY:
+                res = "Sunday";
+                break;
+        }
+        return res;
     }
 
     private List<Calendar> getDisabledDays() {
