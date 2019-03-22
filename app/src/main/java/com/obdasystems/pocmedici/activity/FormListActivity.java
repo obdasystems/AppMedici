@@ -12,6 +12,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.ListView;
@@ -42,11 +43,30 @@ public class FormListActivity extends AppCompatActivity implements FinalizedForm
     private int counter = 0;
     private CtcaeFormRepository repository;
 
+    private Context ctx;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ctx = this;
         setContentView(R.layout.activity_form_list);
 
+        Toolbar toolbar = (Toolbar) findViewById(R.id.form_list_toolbar);
+        toolbar.setNavigationIcon(R.drawable.baseline_arrow_back_black_24dp);
+        setSupportActionBar(toolbar);
+
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent mainIntent = new Intent(ctx, MainActivity.class);
+                startActivity(mainIntent);
+            }
+        });
+    }
+
+
+    protected void onResume() {
+        super.onResume();
         RecyclerView recyclerView = findViewById(R.id.formRecyclerView);
         final FormListAdapter adapter = new FormListAdapter(this);
         recyclerView.setAdapter(adapter);
@@ -80,26 +100,13 @@ public class FormListActivity extends AppCompatActivity implements FinalizedForm
                 int fId = intent.getIntExtra("filledForm", -1);
             }
         }
-
     }
 
-    /*@Override
-    protected void onResume() {
-        super.onResume();
-        //Toast.makeText(this, getIntent().getStringExtra("name"), Toast.LENGTH_SHORT).show();
-        RecyclerView recyclerView = findViewById(R.id.formRecyclerView);
-        final FormListAdapter adapter = new FormListAdapter(this);
-        recyclerView.setAdapter(adapter);
-        recyclerView.setLayoutManager(new LinearLayoutManager((this)));
-        formListViewModel = ViewModelProviders.of(this).get(CtcaeFormViewModel.class);
-        formListViewModel.getAllForms().observe(this, new Observer<List<CtcaeForm>>() {
-            @Override
-            public void onChanged(@Nullable List<CtcaeForm> ctcaeForms) {
-                adapter.setForms(ctcaeForms);
-                adapter.notifyDataSetChanged();
-            }
-        });
-    }*/
+    @Override
+    public void onBackPressed() {
+        Intent formlistIntent = new Intent(this, MainActivity.class);
+        startActivity(formlistIntent);
+    }
 
 
     /*****************************

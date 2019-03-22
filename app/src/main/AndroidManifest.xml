@@ -5,6 +5,10 @@
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.READ_PROFILE" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <uses-permission android:name="android.permission.INTERNET"/>
+
+    <uses-permission-sdk-23 android:name="android.permission.CAMERA" />
+    <uses-permission-sdk-23 android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="true"
@@ -13,14 +17,38 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".activity.CtcaeFormActivity"></activity>
-        <!-- CTCAE Form List Activity -->
+
+        <!-- Calendar Activity -->
+        <activity android:name=".activity.CalendarActivity"></activity>
+        <activity android:name=".activity.CustomCalendarActivity"></activity>
+        <activity android:name=".activity.CalendarMaterialActivity"
+            android:label="Calendar"></activity>
+
+        <!-- Message activities -->
+        <activity android:name=".activity.MessageListActivity"
+            android:label="Messages"></activity>
+        <activity android:name=".activity.ReadMessageActivity"
+            android:label=""></activity>
+        <activity android:name=".activity.WriteMessageActivity"
+            android:label=""></activity>
+
+        <!-- CTCAE Form activities -->
         <activity
             android:name=".activity.FormListActivity"
-            android:label="@string/card_form_ctcae_form"></activity> <!-- Main Activity -->
+            android:label="Available forms"></activity>
+        <activity
+            android:name=".activity.NewFormListActivity"
+            android:label="Available forms"></activity>
         <activity
             android:name=".activity.FormPageActivity"
-            android:label="@string/card_form_ctcae_form_page"></activity> <!-- Main Activity -->
+            android:label=""></activity>
+        <activity
+            android:name=".activity.NewFormPageActivity"
+            android:label=""></activity>
+        <activity android:name=".activity.CtcaeFormActivity"
+            android:label=""></activity>
+
+        <!-- Main Activity -->
         <activity
             android:name=".activity.MainActivity"
             android:label="@string/app_name">

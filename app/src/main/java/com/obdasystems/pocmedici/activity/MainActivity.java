@@ -5,6 +5,9 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
@@ -21,6 +24,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.main_toolbar);
+        //toolbar.setNavigationIcon(R.drawable.baseline_arrow_back_black_24dp);
+        setSupportActionBar(toolbar);
     }
 
     @Override
@@ -33,9 +40,33 @@ public class MainActivity extends AppCompatActivity {
             Intent logIntent = new Intent(this,LoginActivity.class);
             startActivityForResult(logIntent, MAIN_LOGIN_CODE);
         }
-
-
     }
+
+    /*****************************
+     * TOOLBAR METHODS
+     *****************************/
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main_menu, menu);
+        return true;
+    }
+
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.form_page_action_profile) {
+            //TODO launch profile intent
+            return true;
+        }
+        if (id == R.id.form_page_action_settings) {
+            //TODO launch SETTINGS intent
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
@@ -50,13 +81,22 @@ public class MainActivity extends AppCompatActivity {
 
         switch (view.getId()) {
             case R.id.card_ctcae_form:
+                //activityClass = FormListActivity.class;
+                activityClass = NewFormListActivity.class;
+                break;
             case R.id.card_sensors:
             case R.id.card_messages:
+                activityClass = MessageListActivity.class;
+                break;
             case R.id.card_calendar:
-            case R.id.card_negative_event:
+                //activityClass = CalendarActivity.class;
+                //activityClass = CustomCalendarActivity.class;
+                activityClass = CalendarMaterialActivity.class;
+                break;
+            //case R.id.card_negative_event:
             case R.id.card_prescriptions:
-            case R.id.card_user_profile:
-            case R.id.card_settings:
+            //case R.id.card_user_profile:
+            //case R.id.card_settings:
             default:
                 activityClass = FormListActivity.class;
                 break;

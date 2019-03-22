@@ -4,7 +4,7 @@ android {
     compileSdkVersion 28
     defaultConfig {
         applicationId "com.obdasystems.pocmedici"
-        minSdkVersion 15
+        minSdkVersion 16
         targetSdkVersion 28
         versionCode 1
         versionName "1.0"
@@ -20,6 +20,13 @@ android {
         sourceCompatibility = '1.8'
         targetCompatibility = '1.8'
     }
+}
+
+ext {
+    picassoVersion = '2.5.2'
+    circleImageViewVersion = '2.2.0'
+    shapeImageViewVersion = '0.9.3'
+    circleindicatorVersion = '1.2.2@aar'
 }
 
 dependencies {
@@ -41,4 +48,33 @@ dependencies {
     // Lifecycle components
     implementation "android.arch.lifecycle:extensions:$rootProject.archLifecycleVersion"
     annotationProcessor "android.arch.lifecycle:compiler:$rootProject.archLifecycleVersion"
+
+    //Picasso
+    implementation "com.squareup.picasso:picasso:$picassoVersion"
+
+    //ImageViews
+    implementation "de.hdodenhof:circleimageview:$circleImageViewVersion"
+    implementation "com.github.siyamed:android-shape-imageview:$shapeImageViewVersion"
+
+    //Utils
+    implementation "me.relex:circleindicator:$circleindicatorVersion"
+
+    // retrofit, gson
+    implementation 'com.google.code.gson:gson:2.6.2'
+    implementation 'com.squareup.retrofit2:retrofit:2.0.2'
+    implementation 'com.squareup.retrofit2:converter-gson:2.0.2'
+
+    // glide
+    implementation 'com.github.bumptech.glide:glide:3.7.0'
+
+
+    //chatkit (NOT USED)
+    implementation 'com.github.stfalcon:chatkit:0.3.3'
+
+    //Calendar
+    implementation 'sun.bob:mcalendarview:1.0.0'
+
+    //Material calendar
+    implementation 'com.applandeo:material-calendar-view:1.5.1'
+
 }

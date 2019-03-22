@@ -33,10 +33,37 @@
 
     <string name="card_form_ctcae_form_page">Pro-CTCAE Form Page</string>
 
-    <!-- Array holding the ctcae questionnaires to visualize in FormListActivity -->
-    <string-array name="questionnaire_array">
-        <!--<item>Questionnaire 1</item>
-        <item>Questionnaire 2</item>
-        <item>Questionnaire 3</item>-->
+    <string name="action_back">Back</string>
+    <string name="action_next_page">Next page</string>
+    <string name="action_submit_form">Submit form</string>
+    <string name="action_fill_form">Fill form</string>
+
+    <!-- GMail-like inbox-->
+    <string name="action_settings">Settings</string>
+    <string name="action_search">Search</string>
+    <string name="action_delete">Delete</string>
+    <string name="action_attach_picture">Attach picture</string>
+    <string name="action_attach_file">Attach file</string>
+    <string name="action_take_picture">Take picture</string>
+    <string name="action_attachment_options">Options</string>
+    <string name="action_send">Send</string>
+
+
+    <!-- ChatKit -->
+    <string name="hint_enter_a_message">Type a message…</string>
+    <string name="on_log_click_message">Your custom long click handler</string>
+    <!--<string name="action_delete">Delete</string>-->
+    <string name="action_copy">Copy</string>
+    <string name="copied_message">Message copied!</string>
+
+    <string name="date_header_today">Today</string>
+    <string name="date_header_yesterday">Yesterday</string>
+
+    <string-array name="view_types_dialog">
+        <item name="image">Image (default)</item>
+        <item name="voice">Voice message (custom)</item>
     </string-array>
+
+    <string name="start_typing_status">Start typing</string>
+    <string name="stop_typing_status">Stop typing</string>
 </resources>

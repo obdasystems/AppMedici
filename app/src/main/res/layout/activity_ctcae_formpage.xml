@@ -1,49 +1,43 @@
-<?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activity.FormPageActivity">
+    android:orientation="vertical"
+    tools:mContext="com.obdasystems.pocmedici.activity.FormPageActivity">
 
-    <!--<ListView
-        android:id="@+id/questionnaire_list"
-        android:entries="@array/questionnaire_array"
+    <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        />-->
+        android:layout_height="wrap_content"
+        android:theme="@style/AppTheme.AppBarOverlay">
 
-    <TextView
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/form_page_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
+            app:popupTheme="@style/AppTheme.PopupOverlay" />
+
+    </android.support.design.widget.AppBarLayout>
+
+    <!--<TextView
         android:id="@+id/PageDescriptionTextView"
-        android:layout_width="379dp"
+        android:layout_width="match_parent"
         android:layout_height="70dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginBottom="8dp"
-        android:text=""
-        app:layout_constraintBottom_toTopOf="@+id/formPageRecyclerView"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+
+        android:layout_marginTop="?attr/actionBarSize"
+        android:text=""/>-->
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/formPageRecyclerView"
         android:layout_width="match_parent"
-        android:layout_height="489dp"
-        app:layout_constraintTop_toBottomOf="@id/PageDescriptionTextView"
-        android:background="@android:color/darker_gray"
-        tools:layout_editor_absoluteX="0dp"
-        tools:layout_editor_absoluteY="123dp"
+        android:layout_height="match_parent"
+        android:background="?attr/colorPrimary"
+        android:layout_gravity="bottom"
         />
 
-    <Button
+    <!--<Button
         android:id="@+id/nextPageButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -75,22 +69,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/formPageRecyclerView"
-        android:onClick="onClickSubmit"/>
-    <!--tools:listitem="@layout/form_reciclerview_item"-->
+        android:onClick="onClickSubmit"/>-->
 
-    <!--<Button
-        android:id="@+id/addButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Button"
-        android:onClick="onClickAdd"
-        app:layout_constraintTop_toBottomOf="@id/formRecyclerView"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        tools:layout_editor_absoluteX="161dp"
-        tools:layout_editor_absoluteY="623dp"
-        />-->
-
-
-</android.support.constraint.ConstraintLayout>
+</LinearLayout>

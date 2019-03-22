@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:mContext="com.obdasystems.pocmedici.activity.WriteMessageActivity">
+
+    <android.support.design.widget.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/AppTheme.AppBarOverlay">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/write_message_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
+            app:popupTheme="@style/AppTheme.PopupOverlay" />
+
+    </android.support.design.widget.AppBarLayout>
+
+    <!--<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_marginTop="40dp"
+        android:gravity="start"
+        android:orientation="vertical">
+
+
+        <EditText
+            android:id="@+id/write_message_edit_subject"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start|top"
+            android:ems="10"
+            android:gravity="start|top"
+            android:inputType="textPersonName"
+            android:text="Subject of message" />
+
+        <TextView
+            android:id="@+id/write_message_body_label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start|top"
+            android:gravity="start|top"
+            android:text="Message body" />
+
+        <TextView
+            android:id="@+id/write_message_subject_label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start|top"
+            android:gravity="start|top"
+            android:text="Subject" />
+
+        <EditText
+            android:id="@+id/write_message_edit_body"
+            android:layout_width="match_parent"
+            android:layout_height="564dp"
+            android:layout_gravity="start|top"
+            android:ems="10"
+            android:gravity="start|top"
+            android:inputType="textMultiLine"
+            android:text="Body of message" />
+
+    </LinearLayout>-->
+
+
+    <include
+        layout="@layout/content_message_write"
+         />
+
+</android.support.design.widget.CoordinatorLayout>

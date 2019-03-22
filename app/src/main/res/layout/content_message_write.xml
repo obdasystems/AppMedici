@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:gravity="start"
+    android:orientation="vertical"
+    android:layout_marginTop="?attr/actionBarSize"
+    android:layout_marginBottom="10dp"
+    android:layout_marginStart="5dp"
+    android:layout_marginEnd="5dp"
+    android:scrollbars="vertical">
+
+    <TextView
+        android:id="@+id/write_message_subject_label"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="start|top"
+        android:layout_marginTop="5dp"
+        android:layout_marginStart="5dp"
+        android:layout_marginEnd="5dp"
+        android:gravity="start|top"
+        android:text="Subject" />
+
+    <EditText
+        android:id="@+id/write_message_edit_subject"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="start|top"
+        android:gravity="start|top"
+        android:layout_marginTop="5dp"
+        android:layout_marginStart="5dp"
+        android:layout_marginEnd="5dp"
+        android:ems="10"
+        android:inputType="textPersonName"
+        android:text="Subject of message" />
+
+    <TextView
+        android:id="@+id/write_message_body_label"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="start|top"
+        android:gravity="start|top"
+        android:layout_marginTop="10dp"
+        android:layout_marginStart="5dp"
+        android:layout_marginEnd="5dp"
+        android:text="Message body" />
+
+    <EditText
+        android:id="@+id/write_message_edit_body"
+        android:layout_width="match_parent"
+        android:layout_gravity="start|top"
+        android:ems="10"
+        android:gravity="start|top"
+        android:layout_marginTop="5dp"
+        android:layout_marginStart="5dp"
+        android:layout_marginEnd="5dp"
+        android:layout_height="150dp"
+        android:inputType="textMultiLine"
+        android:text="Body of message" />
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/write_message_attachment_recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:scrollbars="vertical" />
+
+
+</LinearLayout>

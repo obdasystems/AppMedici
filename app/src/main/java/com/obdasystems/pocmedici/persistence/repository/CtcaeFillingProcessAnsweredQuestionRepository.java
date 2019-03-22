@@ -24,6 +24,8 @@ public class CtcaeFillingProcessAnsweredQuestionRepository {
         Log.i("appMedici","["+this.getClass()+"]get answered questions for fillingProcessId="+fillingProcessId+" " +
                 "for formId="+formId);
         answeredQuestions = dao.getAllQuestionAnsweredByProcessId(fillingProcessId);
+        Log.i("appMedici","["+this.getClass()+"]found "+answeredQuestions.size()+" " +
+                " answered questions");
     }
 
     public void insertAnsweredQuestion(int pageId, int questionId, int answerId) {

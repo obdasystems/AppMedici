@@ -61,7 +61,7 @@ public class CtcaeForm implements Parcelable {
     }
 
 
-    //Parcelable mathods
+    //Parcelable methods
 
     public CtcaeForm(Parcel inParcel) {
         this.id = inParcel.readInt();

@@ -8,7 +8,10 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
@@ -26,12 +29,24 @@ public class CtcaeFormActivity extends AppCompatActivity implements FormPagesAsy
 
     JoinFormWithMaxPageNumberData displayedForm;
     List<CtcaeFormPage> displayedFormPages;
-
+    private Context ctx;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ctcae_form);
+        ctx = this;
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.form_toolbar);
+        toolbar.setNavigationIcon(R.drawable.baseline_arrow_back_black_24dp);
+        setSupportActionBar(toolbar);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent mainIntent = new Intent(ctx, NewFormListActivity.class);
+                startActivity(mainIntent);
+            }
+        });
 
         Intent intent = getIntent();
         displayedForm = intent.getParcelableExtra("clickedForm");
@@ -49,6 +64,40 @@ public class CtcaeFormActivity extends AppCompatActivity implements FormPagesAsy
         task.execute();
     }
 
+    @Override
+    public void onBackPressed() {
+        Intent mainIntent = new Intent(this, NewFormListActivity.class);
+        startActivity(mainIntent);
+    }
+
+
+
+    /*****************************
+     * TOOLBAR METHODS
+     *****************************/
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.form_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.form_fill_form) {
+            FillingProcessAsyncTask task = new FillingProcessAsyncTask(displayedForm.getFormId(), this, this.getApplication(), this);
+            task.execute();
+            return true;
+        }
+        if (id == R.id.form_fill_form_image) {
+            FillingProcessAsyncTask task = new FillingProcessAsyncTask(displayedForm.getFormId(), this, this.getApplication(), this);
+            task.execute();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
     public void onClickFillForm(View v) {
         FillingProcessAsyncTask task = new FillingProcessAsyncTask(displayedForm.getFormId(), this, this.getApplication(), this);
         task.execute();
@@ -61,7 +110,8 @@ public class CtcaeFormActivity extends AppCompatActivity implements FormPagesAsy
 
     @Override
     public void fillingProcessTaskFinished(int fillingProcessId) {
-        Intent intent = new Intent(this, FormPageActivity.class);
+        //Intent intent = new Intent(this, FormPageActivity.class);
+        Intent intent = new Intent(this, NewFormPageActivity.class);
         intent.putExtra("fillingProcessId", fillingProcessId);
         intent.putExtra("formId", displayedForm.getFormId());
         if(displayedFormPages!=null) {
@@ -73,7 +123,6 @@ public class CtcaeFormActivity extends AppCompatActivity implements FormPagesAsy
                 CtcaeFormPage currExtraPage = displayedFormPages.get(i);
                 intent.putExtra(currExtraName, currExtraPage);
             }
-            Log.i("formActivity","son qui");
             startActivity(intent);
         }
     }

@@ -1,0 +1,13 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:mContext="com.obdasystems.pocmedici.activity.FormPageActivity">
+
+    <item
+        android:id="@+id/form_page_action_submit"
+        android:icon="@drawable/baseline_check_black_24dp"
+        android:orderInCategory="100"
+        android:title="@string/action_submit_form"
+        app:showAsAction="always" />
+
+</menu>

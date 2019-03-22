@@ -7,6 +7,7 @@ import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -71,6 +72,9 @@ public class FormQuestionListAdapter extends RecyclerView.Adapter<FormQuestionLi
             int baseRbId = (int) System.currentTimeMillis(); //(position+1)*100;
             int counter = 0;
             int checkedRbId = -1;
+            boolean foundChecked = false;
+            Log.i("appMedici","["+this.getClass()+"]found "+answeredQuestions.size()+" " +
+                    " answered questions");
             for(JoinFormPageQuestionsWithPossibleAnswerData join:questionsWithAnswers) {
                 if(join.getQuestionId()==currQuestionId) {
                     RadioButton rb = new RadioButton(FormQuestionListAdapter.this.ctx);
@@ -82,6 +86,7 @@ public class FormQuestionListAdapter extends RecyclerView.Adapter<FormQuestionLi
                     for(CtcaeFormQuestionAnswered answered:answeredQuestions) {
                         if(answered.getQuestionId()==join.getQuestionId() && answered.getAnswerId()==join.getPossibleAnswerId()) {
                             checkedRbId = rbId;
+                            foundChecked = true;
                             holder.previouslyCheckedRbId = rbId;
                             //rb.setChecked(true);
                             break;
@@ -89,7 +94,7 @@ public class FormQuestionListAdapter extends RecyclerView.Adapter<FormQuestionLi
                     }
                 }
             }
-            if(checkedRbId>=0) {
+            if(foundChecked) {
                 holder.possAnswRadioGroupView.check(checkedRbId);
             }
         }
@@ -123,7 +128,6 @@ public class FormQuestionListAdapter extends RecyclerView.Adapter<FormQuestionLi
 
     //TODO MODIFICA
     class FormQuestionViewHolder extends RecyclerView.ViewHolder {
-        //private final TextView formTitleItemView;
         private final CardView formCardView;
         private final TextView formQuestionIdView;
         private final TextView formQuestionTextView;

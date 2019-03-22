@@ -1,0 +1,13 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:mContext="com.obdasystems.pocmedici.activity.FormPageActivity">
+
+    <item
+        android:id="@+id/form_page_action_forward"
+        android:icon="@drawable/baseline_arrow_forward_black_24dp"
+        android:orderInCategory="100"
+        android:title="@string/action_next_page"
+        app:showAsAction="always" />
+
+</menu>

@@ -3,23 +3,19 @@ package com.obdasystems.pocmedici.activity;
 import android.app.AlertDialog;
 import android.app.Application;
 import android.app.ProgressDialog;
-import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.PersistableBundle;
-import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
-import android.widget.TextView;
 
 import com.obdasystems.pocmedici.R;
 import com.obdasystems.pocmedici.adapter.FormQuestionListAdapter;
@@ -32,7 +28,6 @@ import com.obdasystems.pocmedici.persistence.repository.CtcaeFillingProcessAnswe
 import com.obdasystems.pocmedici.persistence.repository.CtcaeFinalizeFillingProcessRepository;
 import com.obdasystems.pocmedici.persistence.repository.CtcaeFormQuestionsRepository;
 import com.obdasystems.pocmedici.persistence.repository.CtcaeIncompleteFillingProcessRepository;
-import com.obdasystems.pocmedici.persistence.viewmodel.CtcaeFormPageViewModel;
 
 import java.util.GregorianCalendar;
 import java.util.LinkedList;
@@ -43,20 +38,24 @@ public class FormPageActivity extends AppCompatActivity implements PageQuestions
     private int currentPageIndex = 1;
     private int totalPagecount = 0;
     private List<CtcaeFormPage> formPages;
-    private CtcaeFormPageViewModel viewModel;
-    private Button nextPageButton;
-    private Button submitFormButton;
     private RecyclerView recyclerView;
     private FormQuestionListAdapter adapter;
     private CtcaeFormPage currPage;
     private int fillingProcessId;
     private int formId;
 
+    private Toolbar toolbar;
+
+    private Context ctx;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ctcae_formpage);
         formPages = new LinkedList<>();
+        ctx = this;
+
+        setToolbarTitle();
 
         Intent intent = getIntent();
         fillingProcessId = intent.getIntExtra("fillingProcessId",-1);
@@ -69,8 +68,34 @@ public class FormPageActivity extends AppCompatActivity implements PageQuestions
             formPages.add(page);
         }
 
-        nextPageButton = findViewById(R.id.nextPageButton);
-        submitFormButton = findViewById(R.id.submitFormButton);
+        toolbar = (android.support.v7.widget.Toolbar) findViewById(R.id.form_page_toolbar);
+        toolbar.setNavigationIcon(R.drawable.baseline_arrow_back_black_24dp);
+        setSupportActionBar(toolbar);
+
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                goToPreviousPage();
+            }
+        });
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        Intent intent = getIntent();
+        fillingProcessId = intent.getIntExtra("fillingProcessId",-1);
+        formId = intent.getIntExtra("formId",-1);
+        totalPagecount = intent.getIntExtra("pageCount", 0);
+        for(int i=0;i<totalPagecount;i++) {
+            int actualPageNumber = i+1;
+            String extraName = "page_"+actualPageNumber;
+            CtcaeFormPage page = intent.getParcelableExtra(extraName);
+            formPages.add(page);
+        }
+
 
         recyclerView = findViewById(R.id.formPageRecyclerView);
         adapter = new FormQuestionListAdapter(this.getApplication(),this, fillingProcessId, formId);
@@ -78,23 +103,25 @@ public class FormPageActivity extends AppCompatActivity implements PageQuestions
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         if(totalPagecount>0) {
-            currentPageIndex = 1;
+            Log.i("appMedici","["+this.getClass()+"] onResume() currentPageIndex="+currentPageIndex);
+            if(currentPageIndex<=0) {
+                currentPageIndex = 1;
+            }
 
-            if(currentPageIndex<totalPagecount) {
-                submitFormButton.setVisibility(View.INVISIBLE);
-                nextPageButton.setVisibility(View.VISIBLE);
+            /*if(currentPageIndex<totalPagecount) {
+                getMenuInflater().inflate(R.menu.message_write_menu, menu);
             }
             else {
                 nextPageButton.setVisibility(View.INVISIBLE);
                 submitFormButton.setVisibility(View.VISIBLE);
-            }
+            }*/
 
             currPage = formPages.get(currentPageIndex-1);
 
             String pageDescr = currPage.getPageTitle() + "\nPage nr:" +currPage.getPageNumber() +"\n" +currPage.getPageInstructions();
 
-            TextView pageDescrTextView = findViewById(R.id.PageDescriptionTextView);
-            pageDescrTextView.setText(pageDescr);
+            /*TextView pageDescrTextView = findViewById(R.id.PageDescriptionTextView);
+            pageDescrTextView.setText(pageDescr);*/
 
             GetQuestionsQueryAsyncTask task = new GetQuestionsQueryAsyncTask(currPage.getId(), fillingProcessId, formId,this,this.getApplication(),this);
             task.execute();
@@ -103,39 +130,133 @@ public class FormPageActivity extends AppCompatActivity implements PageQuestions
         else {
             //view model vuoto
         }
+
     }
 
     @Override
     public void onBackPressed() {
-        //super.onBackPressed();
+        goToPreviousPage();
+    }
+
+    /*****************************
+     * TOOLBAR METHODS
+     *****************************/
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        if(currentPageIndex!=totalPagecount) {
+            getMenuInflater().inflate(R.menu.form_page_menu, menu);
+        }
+        else {
+            getMenuInflater().inflate(R.menu.form_page_last_menu, menu);
+        }
+        return true;
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        menu.clear();
+
+        if(currentPageIndex!=totalPagecount) {
+            getMenuInflater().inflate(R.menu.form_page_menu, menu);
+        }
+        else {
+            getMenuInflater().inflate(R.menu.form_page_last_menu, menu);
+        }
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.form_page_action_forward) {
+            goToNextPage();
+            return true;
+        }
+        if (id == R.id.form_page_action_submit) {
+            submitForm();
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void setToolbarTitle() {
+        FormPageActivity.this.setTitle("Page nr "+currentPageIndex);
+    }
+
+    private void goToNextPage() {
+        currentPageIndex++;
+
+        /*if(currentPageIndex<totalPagecount) {
+            submitFormButton.setVisibility(View.INVISIBLE);
+            nextPageButton.setVisibility(View.VISIBLE);
+        }
+        else {
+            nextPageButton.setVisibility(View.INVISIBLE);
+            submitFormButton.setVisibility(View.VISIBLE);
+        }*/
+
+        currPage = formPages.get(currentPageIndex-1);
+
+        String pageDescr = currPage.getPageTitle() + "\nPage nr:" +currPage.getPageNumber() +"\n" +currPage.getPageInstructions();
+
+        /*TextView pageDescrTextView = findViewById(R.id.PageDescriptionTextView);
+        pageDescrTextView.setText(pageDescr);
+
+        int currId = getCurrentPageId();*/
+
+        invalidateOptionsMenu();
+        setToolbarTitle();
+
+        GetQuestionsQueryAsyncTask task = new GetQuestionsQueryAsyncTask(currPage.getId(), fillingProcessId, formId,this,this.getApplication(),this);
+        task.execute();
+    }
+
+    private void goToPreviousPage() {
         if(currentPageIndex == 1) {
-            Intent formlistIntent = new Intent(this, FormListActivity.class);
+            Intent formlistIntent = new Intent(this, NewFormListActivity.class);
             startActivity(formlistIntent);
         }
         else {
             currentPageIndex--;
-            if(currentPageIndex<totalPagecount) {
+            /*if(currentPageIndex<totalPagecount) {
                 submitFormButton.setVisibility(View.INVISIBLE);
                 nextPageButton.setVisibility(View.VISIBLE);
             }
             else {
                 nextPageButton.setVisibility(View.INVISIBLE);
                 submitFormButton.setVisibility(View.VISIBLE);
-            }
+            }*/
 
             currPage = formPages.get(currentPageIndex-1);
 
             String pageDescr = currPage.getPageTitle() + "\nPage nr:" +currPage.getPageNumber() +"\n" +currPage.getPageInstructions();
 
-            TextView pageDescrTextView = findViewById(R.id.PageDescriptionTextView);
+            /*TextView pageDescrTextView = findViewById(R.id.PageDescriptionTextView);
             pageDescrTextView.setText(pageDescr);
 
-            int currId = getCurrentPageId();
+            int currId = getCurrentPageId();*/
+
+            invalidateOptionsMenu();
+            setToolbarTitle();
 
             GetQuestionsQueryAsyncTask task = new GetQuestionsQueryAsyncTask(currPage.getId(), fillingProcessId, formId,this,this.getApplication(),this);
             task.execute();
         }
     }
+
+
+
+    private void submitForm() {
+        GetUnansweredQuestionsQueryAsyncTask task = new GetUnansweredQuestionsQueryAsyncTask(fillingProcessId, formId,this,this.getApplication(),this);
+        task.execute();
+    }
+
+
 
     private int getCurrentPageId() {
         return formPages.get(currentPageIndex-1).getId();
@@ -195,7 +316,7 @@ public class FormPageActivity extends AppCompatActivity implements PageQuestions
         Log.i("appMedici","["+this.getClass()+"]finalized fillingProcessId="+fillingProcessId+" " +
                 "update return value="+result);
         if(result>0){
-            Intent formlistIntent = new Intent(this, FormListActivity.class);
+            Intent formlistIntent = new Intent(this, NewFormListActivity.class);
             formlistIntent.putExtra("filledForm", formId);
             formlistIntent.putExtra("fillingProcess", fillingProcessId);
             startActivity(formlistIntent);
@@ -215,42 +336,6 @@ public class FormPageActivity extends AppCompatActivity implements PageQuestions
             dialog.show();
         }
     }
-
-
-    /*****************************
-     * BUTTONS CALLBACK
-     *****************************/
-
-    public void onClickSubmit(View view) {
-        GetUnansweredQuestionsQueryAsyncTask task = new GetUnansweredQuestionsQueryAsyncTask(fillingProcessId, formId,this,this.getApplication(),this);
-        task.execute();
-    }
-
-    public void onClickNextPage(View view) {
-        currentPageIndex++;
-
-        if(currentPageIndex<totalPagecount) {
-            submitFormButton.setVisibility(View.INVISIBLE);
-            nextPageButton.setVisibility(View.VISIBLE);
-        }
-        else {
-            nextPageButton.setVisibility(View.INVISIBLE);
-            submitFormButton.setVisibility(View.VISIBLE);
-        }
-
-        currPage = formPages.get(currentPageIndex-1);
-
-        String pageDescr = currPage.getPageTitle() + "\nPage nr:" +currPage.getPageNumber() +"\n" +currPage.getPageInstructions();
-
-        TextView pageDescrTextView = findViewById(R.id.PageDescriptionTextView);
-        pageDescrTextView.setText(pageDescr);
-
-        int currId = getCurrentPageId();
-
-        GetQuestionsQueryAsyncTask task = new GetQuestionsQueryAsyncTask(currPage.getId(), fillingProcessId, formId,this,this.getApplication(),this);
-        task.execute();
-    }
-
 
     /*****************************
      * ASYNC TASKS
