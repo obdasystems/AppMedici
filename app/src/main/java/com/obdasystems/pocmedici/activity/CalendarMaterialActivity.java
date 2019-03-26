@@ -40,8 +40,7 @@ public class CalendarMaterialActivity extends AppCompatActivity {
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent mainIntent = new Intent(ctx, MainActivity.class);
-                startActivity(mainIntent);
+                backToMain();
             }
         });
 
@@ -111,6 +110,11 @@ public class CalendarMaterialActivity extends AppCompatActivity {
 
 
 
+    }
+
+    @Override
+    public void onBackPressed() {
+        backToMain();
     }
 
     private void launchEventIntent(EventDay eventDay) {
@@ -233,6 +237,11 @@ public class CalendarMaterialActivity extends AppCompatActivity {
         calendar.add(Calendar.MONTH, random.nextInt(99));
 
         return calendar;
+    }
+
+    private void backToMain() {
+        Intent mainIntent = new Intent(ctx, MainActivity.class);
+        startActivity(mainIntent);
     }
 }
 

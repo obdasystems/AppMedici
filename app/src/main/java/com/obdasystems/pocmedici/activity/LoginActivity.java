@@ -347,7 +347,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 sp.edit().putBoolean("logged",true).apply();
 
                 Intent intent = new Intent();
-                ((MainActivity)context).setResult(RESULT_OK, intent);
+                ((LoginActivity)context).setResult(RESULT_OK, intent);
                 //startActivity(intent);
                 finish();
             } else {

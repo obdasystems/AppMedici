@@ -16,6 +16,7 @@ import com.obdasystems.pocmedici.persistence.entities.CtcaePossibleAnswer;
 import com.obdasystems.pocmedici.persistence.entities.JoinFormPageQuestionsWithPossibleAnswerData;
 import com.obdasystems.pocmedici.persistence.entities.JoinFormToPossibleAnswerData;
 import com.obdasystems.pocmedici.persistence.entities.JoinFormWithMaxPageNumberData;
+import com.obdasystems.pocmedici.persistence.entities.StepCounter;
 
 import java.util.GregorianCalendar;
 import java.util.List;
@@ -26,6 +27,14 @@ public interface CtcaeFormDao {
     /*
      *      STRUCTURAL FORMS (INTENSIONS)
      */
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    void insertStepCounter(StepCounter counter);
+
+    @Query("SELECT * FROM step_counter")
+    LiveData<List<StepCounter>> getAllStepCounters();
+
+    @Query("SELECT * FROM step_counter WHERE year=:year AND month=:month AND day=:day")
+    StepCounter getStepCounter(int year, int month, int day);
 
     //FORMS
     @Insert(onConflict = OnConflictStrategy.IGNORE)

@@ -25,6 +25,13 @@ public class ReadMessageActivity extends AppCompatActivity {
         toolbar.setNavigationIcon(R.drawable.baseline_arrow_back_black_24dp);
         setSupportActionBar(toolbar);
 
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                goToMessageList();
+            }
+        });
+
         Intent intent = getIntent();
         Message msg = intent.getParcelableExtra("message");
 
@@ -84,9 +91,13 @@ public class ReadMessageActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public void onBackPressed() {
+    private void goToMessageList() {
         Intent messageListIntent = new Intent(this, MessageListActivity.class);
         startActivity(messageListIntent);
+    }
+
+    @Override
+    public void onBackPressed() {
+        goToMessageList();
     }
 }

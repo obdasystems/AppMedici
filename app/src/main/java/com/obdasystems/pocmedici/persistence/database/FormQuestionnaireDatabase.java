@@ -19,9 +19,10 @@ import com.obdasystems.pocmedici.persistence.entities.CtcaeFormPage;
 import com.obdasystems.pocmedici.persistence.entities.CtcaeFormQuestion;
 import com.obdasystems.pocmedici.persistence.entities.CtcaeFormQuestionAnswered;
 import com.obdasystems.pocmedici.persistence.entities.CtcaePossibleAnswer;
+import com.obdasystems.pocmedici.persistence.entities.StepCounter;
 
 @Database(entities = {CtcaeForm.class, CtcaeFormFillingProcess.class, CtcaeFormPage.class, CtcaeFormQuestion.class,
-                      CtcaeFormQuestionAnswered.class, CtcaePossibleAnswer.class},
+                      CtcaeFormQuestionAnswered.class, CtcaePossibleAnswer.class, StepCounter.class},
           version = 1)
 @TypeConverters({DateTypeConverter.class})
 public abstract class FormQuestionnaireDatabase extends RoomDatabase {
@@ -42,10 +43,10 @@ public abstract class FormQuestionnaireDatabase extends RoomDatabase {
         if(INSTANCE == null){
             synchronized (FormQuestionnaireDatabase.class) {
                 if(INSTANCE == null) {
-                    /*INSTANCE = Room.databaseBuilder(context.getApplicationContext(),FormQuestionnaireDatabase.class,
-                                                    "form_questionnaire_database_2").addCallback(callBack).build();*/
                     INSTANCE = Room.databaseBuilder(context.getApplicationContext(),FormQuestionnaireDatabase.class,
-                            "form_questionnaire_database_2").addMigrations(MIGRATION_1_1).build();
+                                                    "form_questionnaire_database_29").addCallback(callBack).build();
+                    /*INSTANCE = Room.databaseBuilder(context.getApplicationContext(),FormQuestionnaireDatabase.class,
+                            "form_questionnaire_database_2").addMigrations(MIGRATION_1_1).build();*/
                 }
             }
 

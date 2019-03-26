@@ -93,8 +93,15 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.MyView
         Message message = messages.get(position);
 
         // displaying text view data
-        holder.from.setText(message.getFrom());
-        holder.subject.setText(message.getSubject());
+        //holder.from.setText(message.getFrom());
+        if(position%2==0) {
+            holder.from.setText("Medic Department");
+        }
+        else {
+            holder.from.setText("Patient Name");
+        }
+        //holder.subject.setText(message.getSubject());
+        holder.subject.setText("Visit Schedule");
         holder.message.setText(message.getMessage());
         holder.timestamp.setText(message.getTimestamp());
 
@@ -114,7 +121,7 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.MyView
         applyIconAnimation(holder, position);
 
         // display profile image
-        applyProfilePicture(holder, message);
+        applyProfilePicture(holder, message, position);
 
         // apply click events
         applyClickEvents(holder, position);
@@ -152,23 +159,34 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.MyView
         });
     }
 
-    private void applyProfilePicture(MyViewHolder holder, Message message) {
-        if (!TextUtils.isEmpty(message.getPicture())) {
-            String messagePicture = message.getPicture();
-            Log.i("appMedici", "message.getPicture()= "+message.getPicture());
-            Glide.with(mContext).load(message.getPicture())
-                    .thumbnail(0.5f)
-                    .crossFade()
-                    .transform(new CircleTransform(mContext))
-                    .diskCacheStrategy(DiskCacheStrategy.ALL)
-                    .into(holder.imgProfile);
+    private void applyProfilePicture(MyViewHolder holder, Message message, int position) {
+        //if (!TextUtils.isEmpty(message.getPicture())) {
+            /*String messagePicture = message.getPicture();
+            Log.i("appMedici", "message.getPicture()= "+message.getPicture());*/
+            //Glide.with(mContext).load(message.getPicture())https://img.icons8.com/color/48/000000/nurse-male.png
+            if(position%2==0) {
+                Glide.with(mContext).load("https://img.icons8.com/color/48/000000/nurse-male.png")
+                        .thumbnail(0.5f)
+                        .crossFade()
+                        .transform(new CircleTransform(mContext))
+                        .diskCacheStrategy(DiskCacheStrategy.ALL)
+                        .into(holder.imgProfile);
+            }
+            else {
+                Glide.with(mContext).load("https://img.icons8.com/color/48/000000/user.png")
+                        .thumbnail(0.5f)
+                        .crossFade()
+                        .transform(new CircleTransform(mContext))
+                        .diskCacheStrategy(DiskCacheStrategy.ALL)
+                        .into(holder.imgProfile);
+            }
             holder.imgProfile.setColorFilter(null);
             holder.iconText.setVisibility(View.GONE);
-        } else {
+        /*} else {
             holder.imgProfile.setImageResource(R.drawable.bg_circle);
             holder.imgProfile.setColorFilter(message.getColor());
             holder.iconText.setVisibility(View.VISIBLE);
-        }
+        }*/
     }
 
     private void applyIconAnimation(MyViewHolder holder, int position) {

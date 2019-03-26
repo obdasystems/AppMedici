@@ -40,8 +40,8 @@ public class CtcaeFormActivity extends AppCompatActivity implements FormPagesAsy
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent mainIntent = new Intent(ctx, NewFormListActivity.class);
-                startActivity(mainIntent);
+                Intent formListIntent = new Intent(ctx, NewFormListActivity.class);
+                startActivity(formListIntent);
             }
         });
 

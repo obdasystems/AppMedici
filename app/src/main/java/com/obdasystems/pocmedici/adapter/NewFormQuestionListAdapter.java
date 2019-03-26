@@ -112,12 +112,14 @@ public class NewFormQuestionListAdapter extends RecyclerView.Adapter<NewFormQues
                 rb.setTextSize(TypedValue.COMPLEX_UNIT_SP,16);
                 holder.possAnswRadioGroupView.addView(rb);
                 holder.buttonLabelToAnswerIdMap.put(join.getPossibleAnswerText(), join.getPossibleAnswerId());
+                holder.buttonIdToLabel.put(rbId, join.getPossibleAnswerText());
                 for(CtcaeFormQuestionAnswered answered:answeredQuestions) {
                     if(answered.getQuestionId()==join.getQuestionId() && answered.getAnswerId()==join.getPossibleAnswerId()) {
                         checkedRbId = rbId;
                         foundChecked = true;
                         holder.previouslyCheckedRbId = rbId;
-                        //rb.setChecked(true);
+                        holder.lastChecked = rb;
+                        rb.setChecked(true);
                         break;
                     }
                 }
@@ -162,17 +164,59 @@ public class NewFormQuestionListAdapter extends RecyclerView.Adapter<NewFormQues
         private int questionId;
         private int previouslyCheckedRbId = -1;
 
+        private RadioButton lastChecked;
+
+        //A REGIME DA USARE SOLO CON ANDROID VERSIONS VECCHIE
+        private Map<Integer, String> buttonIdToLabel;
+
         private MyViewHolder(View itemView) {
             super(itemView);
             buttonLabelToAnswerIdMap = new HashMap<>();
+            buttonIdToLabel = new HashMap<>();
             formQuestionTextView = itemView.findViewById(R.id.questionText);
             possAnswRadioGroupView = itemView.findViewById(R.id.questionAnswersRadioGroup);
             possAnswRadioGroupView.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(RadioGroup group, int checkedId) {
                     if (checkedId != previouslyCheckedRbId) {
+                        int btCount = group.getChildCount();
+
+                        //group.clearCheck();
+
+                        /*for(int i=0;i<btCount;i++) {
+                            RadioButton child = (RadioButton)group.getChildAt(i);
+                            int childId = child.getId();
+                            if(childId==checkedId) {
+                                child.setChecked(true);
+                            }
+                        }*/
+
+                        if(lastChecked!=null) {
+                            lastChecked.setChecked(false);
+                        }
+                        for(int i=0;i<btCount;i++) {
+                            RadioButton child = (RadioButton)group.getChildAt(i);
+                            int childId = child.getId();
+                            if(childId==checkedId) {
+                                lastChecked = child;
+                            }
+                        }
+
+
+                        //group.check(checkedId);
+
+                        /*possAnswRadioGroupView.clearCheck();
+                        group.check(checkedId);*/
+
+
                         RadioButton checked = itemView.findViewById(checkedId);
-                        String checkedText = (String) checked.getText();
+                        String checkedText;
+                        if(checked != null) {
+                            checkedText = (String) checked.getText();
+                        }
+                        else {
+                            checkedText = buttonIdToLabel.get(checkedId);
+                        }
                         if (!buttonLabelToAnswerIdMap.isEmpty()) {
                             if (buttonLabelToAnswerIdMap.keySet().contains(checkedText)) {
                                 int currAnswId = buttonLabelToAnswerIdMap.get(checkedText);
