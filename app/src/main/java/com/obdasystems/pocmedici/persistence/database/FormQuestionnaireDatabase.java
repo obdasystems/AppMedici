@@ -19,10 +19,11 @@ import com.obdasystems.pocmedici.persistence.entities.CtcaeFormPage;
 import com.obdasystems.pocmedici.persistence.entities.CtcaeFormQuestion;
 import com.obdasystems.pocmedici.persistence.entities.CtcaeFormQuestionAnswered;
 import com.obdasystems.pocmedici.persistence.entities.CtcaePossibleAnswer;
+import com.obdasystems.pocmedici.persistence.entities.Position;
 import com.obdasystems.pocmedici.persistence.entities.StepCounter;
 
 @Database(entities = {CtcaeForm.class, CtcaeFormFillingProcess.class, CtcaeFormPage.class, CtcaeFormQuestion.class,
-                      CtcaeFormQuestionAnswered.class, CtcaePossibleAnswer.class, StepCounter.class},
+                      CtcaeFormQuestionAnswered.class, CtcaePossibleAnswer.class, StepCounter.class, Position.class},
           version = 1)
 @TypeConverters({DateTypeConverter.class})
 public abstract class FormQuestionnaireDatabase extends RoomDatabase {
@@ -44,9 +45,9 @@ public abstract class FormQuestionnaireDatabase extends RoomDatabase {
             synchronized (FormQuestionnaireDatabase.class) {
                 if(INSTANCE == null) {
                     INSTANCE = Room.databaseBuilder(context.getApplicationContext(),FormQuestionnaireDatabase.class,
-                                                    "form_questionnaire_database_29").addCallback(callBack).build();
+                                                    "form_questionnaire_database_31").addCallback(callBack).build();
                     /*INSTANCE = Room.databaseBuilder(context.getApplicationContext(),FormQuestionnaireDatabase.class,
-                            "form_questionnaire_database_2").addMigrations(MIGRATION_1_1).build();*/
+                            "form_questionnaire_database_30").addMigrations(MIGRATION_1_1).build();*/
                 }
             }
 
@@ -258,6 +259,11 @@ public abstract class FormQuestionnaireDatabase extends RoomDatabase {
             CtcaePossibleAnswer form1Page4Question4Poss2 = new CtcaePossibleAnswer(1442,form1.getId(),form1Page4.getId(),form1Page4Question4.getId(),"NO");
             mDao.insertPossibleAnswer(form1Page4Question4Poss2);
 
+
+            StepCounter sp = new StepCounter(300,2019,3,26);
+            StepCounter sp1 = new StepCounter(250,2019,3,25);
+            mDao.insertStepCounter(sp);
+            mDao.insertStepCounter(sp1);
 
             return null;
         }

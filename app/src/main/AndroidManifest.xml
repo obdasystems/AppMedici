@@ -14,7 +14,7 @@
          TO START BACKGROUND SERVICES INDEPENDENTLY FROM THE APP UI-->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
 
-    <!--<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" /> -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <!-- Needed only if your app targets Android 5.0 (API level 21) or higher. -->
     <!--<uses-feature android:name="android.hardware.location.gps" /> -->
 
@@ -86,26 +86,26 @@
             android:enabled="true"
             android:exported="true"
             android:label="start background services at device boot time">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
         </receiver>
 
-        <!-- step counter service -->
-        <service
-            android:name=".service.StepCounterService"
-            android:enabled="true" >
-        </service>
 
         <!-- gps service -->
         <!--<service
                 android:name=".service.GpsTrackingService"
             android:enabled="true" >
         </service>-->
-        <!-- gps receiver-->
-        <!--<receiver
-            android:name=".service.broadcast.GpsTrackingRestarterBroadcastReceiver"
-            android:enabled="true"
-            android:exported="true"
-            android:label="Restart GPS tracking service">
-        </receiver>-->
+
+
+        <!-- step counter receiver-->
+
+        <service
+            android:name=".service.StepCounterForegroundService"
+            android:enabled="true">
+        </service>
+
 
     </application>
 

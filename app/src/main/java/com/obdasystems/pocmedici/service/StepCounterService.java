@@ -1,7 +1,6 @@
 package com.obdasystems.pocmedici.service;
 
 import android.app.Application;
-import android.app.ProgressDialog;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -13,19 +12,12 @@ import android.os.AsyncTask;
 import android.os.IBinder;
 import android.util.Log;
 
-import com.obdasystems.pocmedici.activity.FormPageActivity;
 import com.obdasystems.pocmedici.asyncresponse.PageQuestionsAsyncResponse;
-import com.obdasystems.pocmedici.persistence.entities.CtcaeFormQuestion;
-import com.obdasystems.pocmedici.persistence.entities.CtcaeFormQuestionAnswered;
-import com.obdasystems.pocmedici.persistence.entities.JoinFormPageQuestionsWithPossibleAnswerData;
-import com.obdasystems.pocmedici.persistence.repository.CtcaeFillingProcessAnsweredQuestionRepository;
-import com.obdasystems.pocmedici.persistence.repository.CtcaeFormQuestionsRepository;
 import com.obdasystems.pocmedici.persistence.repository.StepCounterRepository;
 import com.obdasystems.pocmedici.stepdetector.CustomStepDetector;
 import com.obdasystems.pocmedici.stepdetector.CustomStepListener;
 
 import java.util.Calendar;
-import java.util.List;
 
 public class StepCounterService extends Service implements SensorEventListener, CustomStepListener {
 
@@ -56,7 +48,7 @@ public class StepCounterService extends Service implements SensorEventListener, 
             mStepDetectorSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR);
             mSensorManager.registerListener(this, mStepDetectorSensor, SensorManager.SENSOR_DELAY_NORMAL);
             hwStepDetectorEnabled = true;
-            Log.i("appMedici", "["+this.getClass()+"]Step counter service started");
+            Log.i("appMedici", "["+this.getClass()+"] HW Step counter service created");
         }
         else {
             hwStepDetectorEnabled = false;
@@ -64,17 +56,29 @@ public class StepCounterService extends Service implements SensorEventListener, 
             mCustomDetector.registerListener(this);
             mAccelerometerSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
             mSensorManager.registerListener(this, mAccelerometerSensor, SensorManager.SENSOR_DELAY_FASTEST);
+            Log.i("appMedici", "["+this.getClass()+"] SW Step counter service created");
         }
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.i("appMedici", "["+this.getClass()+"] Step counter service started");
         return START_STICKY;
     }
 
     @Override
     public IBinder onBind(Intent intent) {
         return null;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+    }
+
+    @Override
+    public void onTaskRemoved(Intent rootIntent) {
+        super.onTaskRemoved(rootIntent);
     }
 
     @Override

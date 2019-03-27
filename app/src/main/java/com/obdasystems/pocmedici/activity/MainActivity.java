@@ -1,8 +1,6 @@
 package com.obdasystems.pocmedici.activity;
 
 import android.app.ActivityManager;
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -17,18 +15,19 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.obdasystems.pocmedici.R;
-import com.obdasystems.pocmedici.service.DeviceBootReceiver;
-import com.obdasystems.pocmedici.service.GpsTrackingService;
+import com.obdasystems.pocmedici.service.StepCounterForegroundService;
 import com.obdasystems.pocmedici.service.StepCounterService;
-import com.obdasystems.pocmedici.service.broadcast.GpsTrackingRestarterBroadcastReceiver;
-
-import java.util.Calendar;
 
 public class MainActivity extends AppCompatActivity {
+
+    public final static String ACTION_MAIN = "action MAIN";
+    public final static String ACTION_START_SERVICE = "action start service";
 
     private final int MAIN_LOGIN_CODE = 10000;
 
     private Context ctx;
+
+    StepCounterService mSensorService;
 
     /*private GpsTrackingService gpsService;
     private Intent gpsServiceIntent;*/
@@ -65,12 +64,30 @@ public class MainActivity extends AppCompatActivity {
         alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis() , intervalMillis, gpsPendingIntent);*/
 
         //start step counter
-        StepCounterService mSensorService = new StepCounterService(getApplication());
+        /*mSensorService = new StepCounterService(getApplication());
         Intent mServiceIntent = new Intent(this, mSensorService.getClass());
         if (!isMyServiceRunning(mSensorService.getClass())) {
             startService(mServiceIntent);
             Log.i("appMedici", "["+this.getClass()+"]Step counter service started");
         }
+        else {
+            Log.i("appMedici", "["+this.getClass()+"]Found step counter service already running");
+        }*/
+
+        StepCounterForegroundService forService = new StepCounterForegroundService(getApplication());
+        Intent mServiceIntent = new Intent(this, forService.getClass());
+        mServiceIntent.setAction(MainActivity.ACTION_START_SERVICE);
+        if (!isMyServiceRunning(forService.getClass())) {
+            startService(mServiceIntent);
+            Log.i("appMedici", "["+this.getClass()+"]Step counter service started");
+        }
+        else {
+            Log.i("appMedici", "["+this.getClass()+"]Found step counter service already running");
+        }
+
+        /*Intent startIntent = new Intent(getApplicationContext(), StepCounterForegroundService.class);
+        startIntent.setAction(MainActivity.ACTION_START_SERVICE);
+        startService(startIntent);*/
 
     }
 
@@ -141,6 +158,10 @@ public class MainActivity extends AppCompatActivity {
                 break;
             //case R.id.card_negative_event:
             case R.id.card_prescriptions:
+                Log.i("appMedici", "["+this.getClass()+"]Step counter service destroying");
+                Intent stopServiceIntent = new Intent(this, StepCounterService.class);
+                stopService(stopServiceIntent);
+                return;
             //case R.id.card_user_profile:
             //case R.id.card_settings:
             default:

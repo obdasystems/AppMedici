@@ -2,6 +2,9 @@ package com.obdasystems.pocmedici.persistence.repository;
 
 import android.app.Application;
 import android.arch.lifecycle.LiveData;
+import android.content.Context;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 import com.obdasystems.pocmedici.persistence.dao.CtcaeFormDao;
 import com.obdasystems.pocmedici.persistence.database.FormQuestionnaireDatabase;
@@ -14,10 +17,12 @@ public class StepCounterRepository {
 
     private CtcaeFormDao dao;
 
-    public StepCounterRepository(Application app) {
+    public StepCounterRepository(Context app) {
         FormQuestionnaireDatabase db = FormQuestionnaireDatabase.getDatabase(app);
         dao = db.formDao();
     }
+
+
 
     public LiveData<List<StepCounter>> getAllStepCounters() {
         return dao.getAllStepCounters();
@@ -36,7 +41,5 @@ public class StepCounterRepository {
         }
         dao.insertStepCounter(sp);
     }
-
-
 
 }

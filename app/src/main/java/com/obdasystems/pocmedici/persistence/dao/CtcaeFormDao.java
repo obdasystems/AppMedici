@@ -16,6 +16,7 @@ import com.obdasystems.pocmedici.persistence.entities.CtcaePossibleAnswer;
 import com.obdasystems.pocmedici.persistence.entities.JoinFormPageQuestionsWithPossibleAnswerData;
 import com.obdasystems.pocmedici.persistence.entities.JoinFormToPossibleAnswerData;
 import com.obdasystems.pocmedici.persistence.entities.JoinFormWithMaxPageNumberData;
+import com.obdasystems.pocmedici.persistence.entities.Position;
 import com.obdasystems.pocmedici.persistence.entities.StepCounter;
 
 import java.util.GregorianCalendar;
@@ -25,8 +26,9 @@ import java.util.List;
 public interface CtcaeFormDao {
 
     /*
-     *      STRUCTURAL FORMS (INTENSIONS)
+     *      SENSORS
      */
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertStepCounter(StepCounter counter);
 
@@ -35,6 +37,19 @@ public interface CtcaeFormDao {
 
     @Query("SELECT * FROM step_counter WHERE year=:year AND month=:month AND day=:day")
     StepCounter getStepCounter(int year, int month, int day);
+
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    void insertPosition(Position position);
+
+    @Query("SELECT * FROM device_position")
+    LiveData<List<Position>> getAllPositions();
+
+
+    /*
+     *      STRUCTURAL FORMS (INTENSIONS)
+     */
+
 
     //FORMS
     @Insert(onConflict = OnConflictStrategy.IGNORE)
