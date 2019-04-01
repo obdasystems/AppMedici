@@ -10,6 +10,8 @@
     <uses-permission-sdk-23 android:name="android.permission.CAMERA" />
     <uses-permission-sdk-23 android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
     <!-- APP RECEIVES AN ALARM AT DEVICE BOOT TIME
          TO START BACKGROUND SERVICES INDEPENDENTLY FROM THE APP UI-->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
@@ -66,10 +68,8 @@
         <activity
             android:name=".activity.MainActivity"
             android:label="@string/app_name">
-
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity> <!-- Login Activity -->
@@ -93,14 +93,19 @@
 
 
         <!-- gps service -->
-        <!--<service
+        <service
                 android:name=".service.GpsTrackingService"
             android:enabled="true" >
-        </service>-->
+        </service>
+        <receiver
+            android:name=".service.GpsTrackingStarterBroadcastReceiver"
+            android:enabled="true"
+            android:exported="true"
+            android:label="StartPositionService">
+        </receiver>
 
 
-        <!-- step counter receiver-->
-
+        <!-- step counter service-->
         <service
             android:name=".service.StepCounterForegroundService"
             android:enabled="true">

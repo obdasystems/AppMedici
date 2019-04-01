@@ -1,6 +1,8 @@
 package com.obdasystems.pocmedici.activity;
 
 import android.app.ActivityManager;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -15,6 +17,8 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.obdasystems.pocmedici.R;
+import com.obdasystems.pocmedici.service.DeviceBootReceiver;
+import com.obdasystems.pocmedici.service.GpsTrackingStarterBroadcastReceiver;
 import com.obdasystems.pocmedici.service.StepCounterForegroundService;
 import com.obdasystems.pocmedici.service.StepCounterService;
 
@@ -79,10 +83,29 @@ public class MainActivity extends AppCompatActivity {
         mServiceIntent.setAction(MainActivity.ACTION_START_SERVICE);
         if (!isMyServiceRunning(forService.getClass())) {
             startService(mServiceIntent);
-            Log.i("appMedici", "["+this.getClass()+"]Step counter service started");
+            Log.i("appMedici", "["+this.getClass().getSimpleName()+"]Step counter service started");
         }
         else {
-            Log.i("appMedici", "["+this.getClass()+"]Found step counter service already running");
+            Log.i("appMedici", "["+this.getClass().getSimpleName()+"]Found step counter service already running");
+        }
+
+
+        boolean alarmUp = (PendingIntent.getBroadcast(this, DeviceBootReceiver.GPS_TRACKING_PENDING_INTENT_ALRM_ID, new Intent(this, GpsTrackingStarterBroadcastReceiver.class), PendingIntent.FLAG_NO_CREATE) != null);
+        if(alarmUp) {
+            Log.i("appMedici", "["+this.getClass().getSimpleName()+"] GPS alarm is already active");
+        }
+        else {
+            Log.i("appMedici", "["+this.getClass().getSimpleName()+"] registering alarm to start gps tracking service");
+            //Intent gpsIntent = new Intent(context, GpsTrackingService.class);
+            Intent gpsIntent = new Intent(this, GpsTrackingStarterBroadcastReceiver.class);
+
+            PendingIntent gpsPendingIntent = PendingIntent.getService(this, DeviceBootReceiver.GPS_TRACKING_PENDING_INTENT_ALRM_ID, gpsIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+
+            long currentTime = System.currentTimeMillis();
+            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, currentTime +100 , 10000, gpsPendingIntent);
+
+            Log.i("appMedici", "["+this.getClass().getSimpleName()+"] Alarm registered");
         }
 
         /*Intent startIntent = new Intent(getApplicationContext(), StepCounterForegroundService.class);

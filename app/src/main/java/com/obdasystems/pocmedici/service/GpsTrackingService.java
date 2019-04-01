@@ -36,9 +36,27 @@ public class GpsTrackingService extends Service {
     public int counter=0;
     public GpsTrackingService(Context applicationContext) {
         super();
-        Log.i("HERE", "here I am!");
+        Log.i("appMedici", "["+this.getClass().getSimpleName()+"]NON-Empty constructor!!");
 
         repository = new PositionRepository(applicationContext);
+
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+
+        LocationManager mLocationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+
+        // getting GPS status
+        boolean isGPSEnabled = mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+
+        // getting network status
+        boolean isNetworkEnabled = mLocationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+
+    }
+
+    public GpsTrackingService() {
+        super();
+        Log.i("appMedici", "["+this.getClass().getSimpleName()+"]Empty constructor!!");
+
+        repository = new PositionRepository(this);
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
@@ -57,7 +75,9 @@ public class GpsTrackingService extends Service {
         super.onStartCommand(intent, flags, startId);
         Log.i("appMedici", "["+this.getClass().getSimpleName()+"] STARTING GEOLOCATION SERVICE ");
 
-        LocationRequest locationRequest = new LocationRequest();
+        this.getApplicationContext();
+
+        //LocationRequest locationRequest = new LocationRequest();
 
         if(isGPSEnabled || isNetworkEnabled) {
             checkPermission(LocationManager.GPS_PROVIDER,0,0);
@@ -66,6 +86,7 @@ public class GpsTrackingService extends Service {
                 public void onSuccess(Location location) {
                     double latitude = location.getLatitude();
                     double longitude = location.getLongitude();
+                    Log.i("appMedici", "["+this.getClass().getSimpleName()+"] Position acquired !!");
                     QueryAsyncTask task = new QueryAsyncTask(longitude, latitude, repository);
                 }
             });
@@ -75,7 +96,7 @@ public class GpsTrackingService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.i("EXIT", "ondestroy!");
+        Log.i("appMedici", "["+this.getClass().getSimpleName()+"] destroying ");
     }
 
     @Nullable
@@ -87,13 +108,7 @@ public class GpsTrackingService extends Service {
     private static class QueryAsyncTask extends AsyncTask<Void, Void, Void> {
         private Context ctx;
         double innLat, innLong;
-
-
         private PositionRepository innerRepository;
-
-
-        private Application app;
-        private PageQuestionsAsyncResponse delegate;
 
         QueryAsyncTask(double longitude, double latitude, PositionRepository rep) {
             this.innLat = latitude;
