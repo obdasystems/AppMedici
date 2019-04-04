@@ -2,18 +2,23 @@ package com.obdasystems.pocmedici.service;
 
 import android.app.Application;
 import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.IBinder;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
@@ -28,7 +33,10 @@ import java.util.Calendar;
 
 public class StepCounterForegroundService extends Service implements SensorEventListener, CustomStepListener {
 
-    static final int NOTIFICATION_ID = 543;
+
+    private final String CHANNEL_ID = "AppMedici_StepCounter";
+    private final String CHANNEL_NAME = "AppMedici Step Counter Service";
+    private final int NOTIFICATION_ID = 543;
 
     public static boolean isServiceRunning = false;
 
@@ -42,34 +50,8 @@ public class StepCounterForegroundService extends Service implements SensorEvent
 
     private StepCounterRepository repository;
 
-
     public StepCounterForegroundService() {
         super();
-        /*repository = new StepCounterRepository(app);
-        mSensorManager = (SensorManager) app.getSystemService(Context.SENSOR_SERVICE);;
-        if(mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR) != null) {
-            mStepDetectorSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR);
-        }*/
-    }
-
-    public StepCounterForegroundService(Context app) {
-        super();
-        repository = new StepCounterRepository(app);
-        mSensorManager = (SensorManager) app.getSystemService(Context.SENSOR_SERVICE);
-        if(mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR) != null) {
-            mStepDetectorSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR);
-            mSensorManager.registerListener(this, mStepDetectorSensor, SensorManager.SENSOR_DELAY_NORMAL);
-            hwStepDetectorEnabled = true;
-            Log.i("appMedici", "["+this.getClass()+"] HW Step counter service created");
-        }
-        else {
-            hwStepDetectorEnabled = false;
-            mCustomDetector = new CustomStepDetector();
-            mCustomDetector.registerListener(this);
-            mAccelerometerSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-            mSensorManager.registerListener(this, mAccelerometerSensor, SensorManager.SENSOR_DELAY_FASTEST);
-            Log.i("appMedici", "["+this.getClass()+"] SW Step counter service created");
-        }
     }
 
     @Override
@@ -107,7 +89,7 @@ public class StepCounterForegroundService extends Service implements SensorEvent
         isServiceRunning = true;
 
 
-        Log.i("appMedici", "["+this.getClass()+"]Starting foreground service");
+        Log.i("appMedici", "["+this.getClass().getSimpleName()+"]Starting foreground service");
 
         Intent notificationIntent = new Intent(getApplicationContext(), MainActivity.class);
         notificationIntent.setAction(MainActivity.ACTION_MAIN);  // A string containing the action name
@@ -116,7 +98,12 @@ public class StepCounterForegroundService extends Service implements SensorEvent
 
         Bitmap icon = BitmapFactory.decodeResource(getResources(), R.drawable.ic_pet);
 
-        Notification notification = new NotificationCompat.Builder(this)
+        String channelId = "";
+        if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.O) {
+            channelId = createNotificationChannel(CHANNEL_ID, CHANNEL_NAME);
+        }
+
+        Notification notification = new NotificationCompat.Builder(this,channelId)
                 .setContentTitle(getResources().getString(R.string.app_name))
                 .setTicker(getResources().getString(R.string.app_name))
                 .setContentText("CONTEXT TEXT")
@@ -129,8 +116,19 @@ public class StepCounterForegroundService extends Service implements SensorEvent
         notification.flags = notification.flags | Notification.FLAG_NO_CLEAR;     // NO_CLEAR makes the notification stay when the user performs a "delete all" command
         startForeground(NOTIFICATION_ID, notification);
 
-        Log.i("appMedici", "["+this.getClass()+"]Foreground service started");
+        Log.i("appMedici", "["+this.getClass().getSimpleName()+"]Foreground service started");
     }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private String createNotificationChannel(String channelId, String channelName) {
+        NotificationChannel nc = new NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_NONE);
+        nc.setLightColor(Color.BLUE);
+        //nc.setLockscreenVisibility(Notification.VISIBILITY_SECRET);
+        nc.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
+        ((NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE)).createNotificationChannel(nc);
+        return channelId;
+    }
+
 
     void stopMyService() {
         stopForeground(true);
@@ -150,7 +148,7 @@ public class StepCounterForegroundService extends Service implements SensorEvent
             case Sensor.TYPE_STEP_DETECTOR:
                 float detStep = event.values[0];
                 if(detStep==1) {
-                    Log.i("appMedici", "["+this.getClass()+"]Step  detected HW");
+                    Log.i("appMedici", "["+this.getClass().getSimpleName()+"]Step  detected HW");
                     StepCounterForegroundService.QueryAsyncTask task = new StepCounterForegroundService.QueryAsyncTask(year, month, day, (int)detStep, repository);
                     task.execute();
                 }
@@ -168,7 +166,7 @@ public class StepCounterForegroundService extends Service implements SensorEvent
 
     @Override
     public void step(long timeNs) {
-        Log.i("appMedici", "["+this.getClass()+"]Step  detected SW");
+        Log.i("appMedici", "["+this.getClass().getSimpleName()+"]Step  detected SW");
         Calendar cal = Calendar.getInstance();
         int year = cal.get(Calendar.YEAR);
         int month = cal.get(Calendar.MONTH) +1;

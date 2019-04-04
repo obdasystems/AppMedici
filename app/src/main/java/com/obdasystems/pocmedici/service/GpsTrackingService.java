@@ -23,51 +23,14 @@ import java.util.GregorianCalendar;
 public class GpsTrackingService extends Service {
 
     private FusedLocationProviderClient fusedLocationClient;
-
     // getting GPS status
     boolean isGPSEnabled;
-
     // getting network status
     boolean isNetworkEnabled;
-
-
     private PositionRepository repository;
-
-    public int counter=0;
-    public GpsTrackingService(Context applicationContext) {
-        super();
-        Log.i("appMedici", "["+this.getClass().getSimpleName()+"]NON-Empty constructor!!");
-
-        repository = new PositionRepository(applicationContext);
-
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-
-        LocationManager mLocationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-
-        // getting GPS status
-        boolean isGPSEnabled = mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
-
-        // getting network status
-        boolean isNetworkEnabled = mLocationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
-
-    }
 
     public GpsTrackingService() {
         super();
-        Log.i("appMedici", "["+this.getClass().getSimpleName()+"]Empty constructor!!");
-
-        repository = new PositionRepository(this);
-
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-
-        LocationManager mLocationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-
-        // getting GPS status
-        boolean isGPSEnabled = mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
-
-        // getting network status
-        boolean isNetworkEnabled = mLocationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
-
     }
 
     @Override
@@ -75,7 +38,19 @@ public class GpsTrackingService extends Service {
         super.onStartCommand(intent, flags, startId);
         Log.i("appMedici", "["+this.getClass().getSimpleName()+"] STARTING GEOLOCATION SERVICE ");
 
-        this.getApplicationContext();
+        repository = new PositionRepository(this);
+
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(getApplicationContext());
+
+        LocationManager mLocationManager = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);
+
+        // getting GPS status
+        boolean isGPSEnabled = mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+
+        // getting network status
+        boolean isNetworkEnabled = mLocationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+
+        Log.i("appMedici", "["+this.getClass().getSimpleName()+"] LOCATION PROVIDER CHECK... ");
 
         //LocationRequest locationRequest = new LocationRequest();
 

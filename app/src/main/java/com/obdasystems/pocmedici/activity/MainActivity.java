@@ -18,6 +18,7 @@ import android.widget.Toast;
 
 import com.obdasystems.pocmedici.R;
 import com.obdasystems.pocmedici.service.DeviceBootReceiver;
+import com.obdasystems.pocmedici.service.GpsTrackingService;
 import com.obdasystems.pocmedici.service.GpsTrackingStarterBroadcastReceiver;
 import com.obdasystems.pocmedici.service.StepCounterForegroundService;
 import com.obdasystems.pocmedici.service.StepCounterService;
@@ -44,51 +45,17 @@ public class MainActivity extends AppCompatActivity {
         ctx = this;
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.main_toolbar);
-        //toolbar.setNavigationIcon(R.drawable.baseline_arrow_back_black_24dp);
         setSupportActionBar(toolbar);
 
-        /*Log.i("appMedici", "["+this.getClass().getSimpleName()+"] registering alarm to start gps tracking service");
-        //Intent gpsIntent = new Intent(this, GpsTrackingRestarterBroadcastReceiver.class);
-        Intent gpsIntent = new Intent(this, GpsTrackingService.class);
-
-        PendingIntent gpsPendingIntent = PendingIntent.getService(this, DeviceBootReceiver.GPS_TRACKING_PENDING_INTENT_ALRM_ID, gpsIntent, 0);
-        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        long triggerAtMillis = 100;
-        long intervalMillis = (5 * 60 * 1000);
-        intervalMillis = 10000;
-
-
-        //
-
-        Calendar cal = Calendar.getInstance();
-        // add 30 seconds to the calendar object
-        cal.add(Calendar.SECOND, 10);
-        //alarmManager.set(AlarmManager.RTC_WAKEUP,  cal.getTimeInMillis(), gpsPendingIntent);
-
-        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis() , intervalMillis, gpsPendingIntent);*/
-
-        //start step counter
-        /*mSensorService = new StepCounterService(getApplication());
-        Intent mServiceIntent = new Intent(this, mSensorService.getClass());
-        if (!isMyServiceRunning(mSensorService.getClass())) {
-            startService(mServiceIntent);
-            Log.i("appMedici", "["+this.getClass()+"]Step counter service started");
-        }
-        else {
-            Log.i("appMedici", "["+this.getClass()+"]Found step counter service already running");
-        }*/
-
-        StepCounterForegroundService forService = new StepCounterForegroundService(getApplication());
-        Intent mServiceIntent = new Intent(this, forService.getClass());
+        Intent mServiceIntent = new Intent(this, StepCounterForegroundService.class);
         mServiceIntent.setAction(MainActivity.ACTION_START_SERVICE);
-        if (!isMyServiceRunning(forService.getClass())) {
+        if (!isMyServiceRunning(StepCounterForegroundService.class)) {
             startService(mServiceIntent);
             Log.i("appMedici", "["+this.getClass().getSimpleName()+"]Step counter service started");
         }
         else {
             Log.i("appMedici", "["+this.getClass().getSimpleName()+"]Found step counter service already running");
         }
-
 
         boolean alarmUp = (PendingIntent.getBroadcast(this, DeviceBootReceiver.GPS_TRACKING_PENDING_INTENT_ALRM_ID, new Intent(this, GpsTrackingStarterBroadcastReceiver.class), PendingIntent.FLAG_NO_CREATE) != null);
         if(alarmUp) {
@@ -108,9 +75,11 @@ public class MainActivity extends AppCompatActivity {
             Log.i("appMedici", "["+this.getClass().getSimpleName()+"] Alarm registered");
         }
 
-        /*Intent startIntent = new Intent(getApplicationContext(), StepCounterForegroundService.class);
-        startIntent.setAction(MainActivity.ACTION_START_SERVICE);
-        startService(startIntent);*/
+        /*GpsTrackingService gpsInstance = new GpsTrackingService(this);
+
+        Intent gpsStartIntent = new Intent(getApplicationContext(), gpsInstance.getClass());
+        gpsStartIntent.setAction(MainActivity.ACTION_START_SERVICE);
+        startService(gpsStartIntent);*/
 
     }
 
