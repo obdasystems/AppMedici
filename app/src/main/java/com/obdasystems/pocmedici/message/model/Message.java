@@ -3,10 +3,15 @@ package com.obdasystems.pocmedici.message.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.obdasystems.pocmedici.message.User;
 import com.obdasystems.pocmedici.persistence.entities.CtcaeForm;
 
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
+
 public class Message implements Parcelable {
-    private int id;
+    /*private int id;
     private String from;
     private String to;
     private String subject;
@@ -17,25 +22,49 @@ public class Message implements Parcelable {
     private int intImportant;
     private boolean isRead;
     private int intRead;
+    private int color = -1;*/
+
+    protected Long id;
+    protected Long date;
+    protected String text;
+    protected String subject;
+    protected Boolean read = false;
+    private int intRead;
+    protected Boolean adverseEvent = false;
+    private int intAdverseEvent;
+    protected User sender;
+    protected User recipient;
+    protected List<Attachment> attachments = new LinkedList<>();
     private int color = -1;
 
+
+
     public Message() {
+
     }
 
-    public int getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
-    public String getFrom() {
-        return from;
+    public Long getDate() {
+        return date;
     }
 
-    public void setFrom(String from) {
-        this.from = from;
+    public void setDate(Long date) {
+        this.date = date;
+    }
+
+    public String getText() {
+        return text;
+    }
+
+    public void setText(String text) {
+        this.text = text;
     }
 
     public String getSubject() {
@@ -46,56 +75,60 @@ public class Message implements Parcelable {
         this.subject = subject;
     }
 
-    public String getMessage() {
-        return message;
+    public Boolean getRead() {
+        return read;
     }
 
-    public void setMessage(String message) {
-        this.message = message;
+    public void setRead(Boolean read) {
+        this.read = read;
     }
 
-    public String getTimestamp() {
-        return timestamp;
+    public int getIntRead() {
+        return intRead;
     }
 
-    public void setTimestamp(String timestamp) {
-        this.timestamp = timestamp;
+    public void setIntRead(int intRead) {
+        this.intRead = intRead;
     }
 
-    public boolean isImportant() {
-        return isImportant;
+    public Boolean getAdverseEvent() {
+        return adverseEvent;
     }
 
-    public void setImportant(boolean important) {
-        isImportant = important;
-        if(important) {
-            intImportant = 1;
-        }
-        else {
-            intImportant = 0;
-        }
+    public void setAdverseEvent(Boolean adverseEvent) {
+        this.adverseEvent = adverseEvent;
     }
 
-    public String getPicture() {
-        return picture;
+    public int getIntAdverseEvent() {
+        return intAdverseEvent;
     }
 
-    public void setPicture(String picture) {
-        this.picture = picture;
+    public void setIntAdverseEvent(int intAdverseEvent) {
+        this.intAdverseEvent = intAdverseEvent;
     }
 
-    public boolean isRead() {
-        return isRead;
+    public User getSender() {
+        return sender;
     }
 
-    public void setRead(boolean read) {
-        isRead = read;
-        if(read) {
-            intRead = 1;
-        }
-        else {
-            intRead = 0;
-        }
+    public void setSender(User sender) {
+        this.sender = sender;
+    }
+
+    public User getRecipient() {
+        return recipient;
+    }
+
+    public void setRecipient(User recipient) {
+        this.recipient = recipient;
+    }
+
+    public List<Attachment> getAttachments() {
+        return attachments;
+    }
+
+    public void setAttachments(List<Attachment> attachments) {
+        this.attachments = attachments;
     }
 
     public int getColor() {
@@ -106,67 +139,29 @@ public class Message implements Parcelable {
         this.color = color;
     }
 
-    public int getIntImportant() {
-        return intImportant;
-    }
-
-    public String getTo() {
-        return to;
-    }
-
-    public void setTo(String to) {
-        this.to = to;
-    }
-
-
-    public void setIntImportant(int intImportant) {
-        this.intImportant = intImportant;
-        if(intImportant>0) {
-            isImportant = true;
-        }
-        else {
-            isImportant = false;
-        }
-    }
-
-    public int getIntRead() {
-        return intRead;
-    }
-
-    public void setIntRead(int intRead) {
-        this.intRead = intRead;
-        if(intRead>0) {
-            isRead = true;
-        }
-        else {
-            isRead = false;
-        }
-    }
-
-
     //Parcelable methods
     public Message(Parcel inParcel) {
-        this.id = inParcel.readInt();
-        this.from = inParcel.readString();
-        this.to = inParcel.readString();
+        this.id = inParcel.readLong();
+        this.date = inParcel.readLong();
+        this.text = inParcel.readString();
         this.subject = inParcel.readString();
-        this.message = inParcel.readString();
-        this.timestamp = inParcel.readString();
-        this.picture = inParcel.readString();
-        this.intImportant= inParcel.readInt();
-        if(intImportant>0) {
-            isImportant = true;
-        }
-        else {
-            isImportant = false;
-        }
-        this.intRead = inParcel.readInt();
+        this.intRead= inParcel.readInt();
         if(intRead>0) {
-            isRead = true;
+            read = true;
         }
         else {
-            isRead = false;
+            read = false;
         }
+        this.intAdverseEvent = inParcel.readInt();
+        if(intRead>0) {
+            adverseEvent = true;
+        }
+        else {
+            adverseEvent = false;
+        }
+        this.sender = inParcel.readParcelable(User.class.getClassLoader());
+        this.recipient = inParcel.readParcelable(User.class.getClassLoader());
+        this.attachments = inParcel.createTypedArrayList(Attachment.CREATOR);
         this.color = inParcel.readInt();
     }
 
@@ -189,7 +184,17 @@ public class Message implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeInt(this.id);
+        dest.writeLong(this.id);
+        dest.writeLong(this.date);
+        dest.writeString(this.text);
+        dest.writeString(this.subject);
+        dest.writeInt(this.intRead);
+        dest.writeInt(this.intAdverseEvent);
+        dest.writeParcelable(this.sender, flags);
+        dest.writeParcelable(this.recipient,flags);
+        dest.writeTypedList(this.attachments);
+        dest.writeInt(this.color);
+        /*dest.writeInt(this.id);
         dest.writeString(this.from);
         dest.writeString(this.to);
         dest.writeString(this.subject);
@@ -208,7 +213,7 @@ public class Message implements Parcelable {
         else {
             dest.writeInt(0);
         }
-        dest.writeInt(this.color);
+        dest.writeInt(this.color);*/
     }
 }
 

@@ -101,12 +101,12 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.MyView
             holder.from.setText("Patient Name");
         }
         //holder.subject.setText(message.getSubject());
-        holder.subject.setText("Visit Schedule");
-        holder.message.setText(message.getMessage());
-        holder.timestamp.setText(message.getTimestamp());
+        holder.subject.setText(message.getSubject());
+        holder.message.setText(message.getText());
+        holder.timestamp.setText(""+message.getDate());
 
         // displaying the first letter of From in icon text
-        holder.iconText.setText(message.getFrom().substring(0, 1));
+        holder.iconText.setText(message.getSender().getUsername().substring(0, 1));
 
         // change the row state to activated
         holder.itemView.setActivated(selectedItems.get(position, false));
@@ -231,7 +231,7 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.MyView
     }
 
     private void applyImportant(MyViewHolder holder, Message message) {
-        if (message.isImportant()) {
+        if (message.getAdverseEvent()) {
             holder.iconImp.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_star_black_24dp));
             holder.iconImp.setColorFilter(ContextCompat.getColor(mContext, R.color.icon_tint_selected));
         } else {
@@ -241,7 +241,7 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.MyView
     }
 
     private void applyReadStatus(MyViewHolder holder, Message message) {
-        if (message.isRead()) {
+        if (message.getRead()) {
             holder.from.setTypeface(null, Typeface.NORMAL);
             holder.subject.setTypeface(null, Typeface.NORMAL);
             holder.from.setTextColor(ContextCompat.getColor(mContext, R.color.subject));

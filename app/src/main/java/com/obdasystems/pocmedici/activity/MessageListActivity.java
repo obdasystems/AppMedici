@@ -13,6 +13,7 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -24,6 +25,8 @@ import com.obdasystems.pocmedici.message.helper.DividerItemDecoration;
 import com.obdasystems.pocmedici.message.model.Message;
 import com.obdasystems.pocmedici.message.network.ApiClient;
 import com.obdasystems.pocmedici.message.network.ApiInterface;
+import com.obdasystems.pocmedici.message.network.MediciApiClient;
+import com.obdasystems.pocmedici.message.network.MediciApiInterface;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -106,8 +109,13 @@ public class MessageListActivity extends AppCompatActivity implements SwipeRefre
     private void getInbox() {
         swipeRefreshLayout.setRefreshing(true);
 
-        ApiInterface apiService =
-                ApiClient.getClient().create(ApiInterface.class);
+        //ApiInterface apiService = ApiClient.getClient().create(ApiInterface.class);
+        //MediciApiInterface apiService = MediciApiClient.getClient().create(MediciApiInterface.class);
+
+        String usr = "james";
+        String pwd = "bush";
+
+        MediciApiInterface apiService = MediciApiClient.createService(MediciApiInterface.class, usr, pwd);
 
         Call<List<Message>> call = apiService.getInbox();
         call.enqueue(new Callback<List<Message>>() {
@@ -133,6 +141,8 @@ public class MessageListActivity extends AppCompatActivity implements SwipeRefre
 
             @Override
             public void onFailure(Call<List<Message>> call, Throwable t) {
+                Log.i("appMedici", t.getMessage());
+
                 Toast.makeText(getApplicationContext(), "Unable to fetch json: " + t.getMessage(), Toast.LENGTH_LONG).show();
                 swipeRefreshLayout.setRefreshing(false);
             }
@@ -198,7 +208,7 @@ public class MessageListActivity extends AppCompatActivity implements SwipeRefre
         // Star icon is clicked,
         // mark the message as important
         Message message = messages.get(position);
-        message.setImportant(!message.isImportant());
+        message.setAdverseEvent(!message.getAdverseEvent());
         messages.set(position, message);
         mAdapter.notifyDataSetChanged();
     }

@@ -25,12 +25,17 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.obdasystems.pocmedici.R;
 import com.obdasystems.pocmedici.adapter.WriteMessageAttachmentAdapter;
 import com.obdasystems.pocmedici.listener.OnRecyclerViewPositionClickListener;
+import com.obdasystems.pocmedici.message.model.Message;
+import com.obdasystems.pocmedici.message.model.OutMessage;
+import com.obdasystems.pocmedici.message.network.MediciApiClient;
+import com.obdasystems.pocmedici.message.network.MediciApiInterface;
 
 import java.io.File;
 import java.io.IOException;
@@ -38,6 +43,10 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class WriteMessageActivity extends AppCompatActivity {
 
@@ -250,6 +259,19 @@ public class WriteMessageActivity extends AppCompatActivity {
         }
         if (id == R.id.write_message_action_send) {
             Toast.makeText(this, "SENDING....", Toast.LENGTH_SHORT).show();
+
+            OutMessage msg = new OutMessage();
+            EditText body = findViewById(R.id.write_message_edit_body);
+            msg.setText(body.getText().toString());
+            EditText subject = findViewById(R.id.write_message_edit_subject);
+            msg.setSubject(subject.getText().toString());
+            msg.setAdverseEvent(false);
+            msg.setSender("james");
+            msg.setRecipient("admin");
+            msg.setDate(System.currentTimeMillis());
+
+            sendMessage(System.currentTimeMillis(), body.getText().toString(), subject.getText().toString(), false, "james", "admin");
+
             Toast.makeText(this, "MESSAGE SENT", Toast.LENGTH_SHORT).show();
             return true;
         }
@@ -257,6 +279,36 @@ public class WriteMessageActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+
+    public void sendMessage(Long date, String text, String subject, boolean adverseEvent, String sender, String recipient) {
+        String usr = "james";
+        String pwd = "bush";
+
+        MediciApiInterface apiService = MediciApiClient.createService(MediciApiInterface.class, usr, pwd);
+
+        apiService.sendMessage(date,text,subject,adverseEvent,sender,recipient).enqueue(new Callback<Message>() {
+            @Override
+            public void onResponse(Call<Message> call, Response<Message> response) {
+
+                if(response.isSuccessful()) {
+                    //showResponse(response.body().toString());
+                    Log.i("appMedici", "post submitted to API." + response.body().toString());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Message> call, Throwable t) {
+                Log.e("appMedici", "Unable to submit post to API.");
+            }
+        });
+    }
+
+    /*public void showResponse(String response) {
+        if(mResponseTv.getVisibility() == View.GONE) {
+            mResponseTv.setVisibility(View.VISIBLE);
+        }
+        mResponseTv.setText(response);
+    }*/
 
 
     private void showAttachmentDialog() {

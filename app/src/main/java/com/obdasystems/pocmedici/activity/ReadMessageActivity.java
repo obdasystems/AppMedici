@@ -38,15 +38,15 @@ public class ReadMessageActivity extends AppCompatActivity {
         TextView subjectView = (TextView) findViewById(R.id.read_message_subject);
         subjectView.setText(msg.getSubject());
         TextView bodyView = (TextView) findViewById(R.id.read_message_body);
-        bodyView.setText(msg.getMessage());
+        bodyView.setText(msg.getText());
         TextView senderView = (TextView) findViewById(R.id.read_message_sender);
-        Log.i("appMedici", "msg from: "+msg.getFrom());
-        senderView.setText(msg.getFrom());
+        Log.i("appMedici", "msg from: "+msg.getSender());
+        senderView.setText(msg.getSender().getUsername());
         TextView receiverView = (TextView) findViewById(R.id.read_message_receiver);
         receiverView.setText("me");
         //senderView.setText(msg.getTo());
         TextView timeView = (TextView) findViewById(R.id.read_message_timestamp);
-        timeView.setText(msg.getTimestamp());
+        timeView.setText(""+msg.getDate());
     }
 
     @Override
@@ -58,14 +58,14 @@ public class ReadMessageActivity extends AppCompatActivity {
         TextView subjectView = (TextView) findViewById(R.id.read_message_subject);
         subjectView.setText(msg.getSubject());
         TextView bodyView = (TextView) findViewById(R.id.read_message_body);
-        bodyView.setText(msg.getMessage());
+        bodyView.setText(msg.getText());
         TextView senderView = (TextView) findViewById(R.id.read_message_sender);
-        senderView.setText(msg.getFrom());
+        senderView.setText(msg.getSender().getUsername());
         TextView receiverView = (TextView) findViewById(R.id.read_message_receiver);
         receiverView.setText("me");
         //senderView.setText(msg.getTo());
         TextView timeView = (TextView) findViewById(R.id.read_message_timestamp);
-        timeView.setText(msg.getTimestamp());
+        timeView.setText(""+msg.getDate());
     }
 
     @Override

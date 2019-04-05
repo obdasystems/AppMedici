@@ -20,10 +20,10 @@ public class DeviceBootReceiver extends BroadcastReceiver {
         if (intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED)) {
             Toast.makeText(context, "BOOT EVENT CATCHED!!", Toast.LENGTH_SHORT).show();
 
-            StepCounterForegroundService forService = new StepCounterForegroundService(context);
-            Intent mServiceIntent = new Intent(context, forService.getClass());
+            //StepCounterForegroundService forService = new StepCounterForegroundService(context);
+            Intent mServiceIntent = new Intent(context, StepCounterForegroundService.class);
             mServiceIntent.setAction(MainActivity.ACTION_START_SERVICE);
-            if (!isMyServiceRunning(forService.getClass(), context)) {
+            if (!isMyServiceRunning(StepCounterForegroundService.class, context)) {
                 context.startService(mServiceIntent);
                 Log.i("appMedici", "["+this.getClass()+"]Step counter service launched");
             }
