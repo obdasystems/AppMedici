@@ -80,3 +80,6 @@ lint/tmp/
 
 # macOS resource forks
 .DS_Store
+
+# Google Services Json
+/**/google-services.json

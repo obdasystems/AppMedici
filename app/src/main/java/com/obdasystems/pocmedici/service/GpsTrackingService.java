@@ -11,9 +11,6 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.obdasystems.pocmedici.asyncresponse.PageQuestionsAsyncResponse;
 import com.obdasystems.pocmedici.persistence.repository.PositionRepository;
@@ -22,7 +19,8 @@ import java.util.GregorianCalendar;
 
 public class GpsTrackingService extends Service {
 
-    private FusedLocationProviderClient fusedLocationClient;
+    //DEPRECATED private FusedLocationProviderClient fusedLocationClient;
+
     // getting GPS status
     boolean isGPSEnabled;
     // getting network status
@@ -35,7 +33,7 @@ public class GpsTrackingService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        super.onStartCommand(intent, flags, startId);
+        /*super.onStartCommand(intent, flags, startId);
         Log.i("appMedici", "["+this.getClass().getSimpleName()+"] STARTING GEOLOCATION SERVICE ");
 
         repository = new PositionRepository(this);
@@ -65,7 +63,7 @@ public class GpsTrackingService extends Service {
                     QueryAsyncTask task = new QueryAsyncTask(longitude, latitude, repository);
                 }
             });
-        }
+        }*/
         return START_STICKY;
     }
     @Override

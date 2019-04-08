@@ -21,6 +21,6 @@
         android:gravity="center"
         android:paddingLeft="0dp"
         android:text="@string/action_fill_form"
-        android:textColor="@color/white"
+        android:textColor="@color/navigation_tab_item_bg_color"
         android:textSize="12dp" />
 </LinearLayout>

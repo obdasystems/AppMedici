@@ -144,8 +144,6 @@ public class MainActivity extends AppCompatActivity {
                 activityClass = MessageListActivity.class;
                 break;
             case R.id.card_calendar:
-                //activityClass = CalendarActivity.class;
-                //activityClass = CustomCalendarActivity.class;
                 activityClass = CalendarMaterialActivity.class;
                 break;
             //case R.id.card_negative_event:
