@@ -42,7 +42,9 @@ dependencies {
 
 
     //deve essere usato OBBLIGATORIAMENTE a partire da aprile 2019
+    //servizi google per messagistica e localizzazione
     implementation 'com.google.firebase:firebase-core:16.0.8'
+    implementation 'com.google.firebase:firebase-messaging:17.6.0'
 
     //deprecato per uso contestuale con Firebase 16.0.1 bisogna usare servizi di localizzazione firebase
     //implementation "com.google.android.gms:play-services-location:16.0.0"
