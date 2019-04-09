@@ -122,7 +122,8 @@ public class StepCounterForegroundService extends Service implements SensorEvent
         notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         PendingIntent contentPendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
 
-        Bitmap icon = BitmapFactory.decodeResource(getResources(), R.drawable.ic_pet);
+        //Bitmap icon = BitmapFactory.decodeResource(getResources(), R.drawable.ic_pet);
+        Bitmap icon = BitmapFactory.decodeResource(getResources(), R.drawable.icons8_caduceus_48);
 
         String channelId = "";
         if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.O) {
@@ -132,7 +133,7 @@ public class StepCounterForegroundService extends Service implements SensorEvent
                 .setContentTitle(getResources().getString(R.string.app_name))
                 .setTicker(getResources().getString(R.string.app_name))
                 .setContentText("Step Counter Service")
-                .setSmallIcon(R.drawable.ic_pet)
+                .setSmallIcon(R.drawable.icons8_caduceus_48)
                 .setLargeIcon(Bitmap.createScaledBitmap(icon, 128, 128, false))
                 .setContentIntent(contentPendingIntent)
                 .setOngoing(true)

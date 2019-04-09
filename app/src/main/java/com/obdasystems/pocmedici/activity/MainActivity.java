@@ -1,13 +1,18 @@
 package com.obdasystems.pocmedici.activity;
 
+import android.Manifest;
 import android.app.ActivityManager;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -29,6 +34,8 @@ public class MainActivity extends AppCompatActivity {
     public final static String ACTION_START_SERVICE = "action start service";
 
     private final int MAIN_LOGIN_CODE = 10000;
+
+    private static final int LOCATION_PERMISSIONS_REQUEST = 100;
 
     private Context ctx;
 
@@ -57,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
             Log.i("appMedici", "["+this.getClass().getSimpleName()+"]Found step counter service already running");
         }
 
-        boolean alarmUp = (PendingIntent.getBroadcast(this, DeviceBootReceiver.GPS_TRACKING_PENDING_INTENT_ALRM_ID, new Intent(this, GpsTrackingStarterBroadcastReceiver.class), PendingIntent.FLAG_NO_CREATE) != null);
+        /*boolean alarmUp = (PendingIntent.getBroadcast(this, DeviceBootReceiver.GPS_TRACKING_PENDING_INTENT_ALRM_ID, new Intent(this, GpsTrackingStarterBroadcastReceiver.class), PendingIntent.FLAG_NO_CREATE) != null);
         if(alarmUp) {
             Log.i("appMedici", "["+this.getClass().getSimpleName()+"] GPS alarm is already active");
         }
@@ -73,13 +80,29 @@ public class MainActivity extends AppCompatActivity {
             alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, currentTime +100 , 10000, gpsPendingIntent);
 
             Log.i("appMedici", "["+this.getClass().getSimpleName()+"] Alarm registered");
+        }*/
+
+        //LOCATION TRACKING
+        //Check whether GPS tracking is enabled//
+        LocationManager lm = (LocationManager) getSystemService(LOCATION_SERVICE);
+        if (!lm.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            Log.i("appMedici", "["+this.getClass().getSimpleName()+"] GPS provider is off!!");
+            //finish();
         }
 
-        /*GpsTrackingService gpsInstance = new GpsTrackingService(this);
+        //Check whether this app has access to the location permission
+        int permission = ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION);
 
-        Intent gpsStartIntent = new Intent(getApplicationContext(), gpsInstance.getClass());
-        gpsStartIntent.setAction(MainActivity.ACTION_START_SERVICE);
-        startService(gpsStartIntent);*/
+        //If the location permission has been granted, then start the TrackerService
+        if (permission == PackageManager.PERMISSION_GRANTED) {
+            startTrackerService();
+        } else {
+
+        //If the app doesn’t currently have access to the user’s location, then request access//
+        ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSIONS_REQUEST);
+        }
 
     }
 
@@ -93,6 +116,24 @@ public class MainActivity extends AppCompatActivity {
             Intent logIntent = new Intent(this,LoginActivity.class);
             startActivityForResult(logIntent, MAIN_LOGIN_CODE);
         }
+    }
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        if (requestCode == LOCATION_PERMISSIONS_REQUEST && grantResults.length == 1
+                && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            //...then start the GPS tracking service//
+            startTrackerService();
+        } else {
+            Toast.makeText(this, "Please enable location services to allow GPS tracking", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void startTrackerService() {
+        startService(new Intent(this, GpsTrackingService.class));
+        Toast.makeText(this, "GPS tracking enabled", Toast.LENGTH_SHORT).show();
+        //finish();
     }
 
     /*****************************

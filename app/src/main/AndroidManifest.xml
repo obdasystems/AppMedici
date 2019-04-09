@@ -14,6 +14,8 @@
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
     <!-- APP RECEIVES AN ALARM AT DEVICE BOOT TIME
          TO START BACKGROUND SERVICES INDEPENDENTLY FROM THE APP UI-->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
@@ -35,8 +37,6 @@
             android:label="Step Counter History"></activity>
 
         <!-- Calendar Activity -->
-        <activity android:name=".activity.CalendarActivity"></activity>
-        <activity android:name=".activity.CustomCalendarActivity"></activity>
         <activity android:name=".activity.CalendarMaterialActivity"
             android:label="Calendar"></activity>
         <activity android:name=".activity.EventResumeeActivity"
@@ -113,6 +113,12 @@
             android:enabled="true">
         </service>
 
+        <!--service TO MANAGE PUSH NOTIFICATIONS WHILE APP IS FOREGROUND-->
+        <service android:name=".notification.NotificationFirebaseMessagingService">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
 
     </application>
 
