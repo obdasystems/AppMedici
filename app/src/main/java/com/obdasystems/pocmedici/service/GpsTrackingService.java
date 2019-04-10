@@ -3,6 +3,8 @@ package com.obdasystems.pocmedici.service;
 import android.Manifest;
 import android.app.Application;
 import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.BroadcastReceiver;
@@ -10,6 +12,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.AsyncTask;
@@ -17,6 +22,8 @@ import android.os.Build;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
@@ -46,6 +53,9 @@ import java.util.GregorianCalendar;
 
 public class GpsTrackingService extends Service {
 
+    private final String CHANNEL_ID = "AppMedici_PosTracking";
+    private final String CHANNEL_NAME = "AppMedici Tracker Service";
+
     private static final String TAG = GpsTrackingService.class.getSimpleName();
     static final int NOTIFICATION_ID = 195;
 
@@ -65,17 +75,46 @@ public class GpsTrackingService extends Service {
     private void buildNotification() {
         String stop = "stop";
         registerReceiver(stopReceiver, new IntentFilter(stop));
-        PendingIntent broadcastIntent = PendingIntent.getBroadcast(
-                this, 0, new Intent(stop), PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent broadcastIntent = PendingIntent.getBroadcast(this, 0, new Intent(stop), PendingIntent.FLAG_UPDATE_CURRENT);
+
         // Create the persistent notification//
-        Notification.Builder builder = new Notification.Builder(this)
+        Bitmap icon = BitmapFactory.decodeResource(getResources(), R.drawable.icons8_caduceus_48);
+        String channelId = "";
+        if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.O) {
+            channelId = createNotificationChannel(CHANNEL_ID, CHANNEL_NAME);
+        }
+
+        Notification notification = new NotificationCompat.Builder(this,channelId)
+                .setContentTitle(getString(R.string.app_name))
+                .setContentText(getString(R.string.tracking_enabled_notif))
+                .setSmallIcon(R.drawable.icons8_caduceus_48)
+                .setLargeIcon(Bitmap.createScaledBitmap(icon, 128, 128, false))
+                .setContentIntent(broadcastIntent)
+                .setOngoing(true)
+//                .setDeleteIntent(contentPendingIntent)  // if needed
+                .build();
+        startForeground(NOTIFICATION_ID, notification);
+
+
+        /*Notification.Builder builder = new Notification.Builder(this)
                 .setContentTitle(getString(R.string.app_name))
                 .setContentText(getString(R.string.tracking_enabled_notif))
                 //Make this notification ongoing so it can’t be dismissed by the user//
                 .setOngoing(true)
                 .setContentIntent(broadcastIntent)
                 .setSmallIcon(R.drawable.icons8_caduceus_48);
-        startForeground(NOTIFICATION_ID, builder.build());
+        startForeground(NOTIFICATION_ID, builder.build());*/
+    }
+
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private String createNotificationChannel(String channelId, String channelName) {
+        NotificationChannel nc = new NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_NONE);
+        nc.setLightColor(Color.BLUE);
+        //nc.setLockscreenVisibility(Notification.VISIBILITY_SECRET);
+        nc.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
+        ((NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE)).createNotificationChannel(nc);
+        return channelId;
     }
 
     protected BroadcastReceiver stopReceiver = new BroadcastReceiver() {

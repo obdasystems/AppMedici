@@ -1,7 +1,6 @@
-package com.obdasystems.pocmedici.message.network;
+package com.obdasystems.pocmedici.network;
 
 import com.obdasystems.pocmedici.message.model.Message;
-import com.obdasystems.pocmedici.message.model.OutMessage;
 
 import java.util.List;
 
@@ -24,6 +23,14 @@ public interface MediciApiInterface {
                               @Field("adverseEvent") Boolean adverseEvent,
                               @Field("sender") String sender,
                               @Field("recipient") String recipient
-                              );
+    );
 
+
+    /*@POST("auth/login")
+    @FormUrlEncoded
+    Call<AuthenticationToken> requestAuthentication(@Field("password") String pwd, @Field("username") String usrname);*/
+
+    @POST("auth/login")
+    @FormUrlEncoded
+    Call<String> requestAuthentication(@Field("password") String pwd, @Field("username") String usrname);
 }

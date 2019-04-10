@@ -26,12 +26,16 @@ import java.util.Random;
 public class CalendarMaterialActivity extends AppCompatActivity {
 
     private Context ctx;
+    private String authorizationToken;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_calendar_material);
         ctx = this;
+
+        Intent intent = getIntent();
+        authorizationToken = intent.getStringExtra("token");
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.calendar_material_toolbar);
         toolbar.setNavigationIcon(R.drawable.baseline_arrow_back_black_24dp);

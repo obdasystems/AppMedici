@@ -1,4 +1,4 @@
-package com.obdasystems.pocmedici.message.network;
+package com.obdasystems.pocmedici.network;
 
 import java.io.IOException;
 

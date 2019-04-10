@@ -47,9 +47,14 @@ public class NewFormListActivity extends AppCompatActivity implements SwipeRefre
 
     private Context ctx;
 
+    private String authorizationToken;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Intent intent = getIntent();
+        authorizationToken = intent.getStringExtra("token");
+
         ctx = this;
         setContentView(R.layout.activity_form_list_new);
 
@@ -174,6 +179,7 @@ public class NewFormListActivity extends AppCompatActivity implements SwipeRefre
         if(clickedForm!=null) {
             Intent intent = new Intent(this,CtcaeFormActivity.class);
             intent.putExtra("clickedForm", clickedForm);
+            intent.putExtra("token", authorizationToken);
             //startActivityForResult(intent, CTCAE_FORM_SUBMITTED_CODE);
             startActivity(intent);
         }

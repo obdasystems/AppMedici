@@ -34,8 +34,8 @@ import com.obdasystems.pocmedici.adapter.WriteMessageAttachmentAdapter;
 import com.obdasystems.pocmedici.listener.OnRecyclerViewPositionClickListener;
 import com.obdasystems.pocmedici.message.model.Message;
 import com.obdasystems.pocmedici.message.model.OutMessage;
-import com.obdasystems.pocmedici.message.network.MediciApiClient;
-import com.obdasystems.pocmedici.message.network.MediciApiInterface;
+import com.obdasystems.pocmedici.network.MediciApiClient;
+import com.obdasystems.pocmedici.network.MediciApiInterface;
 
 import java.io.File;
 import java.io.IOException;
@@ -65,6 +65,7 @@ public class WriteMessageActivity extends AppCompatActivity {
     private RecyclerView attachmentRecyclerView;
     private WriteMessageAttachmentAdapter attachmentAdapter;
 
+    private String authorizationToken;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,6 +96,9 @@ public class WriteMessageActivity extends AppCompatActivity {
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.write_message_toolbar);
         setSupportActionBar(toolbar);
+
+        Intent intent = getIntent();
+        authorizationToken = intent.getStringExtra("token");
     }
 
     /*@Override
@@ -126,10 +130,14 @@ public class WriteMessageActivity extends AppCompatActivity {
 
     }*/
 
-    @Override
-    public void onBackPressed() {
+    private void backToMessageList() {
         Intent messageListIntent = new Intent(this, MessageListActivity.class);
         startActivity(messageListIntent);
+    }
+
+    @Override
+    public void onBackPressed() {
+        backToMessageList();
     }
 
     @Override
@@ -284,32 +292,47 @@ public class WriteMessageActivity extends AppCompatActivity {
         String usr = "james";
         String pwd = "bush";
 
-        MediciApiInterface apiService = MediciApiClient.createService(MediciApiInterface.class, usr, pwd);
+        MediciApiInterface apiService = MediciApiClient.createService(MediciApiInterface.class, authorizationToken);
 
         apiService.sendMessage(date,text,subject,adverseEvent,sender,recipient).enqueue(new Callback<Message>() {
             @Override
             public void onResponse(Call<Message> call, Response<Message> response) {
-
                 if(response.isSuccessful()) {
-                    //showResponse(response.body().toString());
-                    Log.i("appMedici", "post submitted to API." + response.body().toString());
+                    Log.i("appMedici", "Message sent to server." + response.body().toString());
+                }
+                else {
+                    switch (response.code()) {
+                        case 401:
+                            Log.e("appMedici", "["+this.getClass().getSimpleName()+"] Unable to send message (401)");
+                            Toast.makeText(getApplicationContext(), "Unable to send message (401)", Toast.LENGTH_LONG).show();
+                            break;
+                        case 404:
+                            Log.e("appMedici", "["+this.getClass().getSimpleName()+"] Unable to send message (404)");
+                            Toast.makeText(getApplicationContext(), "Unable to send message (404)", Toast.LENGTH_LONG).show();
+                            break;
+                        case 500:
+                            Log.e("appMedici", "["+this.getClass().getSimpleName()+"] Unable to send message (500)");
+                            Toast.makeText(getApplicationContext(), "Unable to send message (500)", Toast.LENGTH_LONG).show();
+                            break;
+                        default:
+                            Log.e("appMedici", "["+this.getClass().getSimpleName()+"] Unable to send message (UNKNOWN)");
+                            Toast.makeText(getApplicationContext(), "Unable to send message (UNKNOWN)", Toast.LENGTH_LONG).show();
+                            break;
+                    }
                 }
             }
 
             @Override
             public void onFailure(Call<Message> call, Throwable t) {
-                Log.e("appMedici", "Unable to submit post to API.");
+                Log.e("appMedici", "["+this.getClass().getSimpleName()+"] Unable to send message : "+t.getMessage());
+                Log.e("appMedici", "["+this.getClass().getSimpleName()+"] Unable to send message : "+t.getStackTrace());
+                Toast.makeText(getApplicationContext(), "Unable to send message ..", Toast.LENGTH_LONG).show();
             }
         });
+
+        backToMessageList();
+
     }
-
-    /*public void showResponse(String response) {
-        if(mResponseTv.getVisibility() == View.GONE) {
-            mResponseTv.setVisibility(View.VISIBLE);
-        }
-        mResponseTv.setText(response);
-    }*/
-
 
     private void showAttachmentDialog() {
         final String[] items = {

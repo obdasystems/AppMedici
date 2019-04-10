@@ -53,6 +53,8 @@ public class NewFormPageActivity extends AppCompatActivity implements PageQuesti
     private NewFormQuestionListAdapter adapter;
     private Toolbar toolbar;
 
+    private String authorizationToken;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,6 +64,7 @@ public class NewFormPageActivity extends AppCompatActivity implements PageQuesti
         setToolbarTitle();
 
         Intent intent = getIntent();
+        authorizationToken = intent.getStringExtra("token");
         fillingProcessId = intent.getIntExtra("fillingProcessId",-1);
         formId = intent.getIntExtra("formId",-1);
         totalPagecount = intent.getIntExtra("pageCount", 0);
