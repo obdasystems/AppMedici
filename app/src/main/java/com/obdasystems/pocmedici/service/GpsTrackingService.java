@@ -159,7 +159,7 @@ public class GpsTrackingService extends Service {
         LocationRequest request = new LocationRequest();
 
         //Specify how often your app should request the device’s location//
-        request.setInterval(10000 * 60);
+        request.setInterval(60000);
 
         //Get the most accurate location data available//
         request.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
@@ -236,15 +236,6 @@ public class GpsTrackingService extends Service {
                                         Log.i("appMedici", "["+this.getClass().getSimpleName()+"] Value was set??. Error = "+databaseError);
                                     }
                                 });
-
-                        /*Log.i("appMedici", "["+this.getClass().getSimpleName()+"] Saving the location" +location + " data to the remote database....");
-                        ref.child("positions").child("james").setValue(location, new DatabaseReference.CompletionListener() {
-                            @Override
-                            public void onComplete(@Nullable DatabaseError databaseError, @NonNull DatabaseReference databaseReference) {
-
-                                Log.i("appMedici", "["+this.getClass().getSimpleName()+"] Value was set??. Error = "+databaseError);
-                            }
-                        });*/
                     }
                     else {
                         Log.i("appMedici", "["+this.getClass().getSimpleName()+"] Got null location data");

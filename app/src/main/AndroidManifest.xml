@@ -32,9 +32,13 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
 
-        <!-- Calendar Activity -->
+        <!-- StepCounter Activity -->
         <activity android:name=".activity.StepCounterActivity"
             android:label="Step Counter History"></activity>
+        <activity android:name=".activity.PieChartStepCounterActivity"
+            android:label="Step Counter"></activity>
+        <activity android:name=".activity.PieChartHelloStepCounterActivity"
+            android:label="Hello Step Counter"></activity>
 
         <!-- Calendar Activity -->
         <activity android:name=".activity.CalendarMaterialActivity"

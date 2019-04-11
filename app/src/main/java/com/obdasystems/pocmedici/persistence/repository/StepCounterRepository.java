@@ -22,8 +22,6 @@ public class StepCounterRepository {
         dao = db.formDao();
     }
 
-
-
     public LiveData<List<StepCounter>> getAllStepCounters() {
         return dao.getAllStepCounters();
     }
@@ -40,6 +38,11 @@ public class StepCounterRepository {
             sp = new StepCounter((int)steps,year,month,day);
         }
         dao.insertStepCounter(sp);
+    }
+
+    public StepCounter getStepCounter(int year, int month, int day) {
+        StepCounter sp = dao.getStepCounter(year, month, day);
+        return sp;
     }
 
 }

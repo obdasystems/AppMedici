@@ -2,6 +2,7 @@ package com.obdasystems.pocmedici.activity;
 
 import android.Manifest;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -36,6 +37,8 @@ import com.obdasystems.pocmedici.message.model.Message;
 import com.obdasystems.pocmedici.message.model.OutMessage;
 import com.obdasystems.pocmedici.network.MediciApiClient;
 import com.obdasystems.pocmedici.network.MediciApiInterface;
+import com.obdasystems.pocmedici.network.NetworkUtils;
+import com.obdasystems.pocmedici.utils.SaveSharedPreference;
 
 import java.io.File;
 import java.io.IOException;
@@ -65,11 +68,15 @@ public class WriteMessageActivity extends AppCompatActivity {
     private RecyclerView attachmentRecyclerView;
     private WriteMessageAttachmentAdapter attachmentAdapter;
 
-    private String authorizationToken;
+    private Context ctx;
+
+    private int recursiveSendMessageCounter = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ctx = this;
+        recursiveSendMessageCounter = 0;
         setContentView(R.layout.activity_write_message);
 
         attachmentRecyclerView = findViewById(R.id.write_message_attachment_recycler_view);
@@ -97,8 +104,6 @@ public class WriteMessageActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.write_message_toolbar);
         setSupportActionBar(toolbar);
 
-        Intent intent = getIntent();
-        authorizationToken = intent.getStringExtra("token");
     }
 
     /*@Override
@@ -278,7 +283,7 @@ public class WriteMessageActivity extends AppCompatActivity {
             msg.setRecipient("admin");
             msg.setDate(System.currentTimeMillis());
 
-            sendMessage(System.currentTimeMillis(), body.getText().toString(), subject.getText().toString(), false, "james", "admin");
+            sendMessage(System.currentTimeMillis(), body.getText().toString(), subject.getText().toString(), true, "james", "admin", recursiveSendMessageCounter);
 
             Toast.makeText(this, "MESSAGE SENT", Toast.LENGTH_SHORT).show();
             return true;
@@ -288,50 +293,70 @@ public class WriteMessageActivity extends AppCompatActivity {
     }
 
 
-    public void sendMessage(Long date, String text, String subject, boolean adverseEvent, String sender, String recipient) {
-        String usr = "james";
-        String pwd = "bush";
+    public void sendMessage(Long date, String text, String subject, boolean adverseEvent, String sender, String recipient, int counter) {
 
-        MediciApiInterface apiService = MediciApiClient.createService(MediciApiInterface.class, authorizationToken);
+        if(counter<15) {
+            recursiveSendMessageCounter++;
+            String usr = "james";
+            String pwd = "bush";
 
-        apiService.sendMessage(date,text,subject,adverseEvent,sender,recipient).enqueue(new Callback<Message>() {
-            @Override
-            public void onResponse(Call<Message> call, Response<Message> response) {
-                if(response.isSuccessful()) {
-                    Log.i("appMedici", "Message sent to server." + response.body().toString());
-                }
-                else {
-                    switch (response.code()) {
-                        case 401:
-                            Log.e("appMedici", "["+this.getClass().getSimpleName()+"] Unable to send message (401)");
-                            Toast.makeText(getApplicationContext(), "Unable to send message (401)", Toast.LENGTH_LONG).show();
-                            break;
-                        case 404:
-                            Log.e("appMedici", "["+this.getClass().getSimpleName()+"] Unable to send message (404)");
-                            Toast.makeText(getApplicationContext(), "Unable to send message (404)", Toast.LENGTH_LONG).show();
-                            break;
-                        case 500:
-                            Log.e("appMedici", "["+this.getClass().getSimpleName()+"] Unable to send message (500)");
-                            Toast.makeText(getApplicationContext(), "Unable to send message (500)", Toast.LENGTH_LONG).show();
-                            break;
-                        default:
-                            Log.e("appMedici", "["+this.getClass().getSimpleName()+"] Unable to send message (UNKNOWN)");
-                            Toast.makeText(getApplicationContext(), "Unable to send message (UNKNOWN)", Toast.LENGTH_LONG).show();
-                            break;
+
+            String authorizationToken = SaveSharedPreference.getAuthorizationToken(this);
+            if (authorizationToken == null) {
+                NetworkUtils.requestNewAuthorizationToken(pwd, usr, this);
+            }
+            authorizationToken = SaveSharedPreference.getAuthorizationToken(this);
+
+            MediciApiInterface apiService = MediciApiClient.createService(MediciApiInterface.class, authorizationToken);
+
+            apiService.sendMessage(date, text, subject, adverseEvent, sender, recipient).enqueue(new Callback<Message>() {
+                @Override
+                public void onResponse(Call<Message> call, Response<Message> response) {
+                    if (response.isSuccessful()) {
+                        Log.i("appMedici", "Message sent to server." + response.body().toString());
+                    } else {
+                        switch (response.code()) {
+                            case 401:
+                                NetworkUtils.requestNewAuthorizationToken(pwd, usr, ctx);
+                                Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to fetch message list (401)");
+                                if (!SaveSharedPreference.getAuthorizationIssue(ctx)) {
+                                    sendMessage(date, text, subject, adverseEvent, sender, recipient, recursiveSendMessageCounter);
+                                } else {
+                                    String issueDescription = SaveSharedPreference.getAuthorizationIssueDescription(ctx);
+                                    Toast.makeText(getApplicationContext(), "Unable to send message (401) [" + issueDescription + "]", Toast.LENGTH_LONG).show();
+                                    Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to send message (401) [" + issueDescription + "]");
+                                }
+                                break;
+                            case 404:
+                                Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to send message (404)");
+                                Toast.makeText(getApplicationContext(), "Unable to send message (404)", Toast.LENGTH_LONG).show();
+                                break;
+                            case 500:
+                                Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to send message (500)");
+                                Toast.makeText(getApplicationContext(), "Unable to send message (500)", Toast.LENGTH_LONG).show();
+                                break;
+                            default:
+                                Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to send message (UNKNOWN)");
+                                Toast.makeText(getApplicationContext(), "Unable to send message (UNKNOWN)", Toast.LENGTH_LONG).show();
+                                break;
+                        }
                     }
                 }
-            }
 
-            @Override
-            public void onFailure(Call<Message> call, Throwable t) {
-                Log.e("appMedici", "["+this.getClass().getSimpleName()+"] Unable to send message : "+t.getMessage());
-                Log.e("appMedici", "["+this.getClass().getSimpleName()+"] Unable to send message : "+t.getStackTrace());
-                Toast.makeText(getApplicationContext(), "Unable to send message ..", Toast.LENGTH_LONG).show();
-            }
-        });
+                @Override
+                public void onFailure(Call<Message> call, Throwable t) {
+                    Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to send message : " + t.getMessage());
+                    Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to send message : " + t.getStackTrace());
+                    Toast.makeText(getApplicationContext(), "Unable to send message ..", Toast.LENGTH_LONG).show();
+                    backToMessageList();
+                }
+            });
 
-        backToMessageList();
-
+        }
+        else {
+            Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Max number of calls to sendMessage() reached!!");
+            Toast.makeText(getApplicationContext(), "Max number of calls to sendMessage() reached!!", Toast.LENGTH_LONG).show();
+        }
     }
 
     private void showAttachmentDialog() {

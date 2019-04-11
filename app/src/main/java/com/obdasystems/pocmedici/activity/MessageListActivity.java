@@ -25,6 +25,8 @@ import com.obdasystems.pocmedici.message.helper.DividerItemDecoration;
 import com.obdasystems.pocmedici.message.model.Message;
 import com.obdasystems.pocmedici.network.MediciApiClient;
 import com.obdasystems.pocmedici.network.MediciApiInterface;
+import com.obdasystems.pocmedici.network.NetworkUtils;
+import com.obdasystems.pocmedici.utils.SaveSharedPreference;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,13 +44,11 @@ public class MessageListActivity extends AppCompatActivity implements SwipeRefre
     private ActionMode actionMode;
     private Context ctx;
 
-    private String authorizationToken;
+    private int recursiveGetInboxCallCounter = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Intent intent = getIntent();
-        authorizationToken = intent.getStringExtra("token");
 
         ctx = this;
         setContentView(R.layout.activity_message_list);
@@ -93,7 +93,7 @@ public class MessageListActivity extends AppCompatActivity implements SwipeRefre
                 new Runnable() {
                     @Override
                     public void run() {
-                        getInbox();
+                        getInbox(0);
                     }
                 }
         );
@@ -109,72 +109,87 @@ public class MessageListActivity extends AppCompatActivity implements SwipeRefre
      * Fetches mail messages by making HTTP request
      * url: https://api.androidhive.info/json/inbox.json
      */
-    private void getInbox() {
+    private void getInbox(int counter) {
         swipeRefreshLayout.setRefreshing(true);
 
-        //ApiInterface apiService = ApiClient.getClient().create(ApiInterface.class);
-        //MediciApiInterface apiService = MediciApiClient.getClient().create(MediciApiInterface.class);
+        if(counter<15) {
+            String usr = "james";
+            String pwd = "bush";
 
-        String usr = "james";
-        String pwd = "bush";
+            String authorizationToken = SaveSharedPreference.getAuthorizationToken(this);
+            if (authorizationToken == null) {
+                NetworkUtils.requestNewAuthorizationToken(pwd, usr, this);
+            }
+            authorizationToken = SaveSharedPreference.getAuthorizationToken(this);
 
-        MediciApiInterface apiService = MediciApiClient.createService(MediciApiInterface.class, authorizationToken);
+            MediciApiInterface apiService = MediciApiClient.createService(MediciApiInterface.class, authorizationToken);
 
-        Call<List<Message>> call = apiService.getInbox();
-        call.enqueue(new Callback<List<Message>>() {
-            @Override
-            public void onResponse(Call<List<Message>> call, Response<List<Message>> response) {
+            Call<List<Message>> call = apiService.getInbox();
+            call.enqueue(new Callback<List<Message>>() {
+                @Override
+                public void onResponse(Call<List<Message>> call, Response<List<Message>> response) {
 
-                if(response.isSuccessful()) {
-                    // clear the inbox
-                    messages.clear();
-                    // add all the messages
-                    // messages.addAll(response.body());
-                    // TODO - avoid looping
-                    // the loop was performed to add colors to each message
-                    for (Message message : response.body()) {
-                        // generate a random color
-                        message.setColor(getRandomMaterialColor("400"));
-                        messages.add(message);
+                    if (response.isSuccessful()) {
+                        // clear the inbox
+                        messages.clear();
+                        // add all the messages
+                        // messages.addAll(response.body());
+                        // TODO - avoid looping
+                        // the loop was performed to add colors to each message
+                        for (Message message : response.body()) {
+                            // generate a random color
+                            message.setColor(getRandomMaterialColor("400"));
+                            messages.add(message);
+                        }
+
+                        mAdapter.notifyDataSetChanged();
+                        swipeRefreshLayout.setRefreshing(false);
+                    } else {
+                        switch (response.code()) {
+                            case 401:
+                                NetworkUtils.requestNewAuthorizationToken(pwd, usr, ctx);
+                                Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to fetch message list (401)");
+                                if (!SaveSharedPreference.getAuthorizationIssue(ctx)) {
+                                    getInbox(recursiveGetInboxCallCounter++);
+                                } else {
+                                    String issueDescription = SaveSharedPreference.getAuthorizationIssueDescription(ctx);
+                                    Toast.makeText(getApplicationContext(), "Unable to fetch message list (401) [" + issueDescription + "]", Toast.LENGTH_LONG).show();
+                                    Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to fetch message list (401) [" + issueDescription + "]");
+                                    swipeRefreshLayout.setRefreshing(false);
+                                }
+                                break;
+                            case 404:
+                                Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to fetch message list (404)");
+                                Toast.makeText(getApplicationContext(), "Unable to fetch message list (404)", Toast.LENGTH_LONG).show();
+                                swipeRefreshLayout.setRefreshing(false);
+                                break;
+                            case 500:
+                                Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to fetch message list (500)");
+                                Toast.makeText(getApplicationContext(), "Unable to fetch message list (500)", Toast.LENGTH_LONG).show();
+                                swipeRefreshLayout.setRefreshing(false);
+                                break;
+                            default:
+                                Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to fetch message list (UNKNOWN)");
+                                Toast.makeText(getApplicationContext(), "Unable to fetch message list (UNKNOWN)", Toast.LENGTH_LONG).show();
+                                swipeRefreshLayout.setRefreshing(false);
+                                break;
+                        }
                     }
+                }
 
-                    mAdapter.notifyDataSetChanged();
+                @Override
+                public void onFailure(Call<List<Message>> call, Throwable t) {
+                    Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to fetch message list: " + t.getMessage());
+                    Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to fetch message list: " + t.getStackTrace());
+                    Toast.makeText(getApplicationContext(), "Unable to fetch message list..", Toast.LENGTH_LONG).show();
                     swipeRefreshLayout.setRefreshing(false);
                 }
-                else {
-                    switch (response.code()) {
-                        case 401:
-                            Log.e("appMedici", "["+this.getClass().getSimpleName()+"] Unable to fetch message list (401)");
-                            Toast.makeText(getApplicationContext(), "Unable to fetch message list (401)", Toast.LENGTH_LONG).show();
-                            swipeRefreshLayout.setRefreshing(false);
-                            break;
-                        case 404:
-                            Log.e("appMedici", "["+this.getClass().getSimpleName()+"] Unable to fetch message list (404)");
-                            Toast.makeText(getApplicationContext(), "Unable to fetch message list (404)", Toast.LENGTH_LONG).show();
-                            swipeRefreshLayout.setRefreshing(false);
-                            break;
-                        case 500:
-                            Log.e("appMedici", "["+this.getClass().getSimpleName()+"] Unable to fetch message list (500)");
-                            Toast.makeText(getApplicationContext(), "Unable to fetch message list (500)", Toast.LENGTH_LONG).show();
-                            swipeRefreshLayout.setRefreshing(false);
-                            break;
-                        default:
-                            Log.e("appMedici", "["+this.getClass().getSimpleName()+"] Unable to fetch message list (UNKNOWN)");
-                            Toast.makeText(getApplicationContext(), "Unable to fetch message list (UNKNOWN)", Toast.LENGTH_LONG).show();
-                            swipeRefreshLayout.setRefreshing(false);
-                            break;
-                    }
-                }
-            }
-
-            @Override
-            public void onFailure(Call<List<Message>> call, Throwable t) {
-                Log.e("appMedici", "["+this.getClass().getSimpleName()+"] Unable to fetch message list: "+t.getMessage());
-                Log.e("appMedici", "["+this.getClass().getSimpleName()+"] Unable to fetch message list: "+t.getStackTrace());
-                Toast.makeText(getApplicationContext(), "Unable to fetch message list..", Toast.LENGTH_LONG).show();
-                swipeRefreshLayout.setRefreshing(false);
-            }
-        });
+            });
+        }
+        else {
+            Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Max number of calls to getInbox() reached!!");
+            Toast.makeText(getApplicationContext(), "Max number of calls to getInbox() reached!!", Toast.LENGTH_LONG).show();
+        }
     }
 
     /**
@@ -219,7 +234,7 @@ public class MessageListActivity extends AppCompatActivity implements SwipeRefre
     @Override
     public void onRefresh() {
         // swipe refresh is performed, fetch the messages again
-        getInbox();
+        getInbox(0);
     }
 
     @Override

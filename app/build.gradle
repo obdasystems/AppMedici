@@ -87,6 +87,10 @@ dependencies {
     //Material calendar
     implementation 'com.applandeo:material-calendar-view:1.5.1'
 
+    implementation 'com.github.j4velin.EazeGraph:EazeGraph:1.0.3'
+
+    implementation 'com.github.lecho:hellocharts-library:1.5.8@aar'
+
 }
 
 apply plugin: 'com.google.gms.google-services'

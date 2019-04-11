@@ -19,11 +19,15 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.obdasystems.pocmedici.R;
+import com.obdasystems.pocmedici.message.User;
 import com.obdasystems.pocmedici.message.helper.CircleTransform;
 import com.obdasystems.pocmedici.message.helper.FlipAnimator;
 import com.obdasystems.pocmedici.message.model.Message;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.List;
 
 
@@ -94,16 +98,28 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.MyView
 
         // displaying text view data
         //holder.from.setText(message.getFrom());
-        if(position%2==0) {
+        /*if(position%2==0) {
             holder.from.setText("Medic Department");
         }
         else {
             holder.from.setText("Patient Name");
+        }*/
+
+        User senderUsr = message.getSender();
+        User receiverUsr = message.getRecipient();
+        boolean inMessage;
+        if (senderUsr.getUsername().equals("james")) {
+            holder.from.setText("You");
+            inMessage = false;
+        } else {
+            holder.from.setText("Medic Department");
+            inMessage = true;
         }
+
         //holder.subject.setText(message.getSubject());
         holder.subject.setText(message.getSubject());
         holder.message.setText(message.getText());
-        holder.timestamp.setText(""+message.getDate());
+        holder.timestamp.setText(getTimestampString(message.getDate()));
 
         // displaying the first letter of From in icon text
         holder.iconText.setText(message.getSender().getUsername().substring(0, 1));
@@ -121,11 +137,19 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.MyView
         applyIconAnimation(holder, position);
 
         // display profile image
-        applyProfilePicture(holder, message, position);
+        applyProfilePicture(holder, message, inMessage);
 
         // apply click events
         applyClickEvents(holder, position);
     }
+
+    private String getTimestampString(Long timestamp) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTimeInMillis(timestamp);
+        SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm");
+        return formatter.format(cal);
+    }
+
 
     private void applyClickEvents(MyViewHolder holder, final int position) {
         holder.iconContainer.setOnClickListener(new View.OnClickListener() {
@@ -159,34 +183,24 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.MyView
         });
     }
 
-    private void applyProfilePicture(MyViewHolder holder, Message message, int position) {
-        //if (!TextUtils.isEmpty(message.getPicture())) {
-            /*String messagePicture = message.getPicture();
-            Log.i("appMedici", "message.getPicture()= "+message.getPicture());*/
-            //Glide.with(mContext).load(message.getPicture())https://img.icons8.com/color/48/000000/nurse-male.png
-            if(position%2==0) {
-                Glide.with(mContext).load("https://img.icons8.com/color/48/000000/nurse-male.png")
-                        .thumbnail(0.5f)
-                        .crossFade()
-                        .transform(new CircleTransform(mContext))
-                        .diskCacheStrategy(DiskCacheStrategy.ALL)
-                        .into(holder.imgProfile);
-            }
-            else {
-                Glide.with(mContext).load("https://img.icons8.com/color/48/000000/user.png")
-                        .thumbnail(0.5f)
-                        .crossFade()
-                        .transform(new CircleTransform(mContext))
-                        .diskCacheStrategy(DiskCacheStrategy.ALL)
-                        .into(holder.imgProfile);
-            }
-            holder.imgProfile.setColorFilter(null);
-            holder.iconText.setVisibility(View.GONE);
-        /*} else {
-            holder.imgProfile.setImageResource(R.drawable.bg_circle);
-            holder.imgProfile.setColorFilter(message.getColor());
-            holder.iconText.setVisibility(View.VISIBLE);
-        }*/
+    private void applyProfilePicture(MyViewHolder holder, Message message, boolean inMessage) {
+        if (inMessage) {
+            Glide.with(mContext).load("https://img.icons8.com/color/48/000000/nurse-male.png")
+                    .thumbnail(0.5f)
+                    .crossFade()
+                    .transform(new CircleTransform(mContext))
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .into(holder.imgProfile);
+        } else {
+            Glide.with(mContext).load("https://img.icons8.com/color/48/000000/user.png")
+                    .thumbnail(0.5f)
+                    .crossFade()
+                    .transform(new CircleTransform(mContext))
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .into(holder.imgProfile);
+        }
+        holder.imgProfile.setColorFilter(null);
+        holder.iconText.setVisibility(View.GONE);
     }
 
     private void applyIconAnimation(MyViewHolder holder, int position) {

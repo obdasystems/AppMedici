@@ -8,6 +8,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -19,17 +22,22 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.obdasystems.pocmedici.R;
 import com.obdasystems.pocmedici.authentication.AuthenticationToken;
 import com.obdasystems.pocmedici.network.MediciApiClient;
 import com.obdasystems.pocmedici.network.MediciApiInterface;
+import com.obdasystems.pocmedici.network.NetworkUtils;
 import com.obdasystems.pocmedici.service.DeviceBootReceiver;
 import com.obdasystems.pocmedici.service.GpsTrackingService;
 import com.obdasystems.pocmedici.service.GpsTrackingStarterBroadcastReceiver;
 import com.obdasystems.pocmedici.service.StepCounterForegroundService;
 import com.obdasystems.pocmedici.service.StepCounterService;
+import com.obdasystems.pocmedici.utils.SaveSharedPreference;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -60,6 +68,25 @@ public class MainActivity extends AppCompatActivity {
 
         ctx = this;
 
+        LinearLayout questLayout = findViewById(R.id.questionnaire_layout);
+        Picasso.with(this).load(R.drawable.pulsante_questionnaire_rect).into(new Target() {
+            @Override
+            public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                questLayout.setBackground(new BitmapDrawable(getResources(), bitmap));
+            }
+
+            @Override
+            public void onBitmapFailed(Drawable errorDrawable) {
+
+            }
+
+            @Override
+            public void onPrepareLoad(Drawable placeHolderDrawable) {
+
+            }
+        });
+
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.main_toolbar);
         setSupportActionBar(toolbar);
 
@@ -73,23 +100,6 @@ public class MainActivity extends AppCompatActivity {
             Log.i("appMedici", "["+this.getClass().getSimpleName()+"]Found step counter service already running");
         }
 
-        /*boolean alarmUp = (PendingIntent.getBroadcast(this, DeviceBootReceiver.GPS_TRACKING_PENDING_INTENT_ALRM_ID, new Intent(this, GpsTrackingStarterBroadcastReceiver.class), PendingIntent.FLAG_NO_CREATE) != null);
-        if(alarmUp) {
-            Log.i("appMedici", "["+this.getClass().getSimpleName()+"] GPS alarm is already active");
-        }
-        else {
-            Log.i("appMedici", "["+this.getClass().getSimpleName()+"] registering alarm to start gps tracking service");
-            //Intent gpsIntent = new Intent(context, GpsTrackingService.class);
-            Intent gpsIntent = new Intent(this, GpsTrackingStarterBroadcastReceiver.class);
-
-            PendingIntent gpsPendingIntent = PendingIntent.getService(this, DeviceBootReceiver.GPS_TRACKING_PENDING_INTENT_ALRM_ID, gpsIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-            AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-
-            long currentTime = System.currentTimeMillis();
-            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, currentTime +100 , 10000, gpsPendingIntent);
-
-            Log.i("appMedici", "["+this.getClass().getSimpleName()+"] Alarm registered");
-        }*/
 
         //LOCATION TRACKING
         //Check whether GPS tracking is enabled//
@@ -113,9 +123,7 @@ public class MainActivity extends AppCompatActivity {
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSIONS_REQUEST);
         }
 
-        if(authorizationToken == null) {
-            requestAuthenticationToken();
-        }
+        checkAuthorizationToken();
     }
 
     @Override
@@ -191,7 +199,9 @@ public class MainActivity extends AppCompatActivity {
                 activityClass = NewFormListActivity.class;
                 break;
             case R.id.card_sensors:
-                activityClass = StepCounterActivity.class;
+                //activityClass = StepCounterActivity.class;
+                //activityClass = PieChartStepCounterActivity.class;
+                activityClass = PieChartHelloStepCounterActivity.class;
                 break;
             case R.id.card_messages:
                 activityClass = MessageListActivity.class;
@@ -252,91 +262,14 @@ public class MainActivity extends AppCompatActivity {
     /*****************************
      *      * AUTHENTICATION
      *****************************/
-    private void requestAuthenticationToken() {
+    private void checkAuthorizationToken() {
         String usr = "james";
         String pwd = "bush";
-
-        MediciApiInterface apiService = MediciApiClient.createService(MediciApiInterface.class, usr, pwd);
-
-        Call<String> call = apiService.requestAuthentication(pwd,usr);
-        call.enqueue(new Callback<String>() {
-            @Override
-            public void onResponse(Call<String> call, Response<String> response) {
-                if(response.isSuccessful()) {
-                    String token = response.body();
-                    Log.i("appMedici", "["+this.getClass().getSimpleName()+"] Authentication Token received: "+token);
-                    authorizationToken = token;
-                    //TODO store auth token
-                }
-                else {
-                    switch (response.code()) {
-                        case 401:
-                            Log.e("appMedici", "["+this.getClass().getSimpleName()+"] Unable to authenticate (401)");
-                            Toast.makeText(getApplicationContext(), "Unable to authenticate (401)", Toast.LENGTH_LONG).show();
-                            break;
-                        case 404:
-                            Log.e("appMedici", "["+this.getClass().getSimpleName()+"] Unable to authenticate (404)");
-                            Toast.makeText(getApplicationContext(), "Unable to authenticate (404)", Toast.LENGTH_LONG).show();
-                            break;
-                        case 500:
-                            Log.e("appMedici", "["+this.getClass().getSimpleName()+"] Unable to authenticate (500)");
-                            Toast.makeText(getApplicationContext(), "Unable to authenticate (500)", Toast.LENGTH_LONG).show();
-                            break;
-                        default:
-                            Log.e("appMedici", "["+this.getClass().getSimpleName()+"] Unable to authenticate (UNKNOWN)");
-                            Toast.makeText(getApplicationContext(), "Unable to authenticate (UNKNOWN)", Toast.LENGTH_LONG).show();
-                            break;
-                    }
-                }
-            }
-
-            @Override
-            public void onFailure(Call<String> call, Throwable t) {
-                Log.e("appMedici", "["+this.getClass().getSimpleName()+"] Unable to authenticate: "+t.getMessage());
-                Log.e("appMedici", "["+this.getClass().getSimpleName()+"] Unable to authenticate: "+t.getStackTrace());
-                Toast.makeText(getApplicationContext(), "Unable to authenticate!!", Toast.LENGTH_LONG).show();
-            }
-        });
-
-        /*Call<AuthenticationToken> call = apiService.requestAuthentication(pwd,usr);
-        call.enqueue(new Callback<AuthenticationToken>() {
-            @Override
-            public void onResponse(Call<AuthenticationToken> call, Response<AuthenticationToken> response) {
-                if(response.isSuccessful()) {
-                    AuthenticationToken token = response.body();
-                    Log.i("appMedici", "["+this.getClass().getSimpleName()+"] Authentication Token received: "+token.getToken());
-
-                    //TODO store auth token
-                }
-                else {
-                    switch (response.code()) {
-                        case 401:
-                            Log.e("appMedici", "["+this.getClass().getSimpleName()+"] Unable to authenticate (401)");
-                            Toast.makeText(getApplicationContext(), "Unable to authenticate (401)", Toast.LENGTH_LONG).show();
-                            break;
-                        case 404:
-                            Log.e("appMedici", "["+this.getClass().getSimpleName()+"] Unable to authenticate (404)");
-                            Toast.makeText(getApplicationContext(), "Unable to authenticate (404)", Toast.LENGTH_LONG).show();
-                            break;
-                        case 500:
-                            Log.e("appMedici", "["+this.getClass().getSimpleName()+"] Unable to authenticate (500)");
-                            Toast.makeText(getApplicationContext(), "Unable to authenticate (500)", Toast.LENGTH_LONG).show();
-                            break;
-                        default:
-                            Log.e("appMedici", "["+this.getClass().getSimpleName()+"] Unable to authenticate (UNKNOWN)");
-                            Toast.makeText(getApplicationContext(), "Unable to authenticate (UNKNOWN)", Toast.LENGTH_LONG).show();
-                            break;
-                    }
-                }
-            }
-
-            @Override
-            public void onFailure(Call<AuthenticationToken> call, Throwable t) {
-                Log.e("appMedici", "["+this.getClass().getSimpleName()+"] Unable to authenticate: "+t.getMessage());
-                Log.e("appMedici", "["+this.getClass().getSimpleName()+"] Unable to authenticate: "+t.getStackTrace());
-                Toast.makeText(getApplicationContext(), "Unable to authenticate!!", Toast.LENGTH_LONG).show();
-            }
-        });*/
+        String authorizationToken = SaveSharedPreference.getAuthorizationToken(this);
+        if(authorizationToken == null) {
+            NetworkUtils.requestNewAuthorizationToken(pwd, usr, this);
+        }
     }
+
 
 }
