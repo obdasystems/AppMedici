@@ -146,8 +146,13 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.MyView
     private String getTimestampString(Long timestamp) {
         Calendar cal = Calendar.getInstance();
         cal.setTimeInMillis(timestamp);
-        SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm");
-        return formatter.format(cal);
+
+        int year = cal.get(Calendar.YEAR);
+        int month = cal.get(Calendar.MONTH) + 1;
+        int day = cal.get(Calendar.DAY_OF_MONTH);
+
+        return day +"/" + month + "/" + year;
+
     }
 
 

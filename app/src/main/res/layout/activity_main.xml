@@ -71,12 +71,13 @@
                 android:onClick="cardViewSelected" >
 
                 <LinearLayout
+                    android:id="@+id/sensors_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:layout_gravity="start">
 
-                    <ImageView
+                    <!--<ImageView
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:contentDescription="TODO" android:src="@drawable/ic_widgets_black_24dp"/>
@@ -85,7 +86,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textSize="16pt"
-                        android:text="@string/card_form_sensors" />
+                        android:text="@string/card_form_sensors" />-->
                 </LinearLayout>
             </android.support.v7.widget.CardView>
 

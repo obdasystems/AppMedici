@@ -69,7 +69,13 @@ public class MainActivity extends AppCompatActivity {
         ctx = this;
 
         LinearLayout questLayout = findViewById(R.id.questionnaire_layout);
-        Picasso.with(this).load(R.drawable.pulsante_questionnaire_rect).into(new Target() {
+        questLayout.setBackgroundResource(R.drawable.pulsante_questionnaire_rect_slim);
+
+
+        LinearLayout sensLayout = findViewById(R.id.sensors_layout);
+        sensLayout.setBackgroundResource(R.drawable.pulsante_questionnaire_rect_slim2);
+
+        /*Picasso.with(this).load(R.drawable.pulsante_questionnaire_rect).resize(950, 250).into(new Target() {
             @Override
             public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
                 questLayout.setBackground(new BitmapDrawable(getResources(), bitmap));
@@ -84,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
             public void onPrepareLoad(Drawable placeHolderDrawable) {
 
             }
-        });
+        });*/
 
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.main_toolbar);
@@ -129,6 +135,30 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+
+        LinearLayout questLayout = findViewById(R.id.questionnaire_layout);
+        questLayout.setBackgroundResource(R.drawable.pulsante_questionnaire_rect_slim);
+
+        LinearLayout sensLayout = findViewById(R.id.sensors_layout);
+        sensLayout.setBackgroundResource(R.drawable.pulsante_questionnaire_rect_slim2);
+
+
+        /*Picasso.with(this).load(R.drawable.pulsante_questionnaire_rect).resize(950, 250).into(new Target() {
+            @Override
+            public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                questLayout.setBackground(new BitmapDrawable(getResources(), bitmap));
+            }
+
+            @Override
+            public void onBitmapFailed(Drawable errorDrawable) {
+
+            }
+
+            @Override
+            public void onPrepareLoad(Drawable placeHolderDrawable) {
+
+            }
+        });*/
 
         SharedPreferences sp = getSharedPreferences("app_medici_login", MODE_PRIVATE);
         boolean logged = sp.getBoolean("logged",false);
