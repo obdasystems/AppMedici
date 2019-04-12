@@ -35,7 +35,7 @@ public class StepCounterRepository {
 
         }
         else {
-            sp = new StepCounter((int)steps,year,month,day);
+            sp = new StepCounter((int)steps,year,month,day, 0);
         }
         dao.insertStepCounter(sp);
     }
@@ -43,6 +43,15 @@ public class StepCounterRepository {
     public StepCounter getStepCounter(int year, int month, int day) {
         StepCounter sp = dao.getStepCounter(year, month, day);
         return sp;
+    }
+
+    public List<StepCounter> getNotSentStepCountersMinusCurrent(int year, int month, int day) {
+        return dao.getNotSentStepCountersMinusCurrent(year,month,day);
+    }
+
+    public void finalizeStepCounter(StepCounter sp) {
+        sp.setSentToServer(1);
+        dao.insertStepCounter(sp);
     }
 
 }

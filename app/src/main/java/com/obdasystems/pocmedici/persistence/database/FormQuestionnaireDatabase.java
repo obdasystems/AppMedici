@@ -89,7 +89,7 @@ public abstract class FormQuestionnaireDatabase extends RoomDatabase {
             CtcaeForm form4 = new CtcaeForm(1,4,2);
             mDao.insertForm(form4);*/
 
-            String title1 = "QUESTIONARIO SULLO STATO DI SALUTE SF 36";
+            /*String title1 = "QUESTIONARIO SULLO STATO DI SALUTE SF 36";
             String instr1 = "Questo questionario intende valutare cosa Lei pensa della Sua salute. Le informazioni raccolte " +
                     "permetteranno di essere sempre aggiornati su come si sente e su come riesce a svolgere le Sue attività consuete.\n" +
                     "Risponda a ciascuna domanda del questionario indicando la Sua risposta come mostrato di volta in volta. " +
@@ -263,7 +263,7 @@ public abstract class FormQuestionnaireDatabase extends RoomDatabase {
             StepCounter sp = new StepCounter(300,2019,3,26);
             StepCounter sp1 = new StepCounter(250,2019,3,25);
             mDao.insertStepCounter(sp);
-            mDao.insertStepCounter(sp1);
+            mDao.insertStepCounter(sp1);*/
 
             return null;
         }

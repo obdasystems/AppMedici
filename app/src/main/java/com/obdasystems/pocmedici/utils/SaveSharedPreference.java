@@ -9,10 +9,32 @@ public class SaveSharedPreference {
     public static final String AUTHORIZATION_TOKEN_PREF = "authorization_token";
     public static final String AUTHORIZATION_ISSUE_PREF = "authorization_issue";
     public static final String AUTHORIZATION_ISSUE_DESCRIPTION_PREF = "authorization_issue_descr";
+    public static final String LAST_TIME_STEP_COUNTER_SENT_PREF = "last_time_step_counter_sent";
 
     static SharedPreferences getPreferences(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context);
     }
+
+    /**
+     * Set the authorization token
+     * @param context
+     * @param dateString
+     */
+    public static void setLastTimeStepcountersSent(Context context, String dateString) {
+        SharedPreferences.Editor editor = getPreferences(context).edit();
+        editor.putString(LAST_TIME_STEP_COUNTER_SENT_PREF, dateString);
+        editor.apply();
+    }
+
+    /**
+     * Get the authorization token
+     * @param context
+     * @return String: string representing last date step counters have been sent to server
+     */
+    public static String getLastTimeStepcountersSent(Context context) {
+        return getPreferences(context).getString(LAST_TIME_STEP_COUNTER_SENT_PREF, null);
+    }
+
 
     /**
      * Set the authorization token

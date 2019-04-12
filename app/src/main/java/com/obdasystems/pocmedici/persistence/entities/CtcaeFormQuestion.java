@@ -6,6 +6,8 @@ import android.arch.persistence.room.ForeignKey;
 import android.arch.persistence.room.Index;
 import android.support.annotation.NonNull;
 
+import com.obdasystems.pocmedici.network.RestFormQuestion;
+
 @Entity(tableName = "ctcae_form_question",
         primaryKeys = {"id", "form_id", "page_id"} ,
         foreignKeys = {@ForeignKey(entity = CtcaeFormPage.class,
@@ -43,6 +45,13 @@ public class CtcaeFormQuestion {
         this.formId = formId;
         this.pageId = pageId;
         this.text = text;
+    }
+
+    public CtcaeFormQuestion(RestFormQuestion rfq, int formId, int pageId) {
+        this.id = rfq.getId();
+        this.formId = formId;
+        this.pageId = pageId;
+        this.text = rfq.getText();
     }
 
     @NonNull

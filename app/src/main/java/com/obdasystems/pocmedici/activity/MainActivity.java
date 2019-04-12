@@ -33,11 +33,15 @@ import com.obdasystems.pocmedici.network.NetworkUtils;
 import com.obdasystems.pocmedici.service.DeviceBootReceiver;
 import com.obdasystems.pocmedici.service.GpsTrackingService;
 import com.obdasystems.pocmedici.service.GpsTrackingStarterBroadcastReceiver;
+import com.obdasystems.pocmedici.service.SendFinalizedStepCountersService;
 import com.obdasystems.pocmedici.service.StepCounterForegroundService;
 import com.obdasystems.pocmedici.service.StepCounterService;
 import com.obdasystems.pocmedici.utils.SaveSharedPreference;
+import com.obdasystems.pocmedici.utils.TimeUtils;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
+
+import java.util.Calendar;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -130,6 +134,16 @@ public class MainActivity extends AppCompatActivity {
         }
 
         checkAuthorizationToken();
+
+
+        Calendar cal = Calendar.getInstance();
+        String todayRepr = TimeUtils.getSimpleDateStringRepresentation(cal);
+        String lastDateStepCountersSent = SaveSharedPreference.getLastTimeStepcountersSent(this);
+        if(!todayRepr.equals(lastDateStepCountersSent)) {
+            Intent sendStepCountersIntent = new Intent(this, SendFinalizedStepCountersService.class);
+            startService(sendStepCountersIntent);
+            SaveSharedPreference.setLastTimeStepcountersSent(this,todayRepr);
+        }
     }
 
     @Override

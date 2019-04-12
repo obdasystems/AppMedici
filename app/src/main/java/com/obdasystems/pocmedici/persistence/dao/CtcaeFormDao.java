@@ -32,8 +32,11 @@ public interface CtcaeFormDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertStepCounter(StepCounter counter);
 
-    @Query("SELECT * FROM step_counter")
+    @Query("SELECT * FROM step_counter ORDER BY year,month,day DESC")
     LiveData<List<StepCounter>> getAllStepCounters();
+
+    @Query("SELECT * FROM step_counter WHERE NOT(year=:year AND month=:month AND day=:day) AND sent_to_server=0 ")
+    List<StepCounter> getNotSentStepCountersMinusCurrent(int year, int month, int day);
 
     @Query("SELECT * FROM step_counter WHERE year=:year AND month=:month AND day=:day")
     StepCounter getStepCounter(int year, int month, int day);

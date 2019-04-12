@@ -314,6 +314,7 @@ public class WriteMessageActivity extends AppCompatActivity {
                 public void onResponse(Call<Message> call, Response<Message> response) {
                     if (response.isSuccessful()) {
                         Log.i("appMedici", "Message sent to server." + response.body().toString());
+                        backToMessageList();
                     } else {
                         switch (response.code()) {
                             case 401:

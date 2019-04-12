@@ -26,6 +26,7 @@ import android.support.annotation.RequiresApi;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -44,12 +45,25 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.obdasystems.pocmedici.R;
 import com.obdasystems.pocmedici.asyncresponse.PageQuestionsAsyncResponse;
+import com.obdasystems.pocmedici.message.model.Message;
+import com.obdasystems.pocmedici.network.MediciApiClient;
+import com.obdasystems.pocmedici.network.MediciApiInterface;
+import com.obdasystems.pocmedici.network.NetworkUtils;
 import com.obdasystems.pocmedici.persistence.repository.PositionRepository;
+import com.obdasystems.pocmedici.utils.SaveSharedPreference;
+
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Point;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class GpsTrackingService extends Service {
 
@@ -59,6 +73,8 @@ public class GpsTrackingService extends Service {
     private static final String TAG = GpsTrackingService.class.getSimpleName();
     static final int NOTIFICATION_ID = 195;
 
+    private int counter;
+
     @Override
     public IBinder onBind(Intent intent) {
         return null;
@@ -67,6 +83,7 @@ public class GpsTrackingService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        counter=0;
         buildNotification();
         loginToFirebase();
     }
@@ -96,14 +113,6 @@ public class GpsTrackingService extends Service {
         startForeground(NOTIFICATION_ID, notification);
 
 
-        /*Notification.Builder builder = new Notification.Builder(this)
-                .setContentTitle(getString(R.string.app_name))
-                .setContentText(getString(R.string.tracking_enabled_notif))
-                //Make this notification ongoing so it can’t be dismissed by the user//
-                .setOngoing(true)
-                .setContentIntent(broadcastIntent)
-                .setSmallIcon(R.drawable.icons8_caduceus_48);
-        startForeground(NOTIFICATION_ID, builder.build());*/
     }
 
 
@@ -205,6 +214,7 @@ public class GpsTrackingService extends Service {
                     if (location != null) {
                         //Save the location data to the database//
                         long timestamp = System.currentTimeMillis();
+
                         int day;
                         int month;
                         int year;
@@ -245,6 +255,79 @@ public class GpsTrackingService extends Service {
         }
         else {
             Log.i("appMedici", "["+this.getClass().getSimpleName()+"] Access to fine location failed");
+        }
+    }
+
+    private Point getGeometryPoint(Location location) {
+        double longitude = location.getLongitude();
+        double latitude = location.getLatitude();
+
+        Coordinate coordinate = new Coordinate(latitude,longitude);
+        GeometryFactory factory = new GeometryFactory();
+        return factory.createPoint(coordinate);
+    }
+
+
+    private void sendPositionToServer(Point point, long timestamp) {
+        if(counter<15) {
+            Log.i("appMedici", "Sending position " + point.toString() + " [counter=" + counter + "]");
+            String usr = "james";
+            String pwd = "bush";
+            counter++;
+            Context ctx = this;
+            String authorizationToken = SaveSharedPreference.getAuthorizationToken(this);
+            if (authorizationToken == null) {
+                NetworkUtils.requestNewAuthorizationToken(pwd, usr, this);
+            }
+            authorizationToken = SaveSharedPreference.getAuthorizationToken(this);
+
+            MediciApiInterface apiService = MediciApiClient.createService(MediciApiInterface.class, authorizationToken);
+
+            apiService.sendPosition(timestamp, "gps", point.toString()).enqueue(new Callback<String>() {
+                @Override
+                public void onResponse(Call<String> call, Response<String> response) {
+                    if (response.isSuccessful()) {
+                        Log.i("appMedici", "Position sent to server." + response.body().toString());
+                    } else {
+                        switch (response.code()) {
+                            case 401:
+                                NetworkUtils.requestNewAuthorizationToken(pwd, usr, ctx);
+                                Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to send position (401)");
+                                if (!SaveSharedPreference.getAuthorizationIssue(ctx)) {
+                                    sendPositionToServer(point, timestamp);
+                                } else {
+                                    String issueDescription = SaveSharedPreference.getAuthorizationIssueDescription(ctx);
+                                    Toast.makeText(getApplicationContext(), "Unable to send position (401) [" + issueDescription + "]", Toast.LENGTH_LONG).show();
+                                    Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to send position (401) [" + issueDescription + "]");
+                                }
+                                break;
+                            case 404:
+                                Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to send position (404)");
+                                Toast.makeText(getApplicationContext(), "Unable to send position (404)", Toast.LENGTH_LONG).show();
+                                break;
+                            case 500:
+                                Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to send message (500)");
+                                Toast.makeText(getApplicationContext(), "Unable to send position (500)", Toast.LENGTH_LONG).show();
+                                break;
+                            default:
+                                Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to send message (UNKNOWN)");
+                                Toast.makeText(getApplicationContext(), "Unable to send position (UNKNOWN)", Toast.LENGTH_LONG).show();
+                                break;
+                        }
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<String> call, Throwable t) {
+                    Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to send position : " + t.getMessage());
+                    Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to send position : " + t.getStackTrace());
+                    Toast.makeText(ctx, "Unable to send position ..", Toast.LENGTH_LONG).show();
+                }
+            });
+        }
+        else {
+            Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Max number of calls to sendPositionToServer() reached!!");
+            Toast.makeText(getApplicationContext(), "Max number of calls to sendPositionToServer() reached!!", Toast.LENGTH_LONG).show();
         }
     }
 

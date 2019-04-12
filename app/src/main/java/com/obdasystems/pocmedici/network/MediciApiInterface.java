@@ -12,6 +12,13 @@ import retrofit2.http.POST;
 
 public interface MediciApiInterface {
 
+    @POST("auth/login")
+    @FormUrlEncoded
+    Call<String> requestAuthentication(@Field("password") String pwd, @Field("username") String usrname);
+
+    @GET("forms")
+    Call<List<RestForm>> getQuestionnaires();
+
     @GET("messages")
     Call<List<Message>> getInbox();
 
@@ -22,15 +29,20 @@ public interface MediciApiInterface {
                               @Field("subject") String subject,
                               @Field("adverseEvent") Boolean adverseEvent,
                               @Field("sender") String sender,
-                              @Field("recipient") String recipient
-    );
+                              @Field("recipient") String recipient);
 
-
-    /*@POST("auth/login")
+    @POST("/devices/measures/gps")
     @FormUrlEncoded
-    Call<AuthenticationToken> requestAuthentication(@Field("password") String pwd, @Field("username") String usrname);*/
+    Call<String> sendPosition(@Field("date") long timestamp,
+                              @Field("type") String type,
+                              @Field("geometry") String position);
 
-    @POST("auth/login")
+    @POST("/devices/measures/pedometer")
     @FormUrlEncoded
-    Call<String> requestAuthentication(@Field("password") String pwd, @Field("username") String usrname);
+    Call<String> sendStepCount(@Field("date") long timestamp,
+                               @Field("type") String type,
+                               @Field("count") int stepCount);
+
+
+
 }

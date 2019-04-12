@@ -7,6 +7,8 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 
+import com.obdasystems.pocmedici.network.RestForm;
+
 @Entity(tableName = "ctcae_form_questionnaire")
 public class CtcaeForm implements Parcelable {
 
@@ -17,11 +19,11 @@ public class CtcaeForm implements Parcelable {
 
     @NonNull
     @ColumnInfo(name = "class")
-    private int formClass;
+    private String formClass;
 
     @NonNull
     @ColumnInfo(name = "periodicity")
-    private int formPeriodicity;
+    private String formPeriodicity;
 
     @NonNull
     @ColumnInfo(name = "title")
@@ -31,7 +33,7 @@ public class CtcaeForm implements Parcelable {
     @ColumnInfo(name = "instructions")
     private String formInstructions;
 
-    public CtcaeForm(int id, int formClass, int formPeriodicity, String formTitle, String formInstructions) {
+    public CtcaeForm(int id, String formClass, String formPeriodicity, String formTitle, String formInstructions) {
         this.id = id;
         this.formClass = formClass;
         this.formPeriodicity = formPeriodicity;
@@ -39,16 +41,24 @@ public class CtcaeForm implements Parcelable {
         this.formInstructions = formInstructions;
     }
 
+    public CtcaeForm(RestForm restForm) {
+        this.id = restForm.getId();
+        this.formClass = restForm.getFormClass();
+        this.formPeriodicity = restForm.getPeriodicity();
+        this.formTitle = "FORM TITLE";
+        this.formInstructions = "FORM INSTRUCTIONS";
+    }
+
     @NonNull
     public int getId() {
         return this.id;
     }
 
-    public int getFormClass() {
+    public String getFormClass() {
         return formClass;
     }
 
-    public int getFormPeriodicity() {
+    public String getFormPeriodicity() {
         return formPeriodicity;
     }
 
@@ -65,8 +75,8 @@ public class CtcaeForm implements Parcelable {
 
     public CtcaeForm(Parcel inParcel) {
         this.id = inParcel.readInt();
-        this.formClass = inParcel.readInt();
-        this.formPeriodicity = inParcel.readInt();
+        this.formClass = inParcel.readString();
+        this.formPeriodicity = inParcel.readString();
         this.formTitle = inParcel.readString();
         this.formInstructions = inParcel.readString();
     }
@@ -91,8 +101,8 @@ public class CtcaeForm implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeInt(this.id);
-        dest.writeInt(this.formClass);
-        dest.writeInt(this.formPeriodicity);
+        dest.writeString(this.formClass);
+        dest.writeString(this.formPeriodicity);
         dest.writeString(this.formTitle);
         dest.writeString(this.formInstructions);
     }

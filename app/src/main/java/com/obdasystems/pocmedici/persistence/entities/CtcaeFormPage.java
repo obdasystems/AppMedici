@@ -9,6 +9,8 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 
+import com.obdasystems.pocmedici.network.RestFormPage;
+
 @Entity(tableName = "ctcae_form_page",
         primaryKeys = {"id", "form_id"} ,
         foreignKeys = @ForeignKey(entity = CtcaeForm.class,
@@ -49,6 +51,14 @@ public class CtcaeFormPage implements Parcelable {
         this.pageNumber = pageNumber;
         this.pageTitle = pageTitle;
         this.pageInstructions = pageInstructions;
+    }
+
+    public CtcaeFormPage(RestFormPage rfp, int formId) {
+        this.id = rfp.getId();
+        this.formId = formId;
+        this.pageNumber = rfp.getPageNumber();
+        this.pageTitle = rfp.getPageTitle();
+        this.pageInstructions = "PAGE INSTRUCTIONS";
     }
 
     @NonNull

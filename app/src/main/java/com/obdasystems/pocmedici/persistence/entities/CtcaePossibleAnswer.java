@@ -6,6 +6,8 @@ import android.arch.persistence.room.ForeignKey;
 import android.arch.persistence.room.Index;
 import android.support.annotation.NonNull;
 
+import com.obdasystems.pocmedici.network.RestPossibleAnswer;
+
 @Entity(tableName = "ctcae_form_possible_answer",
         primaryKeys = {"id", "question_id"} ,
         foreignKeys = @ForeignKey(entity = CtcaeFormQuestion.class,
@@ -19,8 +21,6 @@ public class CtcaePossibleAnswer {
     @NonNull
     @ColumnInfo(name = "id")
     private int id;
-
-
 
     @NonNull
     @ColumnInfo(name = "form_id")
@@ -42,6 +42,14 @@ public class CtcaePossibleAnswer {
         this.id = id;
         this.questionId = questionId;
         this.text = text;
+        this.formId = formId;
+        this.pageId = pageId;
+    }
+
+    public CtcaePossibleAnswer(RestPossibleAnswer rpa, int formId, int pageId, int questionId) {
+        this.id = rpa.getId();
+        this.questionId = questionId;
+        this.text = rpa.getText();
         this.formId = formId;
         this.pageId = pageId;
     }

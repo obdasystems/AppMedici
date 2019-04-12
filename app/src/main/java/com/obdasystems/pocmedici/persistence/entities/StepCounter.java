@@ -30,11 +30,16 @@ public class StepCounter {
     @ColumnInfo(name = "day")
     private int day;
 
-    public StepCounter(int stepCount, int year, int month, int day) {
+    @NonNull
+    @ColumnInfo(name = "sent_to_server")
+    private int sentToServer;
+
+    public StepCounter(int stepCount, int year, int month, int day, int sentToServer) {
         this.stepCount = stepCount;
         this.year = year;
         this.month = month;
         this.day = day;
+        this.sentToServer = sentToServer;
     }
 
 
@@ -71,5 +76,11 @@ public class StepCounter {
     }
 
 
+    public int getSentToServer() {
+        return sentToServer;
+    }
 
+    public void setSentToServer(int sentToServer) {
+        this.sentToServer = sentToServer;
+    }
 }

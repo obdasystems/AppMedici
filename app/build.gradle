@@ -91,6 +91,8 @@ dependencies {
 
     implementation 'com.github.lecho:hellocharts-library:1.5.8@aar'
 
+    implementation 'org.locationtech.jts:jts-core:1.16.1'
+
 }
 
 apply plugin: 'com.google.gms.google-services'
