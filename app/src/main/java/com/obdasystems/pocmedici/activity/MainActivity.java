@@ -124,18 +124,33 @@ public class MainActivity extends AppCompatActivity {
         Calendar cal = Calendar.getInstance();
         String todayRepr = TimeUtils.getSimpleDateStringRepresentation(cal);
         String lastDateStepCountersSent = SaveSharedPreference.getLastTimeStepcountersSent(this);
+        if(lastDateStepCountersSent!=null) {
+            Log.i("appMedici", "[" + this.getClass().getSimpleName() + "] lastDateStepCountersSent=" + lastDateStepCountersSent);
+        }
+        else {
+            Log.i("appMedici", "[" + this.getClass().getSimpleName() + "] lastDateStepCountersSent= null" );
+        }
+
         if(lastDateStepCountersSent== null || !todayRepr.equals(lastDateStepCountersSent)) {
+            Log.i("appMedici", "[" + this.getClass().getSimpleName() + "] creating intent SendFinalizedStepCountersService");
             Intent sendStepCountersIntent = new Intent(this, SendFinalizedStepCountersService.class);
             startService(sendStepCountersIntent);
             SaveSharedPreference.setLastTimeStepcountersSent(this,todayRepr);
         }
 
         String lastDateFormsRequested = SaveSharedPreference.getLastTimeQuestionnairesRequested(this);
-        if(lastDateFormsRequested== null || !todayRepr.equals(lastDateFormsRequested)) {
+        if(lastDateStepCountersSent!=null) {
+            Log.i("appMedici", "[" + this.getClass().getSimpleName() + "] lastDateFormsRequested=" + lastDateFormsRequested);
+        }
+        else {
+            Log.i("appMedici", "[" + this.getClass().getSimpleName() + "] lastDateFormsRequested= null" );
+        }
+        //if(lastDateFormsRequested== null || !todayRepr.equals(lastDateFormsRequested)) {
+            Log.i("appMedici", "[" + this.getClass().getSimpleName() + "] creating intent DownloadAssignedFormsService");
             Intent downloadFormsIntent = new Intent(this, DownloadAssignedFormsService.class);
             startService(downloadFormsIntent);
             SaveSharedPreference.setLastTimeQuestionnairesRequested(this,todayRepr);
-        }
+        //}
     }
 
     @Override

@@ -36,7 +36,7 @@ public class DownloadAssignedFormsService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.i("appMedici", "["+this.getClass()+"] Step counter service started");
+        Log.i("appMedici", "["+this.getClass().getSimpleName()+"] DownloadAssignedFormsService started");
         counter = 0;
         downloadAssignedForms();
         return START_STICKY;
@@ -78,6 +78,7 @@ public class DownloadAssignedFormsService extends Service {
                 @Override
                 public void onResponse(Call<List<RestForm>> call, Response<List<RestForm>> response) {
                     if (response.isSuccessful()) {
+                        Log.i("appMedici", "[" + this.getClass().getSimpleName() + "] Forms downloaded!! ("+response.body().size()+")");
                         insertInLocalDatabase(response.body());
                     } else {
                         switch (response.code()) {
@@ -124,6 +125,7 @@ public class DownloadAssignedFormsService extends Service {
     }
 
     private void insertInLocalDatabase(List<RestForm> restForms) {
+        Log.i("appMedici", "insertInLocalDatabase "+restForms.size());
         if(!restForms.isEmpty()) {
             List<CtcaeForm> forms = new LinkedList<>();
             List<CtcaeFormPage> pages = new LinkedList<>();

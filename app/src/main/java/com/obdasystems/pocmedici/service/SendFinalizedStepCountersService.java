@@ -31,7 +31,7 @@ public class SendFinalizedStepCountersService extends Service implements StepCou
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.i("appMedici", "["+this.getClass()+"] Step counter service started");
+        Log.i("appMedici", "["+this.getClass()+"] SendFinalizedStepCountersService started");
         counter = 0;
         GetStepCounterToSendQueryAsyncTask task = new GetStepCounterToSendQueryAsyncTask(this,this);
         task.execute();
@@ -78,33 +78,33 @@ public class SendFinalizedStepCountersService extends Service implements StepCou
                     @Override
                     public void onResponse(Call<String> call, Response<String> response) {
                         if (response.isSuccessful()) {
-                            Log.i("appMedici", "Position sent to server." + response.body().toString());
+                            Log.i("appMedici", "Step count sent to server." + response.body().toString());
                             FinalizeStepCounterQueryAsyncTask task = new FinalizeStepCounterQueryAsyncTask(ctx,sp);
                             task.execute();
                         } else {
                             switch (response.code()) {
                                 case 401:
                                     NetworkUtils.requestNewAuthorizationToken(pwd, usr, ctx);
-                                    Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to send position (401)");
+                                    Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to send Step count (401)");
                                     if (!SaveSharedPreference.getAuthorizationIssue(ctx)) {
                                         getStepCounterToSendQueryAsyncTaskFinished(stepCounters);
                                     } else {
                                         String issueDescription = SaveSharedPreference.getAuthorizationIssueDescription(ctx);
-                                        Toast.makeText(getApplicationContext(), "Unable to send position (401) [" + issueDescription + "]", Toast.LENGTH_LONG).show();
-                                        Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to send position (401) [" + issueDescription + "]");
+                                        Toast.makeText(getApplicationContext(), "Unable to send Step count (401) [" + issueDescription + "]", Toast.LENGTH_LONG).show();
+                                        Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to send Step count (401) [" + issueDescription + "]");
                                     }
                                     break;
                                 case 404:
-                                    Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to send position (404)");
+                                    Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to send Step count (404)");
                                     Toast.makeText(getApplicationContext(), "Unable to send position (404)", Toast.LENGTH_LONG).show();
                                     break;
                                 case 500:
-                                    Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to send message (500)");
+                                    Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to send Step count (500)");
                                     Toast.makeText(getApplicationContext(), "Unable to send position (500)", Toast.LENGTH_LONG).show();
                                     break;
                                 default:
-                                    Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to send message (UNKNOWN)");
-                                    Toast.makeText(getApplicationContext(), "Unable to send position (UNKNOWN)", Toast.LENGTH_LONG).show();
+                                    Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to send Step count (UNKNOWN)");
+                                    Toast.makeText(getApplicationContext(), "Unable to send Step count (UNKNOWN)", Toast.LENGTH_LONG).show();
                                     break;
                             }
                         }
@@ -112,9 +112,9 @@ public class SendFinalizedStepCountersService extends Service implements StepCou
 
                     @Override
                     public void onFailure(Call<String> call, Throwable t) {
-                        Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to send position : " + t.getMessage());
-                        Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to send position : " + t.getStackTrace());
-                        Toast.makeText(ctx, "Unable to send position ..", Toast.LENGTH_LONG).show();
+                        Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to send Step count : " + t.getMessage());
+                        Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to send Step count : " + t.getStackTrace());
+                        Toast.makeText(ctx, "Unable to send Step count ..", Toast.LENGTH_LONG).show();
                     }
                 });
             }
