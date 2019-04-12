@@ -2,15 +2,10 @@ package com.obdasystems.pocmedici.activity;
 
 import android.Manifest;
 import android.app.ActivityManager;
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -26,26 +21,16 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.obdasystems.pocmedici.R;
-import com.obdasystems.pocmedici.authentication.AuthenticationToken;
-import com.obdasystems.pocmedici.network.MediciApiClient;
-import com.obdasystems.pocmedici.network.MediciApiInterface;
 import com.obdasystems.pocmedici.network.NetworkUtils;
-import com.obdasystems.pocmedici.service.DeviceBootReceiver;
+import com.obdasystems.pocmedici.service.DownloadAssignedFormsService;
 import com.obdasystems.pocmedici.service.GpsTrackingService;
-import com.obdasystems.pocmedici.service.GpsTrackingStarterBroadcastReceiver;
 import com.obdasystems.pocmedici.service.SendFinalizedStepCountersService;
 import com.obdasystems.pocmedici.service.StepCounterForegroundService;
 import com.obdasystems.pocmedici.service.StepCounterService;
 import com.obdasystems.pocmedici.utils.SaveSharedPreference;
 import com.obdasystems.pocmedici.utils.TimeUtils;
-import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Target;
 
 import java.util.Calendar;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -139,10 +124,17 @@ public class MainActivity extends AppCompatActivity {
         Calendar cal = Calendar.getInstance();
         String todayRepr = TimeUtils.getSimpleDateStringRepresentation(cal);
         String lastDateStepCountersSent = SaveSharedPreference.getLastTimeStepcountersSent(this);
-        if(!todayRepr.equals(lastDateStepCountersSent)) {
+        if(lastDateStepCountersSent== null || !todayRepr.equals(lastDateStepCountersSent)) {
             Intent sendStepCountersIntent = new Intent(this, SendFinalizedStepCountersService.class);
             startService(sendStepCountersIntent);
             SaveSharedPreference.setLastTimeStepcountersSent(this,todayRepr);
+        }
+
+        String lastDateFormsRequested = SaveSharedPreference.getLastTimeQuestionnairesRequested(this);
+        if(lastDateFormsRequested== null || !todayRepr.equals(lastDateFormsRequested)) {
+            Intent downloadFormsIntent = new Intent(this, DownloadAssignedFormsService.class);
+            startService(downloadFormsIntent);
+            SaveSharedPreference.setLastTimeQuestionnairesRequested(this,todayRepr);
         }
     }
 
@@ -244,8 +236,8 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case R.id.card_sensors:
                 //activityClass = StepCounterActivity.class;
-                //activityClass = PieChartStepCounterActivity.class;
-                activityClass = PieChartHelloStepCounterActivity.class;
+                activityClass = PieChartStepCounterActivity.class;
+                //activityClass = PieChartHelloStepCounterActivity.class;
                 break;
             case R.id.card_messages:
                 activityClass = MessageListActivity.class;

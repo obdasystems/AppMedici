@@ -1,6 +1,5 @@
 package com.obdasystems.pocmedici.service;
 
-import android.app.Application;
 import android.app.ProgressDialog;
 import android.app.Service;
 import android.content.Context;
@@ -10,24 +9,15 @@ import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.obdasystems.pocmedici.activity.FormPageActivity;
-import com.obdasystems.pocmedici.asyncresponse.PageQuestionsAsyncResponse;
 import com.obdasystems.pocmedici.asyncresponse.StepCountersToSendAsyncResponse;
 import com.obdasystems.pocmedici.network.MediciApiClient;
 import com.obdasystems.pocmedici.network.MediciApiInterface;
 import com.obdasystems.pocmedici.network.NetworkUtils;
-import com.obdasystems.pocmedici.persistence.entities.CtcaeFormQuestion;
-import com.obdasystems.pocmedici.persistence.entities.CtcaeFormQuestionAnswered;
-import com.obdasystems.pocmedici.persistence.entities.JoinFormPageQuestionsWithPossibleAnswerData;
 import com.obdasystems.pocmedici.persistence.entities.StepCounter;
-import com.obdasystems.pocmedici.persistence.repository.CtcaeFillingProcessAnsweredQuestionRepository;
-import com.obdasystems.pocmedici.persistence.repository.CtcaeFormQuestionsRepository;
 import com.obdasystems.pocmedici.persistence.repository.StepCounterRepository;
 import com.obdasystems.pocmedici.utils.SaveSharedPreference;
-import com.obdasystems.pocmedici.utils.TimeUtils;
 
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 import retrofit2.Call;
@@ -135,27 +125,19 @@ public class SendFinalizedStepCountersService extends Service implements StepCou
         }
     }
 
-    //get all questions in page along with questions already answered in cyurrent filling process
     private static class FinalizeStepCounterQueryAsyncTask extends AsyncTask<Void, Void, Void> {
         private Context ctx;
-        private ProgressDialog progDial;
         private StepCounterRepository repository;
         private StepCounter sp;
 
         FinalizeStepCounterQueryAsyncTask(Context context, StepCounter sp) {
             ctx = context;
-            progDial = new ProgressDialog(ctx);
             this.sp = sp;
         }
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            progDial.setMessage("Finalizing step counter...");
-            progDial.setIndeterminate(false);
-            progDial.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-            progDial.setCancelable(false);
-            progDial.show();
         }
 
         @Override
@@ -168,31 +150,23 @@ public class SendFinalizedStepCountersService extends Service implements StepCou
         @Override
         protected void onPostExecute(Void v) {
             super.onPostExecute(v);
-            progDial.dismiss();
         }
     }
 
 
     private static class GetStepCounterToSendQueryAsyncTask extends AsyncTask<Void, Void, List<StepCounter>> {
         private Context ctx;
-        private ProgressDialog progDial;
         private StepCounterRepository repository;
         private StepCountersToSendAsyncResponse delegate;
 
         GetStepCounterToSendQueryAsyncTask(Context context,StepCountersToSendAsyncResponse delegate) {
             ctx = context;
-            progDial = new ProgressDialog(ctx);
             this.delegate = delegate;
         }
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            progDial.setMessage("Retrieving step counters...");
-            progDial.setIndeterminate(false);
-            progDial.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-            progDial.setCancelable(false);
-            progDial.show();
         }
 
         @Override
@@ -214,7 +188,6 @@ public class SendFinalizedStepCountersService extends Service implements StepCou
         @Override
         protected void onPostExecute(List<StepCounter> stepCounters) {
             super.onPostExecute(stepCounters);
-            progDial.dismiss();
             delegate.getStepCounterToSendQueryAsyncTaskFinished(stepCounters);
         }
     }

@@ -1,13 +1,14 @@
 package com.obdasystems.pocmedici.persistence.repository;
 
-import android.app.Application;
 import android.arch.lifecycle.LiveData;
-import android.os.AsyncTask;
-import android.util.Log;
+import android.content.Context;
 
 import com.obdasystems.pocmedici.persistence.dao.CtcaeFormDao;
 import com.obdasystems.pocmedici.persistence.database.FormQuestionnaireDatabase;
 import com.obdasystems.pocmedici.persistence.entities.CtcaeForm;
+import com.obdasystems.pocmedici.persistence.entities.CtcaeFormPage;
+import com.obdasystems.pocmedici.persistence.entities.CtcaeFormQuestion;
+import com.obdasystems.pocmedici.persistence.entities.CtcaePossibleAnswer;
 import com.obdasystems.pocmedici.persistence.entities.JoinFormWithMaxPageNumberData;
 
 import java.util.List;
@@ -15,36 +16,30 @@ import java.util.List;
 public class CtcaeFormRepository {
 
     private CtcaeFormDao dao;
-    private LiveData<List<JoinFormWithMaxPageNumberData>> allForms;
 
-    public CtcaeFormRepository(Application app) {
-        FormQuestionnaireDatabase db = FormQuestionnaireDatabase.getDatabase(app);
+    public CtcaeFormRepository(Context ctx) {
+        FormQuestionnaireDatabase db = FormQuestionnaireDatabase.getDatabase(ctx);
         dao = db.formDao();
-        allForms = dao.getFormWithPagesCount();
-        //Log.i("ROOM","CtcaeFormRepository "+allForms.getValue().size());
     }
 
     public LiveData<List<JoinFormWithMaxPageNumberData>> getAllForms() {
-        return allForms;
+        return dao.getFormWithPagesCount();
     }
 
-
-
-    /*public void insertForm(CtcaeForm form) {
-        new insertFormAsyncTask(dao).execute(form);
+    public void insertForm(CtcaeForm form) {
+        dao.insertForm(form);
     }
 
-    private static class insertFormAsyncTask extends AsyncTask<CtcaeForm, Void, Void> {
+    public void insertFormPage(CtcaeFormPage formPage) {
+        dao.insertFormPage(formPage);
+    }
 
-        private CtcaeFormDao mAsyncTaskDao;
+    public void insertFormQuestion(CtcaeFormQuestion quest) {
+        dao.insertFormQuestion(quest);
+    }
 
-        insertFormAsyncTask(CtcaeFormDao dao) {
-            mAsyncTaskDao = dao;
-        }
+    public void insertFormAnswer(CtcaePossibleAnswer answ) {
+        dao.insertPossibleAnswer(answ);
+    }
 
-        protected Void doInBackground(final CtcaeForm... params) {
-            mAsyncTaskDao.insertForm(params[0]);
-            return null;
-        }
-    }*/
 }

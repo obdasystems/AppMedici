@@ -116,6 +116,17 @@
             android:name=".service.StepCounterForegroundService"
             android:enabled="true">
         </service>
+        <service
+            android:name=".service.SendFinalizedStepCountersService"
+            android:enabled="true">
+        </service>
+
+        <!-- questionnaires download service-->
+        <service
+            android:name=".service.DownloadAssignedFormsService"
+            android:enabled="true">
+        </service>
+
 
         <!--service TO MANAGE PUSH NOTIFICATIONS WHILE APP IS FOREGROUND-->
         <service android:name=".notification.NotificationFirebaseMessagingService">

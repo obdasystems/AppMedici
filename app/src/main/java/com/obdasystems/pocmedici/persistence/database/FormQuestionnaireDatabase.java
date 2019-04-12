@@ -45,7 +45,7 @@ public abstract class FormQuestionnaireDatabase extends RoomDatabase {
             synchronized (FormQuestionnaireDatabase.class) {
                 if(INSTANCE == null) {
                     INSTANCE = Room.databaseBuilder(context.getApplicationContext(),FormQuestionnaireDatabase.class,
-                                                    "form_questionnaire_database_31").addCallback(callBack).build();
+                                                    "form_questionnaire_database_50").addCallback(callBack).build();
                     /*INSTANCE = Room.databaseBuilder(context.getApplicationContext(),FormQuestionnaireDatabase.class,
                             "form_questionnaire_database_30").addMigrations(MIGRATION_1_1).build();*/
                 }
@@ -257,13 +257,13 @@ public abstract class FormQuestionnaireDatabase extends RoomDatabase {
             CtcaePossibleAnswer form1Page4Question4Poss1 = new CtcaePossibleAnswer(1441,form1.getId(),form1Page4.getId(),form1Page4Question4.getId(),"SI");
             mDao.insertPossibleAnswer(form1Page4Question4Poss1);
             CtcaePossibleAnswer form1Page4Question4Poss2 = new CtcaePossibleAnswer(1442,form1.getId(),form1Page4.getId(),form1Page4Question4.getId(),"NO");
-            mDao.insertPossibleAnswer(form1Page4Question4Poss2);
+            mDao.insertPossibleAnswer(form1Page4Question4Poss2);*/
 
 
-            StepCounter sp = new StepCounter(300,2019,3,26);
-            StepCounter sp1 = new StepCounter(250,2019,3,25);
+            StepCounter sp = new StepCounter(300,2019,3,26,0);
+            StepCounter sp1 = new StepCounter(250,2019,3,25,0);
             mDao.insertStepCounter(sp);
-            mDao.insertStepCounter(sp1);*/
+            mDao.insertStepCounter(sp1);
 
             return null;
         }
