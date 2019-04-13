@@ -59,8 +59,7 @@ public class MessageListActivity extends AppCompatActivity implements SwipeRefre
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent mainIntent = new Intent(ctx, MainActivity.class);
-                startActivity(mainIntent);
+                backToMain();
             }
         });
 
@@ -99,10 +98,14 @@ public class MessageListActivity extends AppCompatActivity implements SwipeRefre
         );
     }
 
+    private void backToMain() {
+        Intent mainIntent = new Intent(ctx, MainActivity.class);
+        startActivity(mainIntent);
+    }
+
     @Override
     public void onBackPressed() {
-        Intent mainIntent = new Intent(this, MainActivity.class);
-        startActivity(mainIntent);
+        backToMain();
     }
 
     /**

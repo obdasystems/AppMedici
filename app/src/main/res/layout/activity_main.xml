@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context=".activity.MainActivity"
-    android:background="?attr/colorPrimaryDark"
+    android:background="@android:color/white"
     >
 
     <android.support.design.widget.AppBarLayout
@@ -29,17 +29,16 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="start|top"
+            android:layout_height="wrap_content"
             android:orientation="vertical"
-
+            android:paddingTop="35dp"
+            android:paddingBottom="8dp"
             >
 
             <android.support.v7.widget.CardView
                 android:id="@+id/card_ctcae_form"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="10sp"
                 android:onClick="cardViewSelected"
                 >
 
@@ -50,43 +49,33 @@
                     android:orientation="horizontal"
                     android:layout_gravity="start">
 
-                    <!--<ImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:contentDescription="TODO" android:src="@drawable/ic_description_black_24dp"/>
-
-                    <TextView
-                        android:layout_width="wrap_content"
+                    <ImageView
+                        android:id="@+id/image_ctcae_form"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:textSize="16pt"
-                        android:text="@string/card_form_ctcae_form" />-->
+                        android:contentDescription="TODO"/>
+
                 </LinearLayout>
             </android.support.v7.widget.CardView>
+
+
 
             <android.support.v7.widget.CardView
                 android:id="@+id/card_sensors"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="10sp"
-                android:onClick="cardViewSelected" >
-
+                android:onClick="cardViewSelected">
                 <LinearLayout
-                    android:id="@+id/sensors_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:layout_gravity="start">
-
-                    <!--<ImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:contentDescription="TODO" android:src="@drawable/ic_widgets_black_24dp"/>
-
-                    <TextView
-                        android:layout_width="wrap_content"
+                    android:layout_gravity="start"
+                    android:paddingTop="12dp">
+                    <ImageView
+                        android:id="@+id/image_sensors"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:textSize="16pt"
-                        android:text="@string/card_form_sensors" />-->
+                        android:contentDescription="TODO" />
                 </LinearLayout>
             </android.support.v7.widget.CardView>
 
@@ -94,25 +83,21 @@
                 android:id="@+id/card_messages"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="10sp"
-                android:onClick="cardViewSelected" >
+                android:onClick="cardViewSelected"
+                app:cardPreventCornerOverlap="false">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:layout_gravity="start">
-
+                    android:layout_gravity="start"
+                    android:paddingTop="12dp">
                     <ImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:contentDescription="TODO" android:src="@drawable/ic_message_black_24dp"/>
-
-                    <TextView
-                        android:layout_width="wrap_content"
+                        android:id="@+id/image_messages"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:textSize="16pt"
-                        android:text="@string/card_form_messages" />
+                        android:contentDescription="TODO"
+                        />
                 </LinearLayout>
             </android.support.v7.widget.CardView>
 
@@ -120,369 +105,54 @@
                 android:id="@+id/card_calendar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="10sp"
-                android:onClick="cardViewSelected" >
+                android:onClick="cardViewSelected"
+                app:cardPreventCornerOverlap="false">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:layout_gravity="start">
+                    android:layout_gravity="start"
+                    android:paddingTop="12dp">
 
                     <ImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:contentDescription="TODO" android:src="@drawable/ic_date_range_black_24dp"/>
+                        android:id="@+id/image_calendar"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"/>
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textSize="16pt"
-                        android:text="@string/card_form_calendar" />
                 </LinearLayout>
             </android.support.v7.widget.CardView>
 
-            <!--<android.support.v7.widget.CardView
-                android:id="@+id/card_negative_event"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="10sp"
-                android:onClick="cardViewSelected" >
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_gravity="start">
-
-                    <ImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:contentDescription="TODO" android:src="@drawable/ic_add_alarm_black_24dp"/>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textSize="16pt"
-                        android:text="@string/card_form_negative_event" />
-                </LinearLayout>
-            </android.support.v7.widget.CardView>-->
 
             <android.support.v7.widget.CardView
                 android:id="@+id/card_prescriptions"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="10sp"
-                android:onClick="cardViewSelected" >
+                android:onClick="cardViewSelected"
+                app:cardPreventCornerOverlap="false"
+                >
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:layout_gravity="start">
+                    android:layout_gravity="start"
+                    android:paddingTop="12dp">
 
                     <ImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:contentDescription="TODO" android:src="@drawable/ic_local_pharmacy_black_24dp"/>
-
-                    <TextView
-                        android:layout_width="wrap_content"
+                        android:id="@+id/image_prescriptions"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:textSize="16pt"
-                        android:text="@string/card_form_prescriptions" />
+                        android:contentDescription="TODO" />
+
+
                 </LinearLayout>
             </android.support.v7.widget.CardView>
 
-            <!--<android.support.v7.widget.CardView
-                android:id="@+id/card_user_profile"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="10sp"
-                android:onClick="cardViewSelected" >
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_gravity="start">
-
-                    <ImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:contentDescription="TODO" android:src="@drawable/ic_person_black_24dp"/>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textSize="16pt"
-                        android:text="@string/card_form_user_profile" />
-                </LinearLayout>
-            </android.support.v7.widget.CardView>
-
-            <android.support.v7.widget.CardView
-                android:id="@+id/card_settings"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="10sp"
-                android:onClick="cardViewSelected" >
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_gravity="start">
-
-                    <ImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:contentDescription="TODO" android:src="@drawable/ic_settings_black_24dp"/>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textSize="16pt"
-                        android:text="@string/card_form_settings" />
-                </LinearLayout>
-            </android.support.v7.widget.CardView>-->
         </LinearLayout>
     </ScrollView>
 
 
 </LinearLayout>
-
-<!--<android.support.constraint.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".activity.MainActivity">
-
-
-
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" >
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="start|top"
-            android:orientation="vertical" >
-
-            <android.support.v7.widget.CardView
-                android:id="@+id/card_ctcae_form"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="10sp"
-                android:onClick="cardViewSelected">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_gravity="start">
-
-                    <ImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:contentDescription="TODO" android:src="@drawable/ic_description_black_24dp"/>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textSize="16pt"
-                        android:text="@string/card_form_ctcae_form" />
-                </LinearLayout>
-            </android.support.v7.widget.CardView>
-
-            <android.support.v7.widget.CardView
-                android:id="@+id/card_sensors"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="10sp"
-                android:onClick="cardViewSelected" >
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_gravity="start">
-
-                    <ImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:contentDescription="TODO" android:src="@drawable/ic_widgets_black_24dp"/>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textSize="16pt"
-                        android:text="@string/card_form_sensors" />
-                </LinearLayout>
-            </android.support.v7.widget.CardView>
-
-            <android.support.v7.widget.CardView
-                android:id="@+id/card_messages"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="10sp"
-                android:onClick="cardViewSelected" >
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_gravity="start">
-
-                    <ImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:contentDescription="TODO" android:src="@drawable/ic_message_black_24dp"/>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textSize="16pt"
-                        android:text="@string/card_form_messages" />
-                </LinearLayout>
-            </android.support.v7.widget.CardView>
-
-            <android.support.v7.widget.CardView
-                android:id="@+id/card_calendar"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="10sp"
-                android:onClick="cardViewSelected" >
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_gravity="start">
-
-                    <ImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:contentDescription="TODO" android:src="@drawable/ic_date_range_black_24dp"/>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textSize="16pt"
-                        android:text="@string/card_form_calendar" />
-                </LinearLayout>
-            </android.support.v7.widget.CardView>
-
-            <android.support.v7.widget.CardView
-                android:id="@+id/card_negative_event"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="10sp"
-                android:onClick="cardViewSelected" >
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_gravity="start">
-
-                    <ImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:contentDescription="TODO" android:src="@drawable/ic_add_alarm_black_24dp"/>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textSize="16pt"
-                        android:text="@string/card_form_negative_event" />
-                </LinearLayout>
-            </android.support.v7.widget.CardView>
-
-            <android.support.v7.widget.CardView
-                android:id="@+id/card_prescriptions"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="10sp"
-                android:onClick="cardViewSelected" >
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_gravity="start">
-
-                    <ImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:contentDescription="TODO" android:src="@drawable/ic_local_pharmacy_black_24dp"/>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textSize="16pt"
-                        android:text="@string/card_form_prescriptions" />
-                </LinearLayout>
-            </android.support.v7.widget.CardView>
-
-            <android.support.v7.widget.CardView
-                android:id="@+id/card_user_profile"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="10sp"
-                android:onClick="cardViewSelected" >
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_gravity="start">
-
-                    <ImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:contentDescription="TODO" android:src="@drawable/ic_person_black_24dp"/>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textSize="16pt"
-                        android:text="@string/card_form_user_profile" />
-                </LinearLayout>
-            </android.support.v7.widget.CardView>
-
-            <android.support.v7.widget.CardView
-                android:id="@+id/card_settings"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="10sp"
-                android:onClick="cardViewSelected" >
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_gravity="start">
-
-                    <ImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:contentDescription="TODO" android:src="@drawable/ic_settings_black_24dp"/>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textSize="16pt"
-                        android:text="@string/card_form_settings" />
-                </LinearLayout>
-            </android.support.v7.widget.CardView>
-        </LinearLayout>
-    </ScrollView>
-
-</android.support.constraint.ConstraintLayout>-->

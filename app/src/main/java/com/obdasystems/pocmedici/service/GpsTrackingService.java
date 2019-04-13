@@ -85,7 +85,7 @@ public class GpsTrackingService extends Service {
         super.onCreate();
         counter=0;
         buildNotification();
-        loginToFirebase();
+        //loginToFirebase();
     }
 
     //Create the persistent notification
@@ -168,7 +168,7 @@ public class GpsTrackingService extends Service {
         LocationRequest request = new LocationRequest();
 
         //Specify how often your app should request the device’s location//
-        request.setInterval(60000);
+        request.setInterval(10000);
 
         //Get the most accurate location data available//
         request.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
@@ -186,12 +186,11 @@ public class GpsTrackingService extends Service {
                     Log.i("appMedici", "["+this.getClass().getSimpleName()+"] Getting location result");
                     //Get a reference to the database, so your app can perform read and write operations//
                     //DatabaseReference ref = FirebaseDatabase.getInstance().getReference(path);
-                    DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
 
-                    /*
-                    LISTENER CAPTURING EVENT ON DATABASE
-                     */
-                    /*ValueEventListener insertListener = new ValueEventListener() {
+                    /*DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
+
+
+                    ValueEventListener insertListener = new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             // Get Post object and use the values to update the UI
@@ -207,9 +206,9 @@ public class GpsTrackingService extends Service {
                             // ...
                         }
                     };
-                    ref.addValueEventListener(insertListener);*/
+                    ref.addValueEventListener(insertListener);
 
-                    Log.i("appMedici", "["+this.getClass().getSimpleName()+"] Got reference to database " + ref.toString());
+                    Log.i("appMedici", "["+this.getClass().getSimpleName()+"] Got reference to database " + ref.toString());*/
                     Location location = locationResult.getLastLocation();
                     if (location != null) {
                         //Save the location data to the database//
@@ -219,7 +218,10 @@ public class GpsTrackingService extends Service {
                         int month;
                         int year;
 
-                        if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.O) {
+                        Point geoPoint = getGeometryPoint(location);
+                        sendPositionToServer(geoPoint, timestamp);
+
+                        /*if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.O) {
                             LocalDate now = LocalDate.now();
                             day = now.getDayOfMonth();
                             month = now.getMonthValue();
@@ -245,7 +247,7 @@ public class GpsTrackingService extends Service {
 
                                         Log.i("appMedici", "["+this.getClass().getSimpleName()+"] Value was set??. Error = "+databaseError);
                                     }
-                                });
+                                });*/
                     }
                     else {
                         Log.i("appMedici", "["+this.getClass().getSimpleName()+"] Got null location data");

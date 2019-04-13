@@ -45,7 +45,7 @@ public class PieChartStepCounterActivity extends AppCompatActivity implements St
     public final static NumberFormat formatter = NumberFormat.getInstance(Locale.getDefault());
     private boolean showSteps = true;
 
-    int goal = 10000;
+    int goal = 1000;
 
     boolean firstDraw = true;
 
@@ -72,8 +72,7 @@ public class PieChartStepCounterActivity extends AppCompatActivity implements St
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent mainIntent = new Intent(ctx, MainActivity.class);
-                startActivity(mainIntent);
+                backToMain();
             }
         });
 
@@ -81,11 +80,11 @@ public class PieChartStepCounterActivity extends AppCompatActivity implements St
         pg = (PieChart) findViewById(R.id.graph);
         stepsView = (TextView) findViewById(R.id.steps);
 
-        sliceCurrent = new PieModel("", 100, Color.parseColor("#99CC00"));
+        sliceCurrent = new PieModel("", 0, Color.parseColor("#99CC00"));
         pg.addPieSlice(sliceCurrent);
 
         // slice for the "missing" steps until reaching the goal
-        sliceGoal = new PieModel("", goal -100, Color.parseColor("#CC0000"));
+        sliceGoal = new PieModel("", goal , Color.parseColor("#CC0000"));
         pg.addPieSlice(sliceGoal);
 
         pg.setDrawValueInPie(false);
@@ -129,7 +128,11 @@ public class PieChartStepCounterActivity extends AppCompatActivity implements St
 
     @Override
     public void onBackPressed() {
-        Intent mainIntent = new Intent(this, MainActivity.class);
+        backToMain();
+    }
+
+    private void backToMain() {
+        Intent mainIntent = new Intent(ctx, MainActivity.class);
         startActivity(mainIntent);
     }
 

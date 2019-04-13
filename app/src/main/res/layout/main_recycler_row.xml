@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+
+    android:clickable="true"
+    android:focusable="true"
+    android:orientation="vertical">
+
+     <!--
+    android:paddingBottom="@dimen/padding_list_row"
+    android:paddingLeft="?listPreferredItemPaddingLeft"
+    android:paddingRight="?listPreferredItemPaddingRight"
+    android:paddingTop="@dimen/padding_list_row"
+     -->
+     <LinearLayout
+         android:id="@+id/message_container"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+         android:clickable="true"
+         android:orientation="vertical"
+         android:paddingTop="8dp"
+         android:paddingBottom="8dp"
+         android:paddingLeft="@dimen/padding_list_row"
+         android:paddingRight="@dimen/padding_list_row">
+
+
+          <ImageView
+              android:id="@+id/main_recycler_row_image"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:clickable="true"/>
+
+     </LinearLayout>
+</RelativeLayout>
