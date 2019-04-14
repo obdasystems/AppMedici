@@ -18,7 +18,7 @@ import com.obdasystems.pocmedici.network.MediciApi;
 import com.obdasystems.pocmedici.network.request.UserDeviceRegistrationRequest;
 import com.obdasystems.pocmedici.utils.SaveSharedPreference;
 
-public class NotificationFirebaseMessagingService extends FirebaseMessagingService {
+public class PushNotificationService extends FirebaseMessagingService {
     private final String CHANNEL_ID = "appMedici push notification";
     private final int NOTIFICATION_ID = 98765;
 
