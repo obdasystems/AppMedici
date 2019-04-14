@@ -17,8 +17,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 
 public class MediciApiClient {
-    //public static final String BASE_URL = "http://192.168.1.20:9000/api/";
-    public static final String BASE_URL = "http://obdatest.dis.uniroma1.it:3000/api/";
+    public static final String BASE_URL = "http://10.0.0.195:9000/api/";
+    //public static final String BASE_URL = "http://obdatest.dis.uniroma1.it:3000/api/";
     private static Retrofit retrofit = null;
 
     private static OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
@@ -47,15 +47,6 @@ public class MediciApiClient {
 
         return createService(serviceClass, null);
     }
-
-    /*public static <S> S createService(
-            Class<S> serviceClass, String token) {
-        if (!TextUtils.isEmpty(token)) {
-            return createService(serviceClass, token);
-        }
-
-        return createService(serviceClass, null);
-    }*/
 
     public static <S> S createService(
             Class<S> serviceClass, final String authToken) {

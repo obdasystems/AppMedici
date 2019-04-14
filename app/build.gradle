@@ -4,7 +4,7 @@ android {
     compileSdkVersion 28
     defaultConfig {
         applicationId "com.obdasystems.pocmedici"
-        minSdkVersion 16
+        minSdkVersion 19
         targetSdkVersion 28
         versionCode 1
         versionName "1.0"
@@ -71,6 +71,12 @@ dependencies {
 
     //Utils
     implementation "me.relex:circleindicator:$circleindicatorVersion"
+
+    // Guava
+    implementation "com.google.guava:guava:27.1-android"
+
+    // AndroidDeviceNames
+    implementation 'com.jaredrummler:android-device-names:1.1.8'
 
     // retrofit, gson
     implementation 'com.google.code.gson:gson:2.8.0'

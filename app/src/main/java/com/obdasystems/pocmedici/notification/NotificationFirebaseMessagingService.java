@@ -5,25 +5,20 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.RingtoneManager;
-import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
-import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.iid.FirebaseInstanceId;
-import com.google.firebase.iid.InstanceIdResult;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
+import com.jaredrummler.android.device.DeviceName;
 import com.obdasystems.pocmedici.R;
-import com.obdasystems.pocmedici.activity.MainActivity;
-
-import static android.support.constraint.Constraints.TAG;
-import static android.widget.Toast.*;
+import com.obdasystems.pocmedici.network.MediciApiClient;
+import com.obdasystems.pocmedici.network.MediciApiInterface;
+import com.obdasystems.pocmedici.network.request.UserDeviceRegistrationRequest;
+import com.obdasystems.pocmedici.utils.SaveSharedPreference;
 
 public class NotificationFirebaseMessagingService extends FirebaseMessagingService {
-
     private final String CHANNEL_ID = "appMedici push notification";
     private final int NOTIFICATION_ID = 98765;
 
@@ -43,7 +38,6 @@ public class NotificationFirebaseMessagingService extends FirebaseMessagingServi
                 .setAutoCancel(true);
 
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-
         notificationManager.notify(NOTIFICATION_ID, notificationBuilder.build());
     }
 
@@ -51,26 +45,24 @@ public class NotificationFirebaseMessagingService extends FirebaseMessagingServi
     public void onNewToken(String s) {
         super.onNewToken(s);
 
-        FirebaseInstanceId.getInstance().getInstanceId()
-                .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<InstanceIdResult> task) {
-                        if (!task.isSuccessful()) {
-                            Log.w("appMedici", "getInstanceId failed", task.getException());
-                            return;
-                        }
-
-                        // Get new Instance ID token
-                        String token = task.getResult().getToken();
-                        Log.i("TOKEN", token);
-                        //sendRegistrationToServer(token);
-
-                        // Log and toast
-                        //String msg = getString(R.string.msg_token_fmt, token);
-                        /*Log.d(TAG, msg);
-                        makeText(this, msg, LENGTH_SHORT).show();*/
+        FirebaseInstanceId.getInstance()
+                .getInstanceId()
+                .addOnCompleteListener(task -> {
+                    if (!task.isSuccessful()) {
+                        Log.w("appMedici", "getInstanceId failed", task.getException());
+                        return;
                     }
-                });
 
+                    // Get new Instance ID token
+                    String token = task.getResult().getToken();
+                    String deviceDescription = DeviceName.getDeviceName();
+                    String authToken = SaveSharedPreference.getAuthorizationToken(this);
+                    MediciApiInterface apiInterface = MediciApiClient.createService(MediciApiInterface.class, authToken);
+                    UserDeviceRegistrationRequest registrationRequest = new UserDeviceRegistrationRequest();
+                    registrationRequest.setDeviceDescription(deviceDescription);
+                    registrationRequest.setRegistrationToken(token);
+                    apiInterface.registerInstanceId(registrationRequest);
+                });
     }
+
 }

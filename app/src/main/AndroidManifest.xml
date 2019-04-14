@@ -5,8 +5,7 @@
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.READ_PROFILE" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
-    <uses-permission android:name="android.permission.INTERNET"/>
-
+    <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
     <uses-permission-sdk-23 android:name="android.permission.CAMERA" />
@@ -17,8 +16,8 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <!-- APP RECEIVES AN ALARM AT DEVICE BOOT TIME
-         TO START BACKGROUND SERVICES INDEPENDENTLY FROM THE APP UI-->
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+         TO START BACKGROUND SERVICES INDEPENDENTLY FROM THE APP UI -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <!-- Needed only if your app targets Android 5.0 (API level 21) or higher. -->
     <!--<uses-feature android:name="android.hardware.location.gps" /> -->
@@ -31,7 +30,10 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-
+        <activity
+            android:name=".activity.PrescriptionListActivity"
+            android:label="@string/title_activity_prescription_list"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
         <!-- StepCounter Activity -->
         <activity android:name=".activity.StepCounterActivity"
             android:label="Step Counter History"></activity>
@@ -95,10 +97,9 @@
             </intent-filter>
         </receiver>
 
-
         <!-- gps service -->
         <service
-                android:name=".service.GpsTrackingService"
+            android:name=".service.GpsTrackingService"
             android:enabled="true" >
         </service>
         <receiver
@@ -132,7 +133,5 @@
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
-
     </application>
-
 </manifest>

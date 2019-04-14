@@ -256,7 +256,7 @@ public class MainActivity extends AppCompatActivity {
                 break;
             //case R.id.card_negative_event:
             case R.id.card_prescriptions:
-                activityClass = MessageListActivity.class;
+                activityClass = PrescriptionListActivity.class;
                 break;
             //case R.id.card_user_profile:
             //case R.id.card_settings:

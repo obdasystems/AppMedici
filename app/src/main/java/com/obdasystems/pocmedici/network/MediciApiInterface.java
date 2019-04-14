@@ -1,6 +1,9 @@
 package com.obdasystems.pocmedici.network;
 
 import com.obdasystems.pocmedici.message.model.Message;
+import com.obdasystems.pocmedici.network.request.UserDeviceRegistrationRequest;
+
+import org.json.JSONObject;
 
 import java.util.List;
 
@@ -61,6 +64,10 @@ public interface MediciApiInterface {
                                @Field("type") String type,
                                @Field("count") int stepCount);
 
+    @POST("users/registerDevice")
+    Call<JSONObject> registerInstanceId(@Body UserDeviceRegistrationRequest request);
 
+    @POST("users/unregisterDevice")
+    Call<JSONObject> unregisterInstanceId(@Body UserDeviceRegistrationRequest request);
 
 }
