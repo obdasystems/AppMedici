@@ -1,6 +1,7 @@
 package com.obdasystems.pocmedici.network;
 
 import com.obdasystems.pocmedici.message.model.Message;
+import com.obdasystems.pocmedici.network.request.LoginResponse;
 import com.obdasystems.pocmedici.network.request.UserDeviceRegistrationRequest;
 
 import org.json.JSONObject;
@@ -19,7 +20,7 @@ public interface MediciApiInterface {
 
     @POST("auth/login")
     @FormUrlEncoded
-    Call<String> requestAuthentication(@Field("password") String pwd, @Field("username") String usrname);
+    Call<LoginResponse> requestAuthentication(@Field("password") String pwd, @Field("username") String usrname);
 
     /**********************
             FORMS
@@ -64,10 +65,10 @@ public interface MediciApiInterface {
                                @Field("type") String type,
                                @Field("count") int stepCount);
 
-    @POST("users/registerDevice")
+    @POST("/users/devices/register")
     Call<JSONObject> registerInstanceId(@Body UserDeviceRegistrationRequest request);
 
-    @POST("users/unregisterDevice")
+    @POST("/users/devices/unregister")
     Call<JSONObject> unregisterInstanceId(@Body UserDeviceRegistrationRequest request);
 
 }

@@ -1,10 +1,10 @@
 package com.obdasystems.pocmedici.network;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.obdasystems.pocmedici.network.request.LoginResponse;
 import com.obdasystems.pocmedici.utils.SaveSharedPreference;
 
 import retrofit2.Call;
@@ -17,12 +17,12 @@ public class NetworkUtils {
 
         MediciApiInterface apiService = MediciApiClient.createService(MediciApiInterface.class, usr, pwd);
 
-        Call<String> call = apiService.requestAuthentication(pwd,usr);
-        call.enqueue(new Callback<String>() {
+        Call<LoginResponse> call = apiService.requestAuthentication(pwd,usr);
+        call.enqueue(new Callback<LoginResponse>() {
             @Override
-            public void onResponse(Call<String> call, Response<String> response) {
+            public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
                 if(response.isSuccessful()) {
-                    String token = response.body();
+                    String token = response.body().getAccessToken();
                     Log.i("appMedici", "["+this.getClass().getSimpleName()+"] Authentication Token received: "+token);
                     SaveSharedPreference.setAuthorizationToken(context, token);
                     SaveSharedPreference.setAuthorizationIssue(context, false);
@@ -58,7 +58,7 @@ public class NetworkUtils {
             }
 
             @Override
-            public void onFailure(Call<String> call, Throwable t) {
+            public void onFailure(Call<LoginResponse> call, Throwable t) {
                 Log.e("appMedici", "["+this.getClass().getSimpleName()+"] Unable to authenticate: "+t.getMessage());
                 Log.e("appMedici", "["+this.getClass().getSimpleName()+"] Unable to authenticate: "+t.getStackTrace());
                 SaveSharedPreference.setAuthorizationIssue(context, true);
@@ -66,8 +66,5 @@ public class NetworkUtils {
             }
         });
     }
-
-
-
 
 }
