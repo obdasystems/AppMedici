@@ -23,9 +23,8 @@ import com.obdasystems.pocmedici.R;
 import com.obdasystems.pocmedici.adapter.NewFormQuestionListAdapter;
 import com.obdasystems.pocmedici.asyncresponse.PageQuestionsAsyncResponse;
 import com.obdasystems.pocmedici.message.helper.DividerItemDecoration;
-import com.obdasystems.pocmedici.message.model.Message;
+import com.obdasystems.pocmedici.network.MediciApi;
 import com.obdasystems.pocmedici.network.MediciApiClient;
-import com.obdasystems.pocmedici.network.MediciApiInterface;
 import com.obdasystems.pocmedici.network.NetworkUtils;
 import com.obdasystems.pocmedici.network.RestFilledForm;
 import com.obdasystems.pocmedici.persistence.entities.CtcaeFormPage;
@@ -286,7 +285,7 @@ public class NewFormPageActivity extends AppCompatActivity implements PageQuesti
                 }
                 authorizationToken = SaveSharedPreference.getAuthorizationToken(this);
 
-                MediciApiInterface apiService = MediciApiClient.createService(MediciApiInterface.class, authorizationToken);
+                MediciApi apiService = MediciApiClient.createService(MediciApi.class, authorizationToken);
 
                 apiService.sendFilledForm(formId, result).enqueue(new Callback<String>() {
                     @Override
