@@ -16,17 +16,36 @@ import com.applandeo.materialcalendarview.exceptions.OutOfDateRangeException;
 import com.applandeo.materialcalendarview.utils.DateUtils;
 import com.obdasystems.pocmedici.R;
 import com.obdasystems.pocmedici.calendar.material.DrawableUtils;
+import com.obdasystems.pocmedici.message.model.Message;
+import com.obdasystems.pocmedici.network.MediciApi;
+import com.obdasystems.pocmedici.network.MediciApiClient;
+import com.obdasystems.pocmedici.network.NetworkUtils;
+import com.obdasystems.pocmedici.network.RestCalendarEvent;
+import com.obdasystems.pocmedici.network.RestCalendarEventList;
+import com.obdasystems.pocmedici.utils.SaveSharedPreference;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class CalendarMaterialActivity extends AppCompatActivity {
 
     private Context ctx;
-    private String authorizationToken;
+
+    private CalendarView calendarView;
+    private int recursiveCallCounter = 0;
+
+    private Map<Long, RestCalendarEvent> timestampToEvent = new HashMap<>();
+    private List<EventDay> eventDays = new LinkedList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,8 +53,6 @@ public class CalendarMaterialActivity extends AppCompatActivity {
         setContentView(R.layout.activity_calendar_material);
         ctx = this;
 
-        Intent intent = getIntent();
-        authorizationToken = intent.getStringExtra("token");
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.calendar_material_toolbar);
         toolbar.setNavigationIcon(R.drawable.baseline_arrow_back_black_24dp);
@@ -48,7 +65,7 @@ public class CalendarMaterialActivity extends AppCompatActivity {
             }
         });
 
-        List<EventDay> events = new ArrayList<>();
+        /*List<EventDay> events = new ArrayList<>();
 
 
         GregorianCalendar gregCal = new GregorianCalendar();
@@ -80,8 +97,10 @@ public class CalendarMaterialActivity extends AppCompatActivity {
         Calendar calendar4 = Calendar.getInstance();
         calendar4.add(Calendar.DAY_OF_MONTH, 13);
         events.add(new EventDay(calendar4, DrawableUtils.getThreeDots(this)));
+        calendarView.setEvents(events);*/
 
-        CalendarView calendarView = (CalendarView) findViewById(R.id.calendarMaterialView);
+
+        calendarView = (CalendarView) findViewById(R.id.calendarMaterialView);
 
         Calendar min = Calendar.getInstance();
         min.add(Calendar.MONTH, -120);
@@ -92,12 +111,11 @@ public class CalendarMaterialActivity extends AppCompatActivity {
         calendarView.setMinimumDate(min);
         calendarView.setMaximumDate(max);
 
-        calendarView.setEvents(events);
 
-        //calendarView.setDisabledDays(getDisabledDays());
+
 
         calendarView.setOnDayClickListener(eventDay ->{
-                if(events.contains(eventDay)) {
+                if(eventDays.contains(eventDay)) {
                     Toast.makeText(getApplicationContext(),
                             "there is an event on this date!!",
                             Toast.LENGTH_SHORT).show();
@@ -112,8 +130,6 @@ public class CalendarMaterialActivity extends AppCompatActivity {
                 }
         });
 
-
-
     }
 
     @Override
@@ -122,11 +138,14 @@ public class CalendarMaterialActivity extends AppCompatActivity {
     }
 
     private void launchEventIntent(EventDay eventDay) {
-        Intent eventIntent = new Intent(this, EventResumeeActivity.class);
         Calendar cal = eventDay.getCalendar();
-        eventIntent.putExtra("eventTitle","TITOLO EVENTO");
-        eventIntent.putExtra("notes","NOTE EVENTO IN UFFICIO 18. PORTARE ANALISI DEL SANGUE");
+        Long timestamp = cal.getTimeInMillis();
+        RestCalendarEvent event = this.timestampToEvent.get(timestamp);
 
+        Intent eventIntent = new Intent(this, EventResumeeActivity.class);
+        eventIntent.putExtra("title",event.getTitle());
+        eventIntent.putExtra("description",event.getDescription());
+        eventIntent.putExtra("type",event.getType());
         int year = cal.get(Calendar.YEAR);
         eventIntent.putExtra("year",year);
         int month = cal.get(Calendar.MONTH);
@@ -217,30 +236,83 @@ public class CalendarMaterialActivity extends AppCompatActivity {
         return res;
     }
 
-    private List<Calendar> getDisabledDays() {
-        Calendar firstDisabled = DateUtils.getCalendar();
-        firstDisabled.add(Calendar.DAY_OF_MONTH, 2);
+    private void getCalendarEvents() {
 
-        Calendar secondDisabled = DateUtils.getCalendar();
-        secondDisabled.add(Calendar.DAY_OF_MONTH, 1);
+        if(recursiveCallCounter<15) {
+            recursiveCallCounter++;
+            String usr = "james";
+            String pwd = "bush";
 
-        Calendar thirdDisabled = DateUtils.getCalendar();
-        thirdDisabled.add(Calendar.DAY_OF_MONTH, 18);
+            String authorizationToken = SaveSharedPreference.getAuthorizationToken(this);
+            if (authorizationToken == null) {
+                NetworkUtils.requestNewAuthorizationToken(pwd, usr, this);
+            }
+            authorizationToken = SaveSharedPreference.getAuthorizationToken(this);
 
-        List<Calendar> calendars = new ArrayList<>();
-        calendars.add(firstDisabled);
-        calendars.add(secondDisabled);
-        calendars.add(thirdDisabled);
-        return calendars;
+            MediciApi apiService = MediciApiClient.createService(MediciApi.class, authorizationToken);
+
+            Call<RestCalendarEventList> call = apiService.getCalendarEvents();
+            call.enqueue(new Callback<RestCalendarEventList>() {
+                @Override
+                public void onResponse(Call<RestCalendarEventList> call, Response<RestCalendarEventList> response) {
+
+                    if (response.isSuccessful()) {
+                        addEventsToCalendar(response.body());
+                        recursiveCallCounter=0;
+                    } else {
+                        switch (response.code()) {
+                            case 401:
+                                NetworkUtils.requestNewAuthorizationToken(pwd, usr, ctx);
+                                Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to fetch calendar events (401)");
+                                if (!SaveSharedPreference.getAuthorizationIssue(ctx)) {
+                                    getCalendarEvents();
+                                } else {
+                                    String issueDescription = SaveSharedPreference.getAuthorizationIssueDescription(ctx);
+                                    Toast.makeText(getApplicationContext(), "Unable to fetch calendar events (401) [" + issueDescription + "]", Toast.LENGTH_LONG).show();
+                                    Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to fetch calendar events (401) [" + issueDescription + "]");
+                               }
+                                break;
+                            case 404:
+                                Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to fetch calendar events (404)");
+                                Toast.makeText(getApplicationContext(), "Unable to fetch calendar events (404)", Toast.LENGTH_LONG).show();
+                                break;
+                            case 500:
+                                Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to fetch calendar events (500)");
+                                Toast.makeText(getApplicationContext(), "Unable to fetch calendar events (500)", Toast.LENGTH_LONG).show();
+                                break;
+                            default:
+                                Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to fetch calendar events (UNKNOWN)");
+                                Toast.makeText(getApplicationContext(), "Unable to fetch calendar events (UNKNOWN)", Toast.LENGTH_LONG).show();
+                                break;
+                        }
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<RestCalendarEventList> call, Throwable t) {
+                    Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to fetch calendar events: " + t.getMessage());
+                    Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to fetch calendar events: " + t.getStackTrace());
+                    Toast.makeText(getApplicationContext(), "Unable to fetch calendar events..", Toast.LENGTH_LONG).show();
+                }
+            });
+        }
+        else {
+            Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Max number of calls to getCalendarEvents() reached!!");
+            Toast.makeText(getApplicationContext(), "Max number of calls to getCalendarEvents() reached!!", Toast.LENGTH_LONG).show();
+        }
     }
 
-    private Calendar getRandomCalendar() {
-        Random random = new Random();
+    private void addEventsToCalendar(RestCalendarEventList eventList) {
 
-        Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.MONTH, random.nextInt(99));
-
-        return calendar;
+        for(RestCalendarEvent event:eventList.getEvents()) {
+            timestampToEvent.put(event.getTimestamp(),event);
+            Calendar cal = Calendar.getInstance();
+            cal.setTimeInMillis(event.getTimestamp());
+            EventDay ed = new EventDay(cal, DrawableUtils.getCircleDrawableWithText(this, "V"));
+            eventDays.add(ed);
+            //events.add(new EventDay(calendar1, R.drawable.sample_icon_2));
+        }
+        calendarView.setEvents(eventDays);
     }
 
     private void backToMain() {

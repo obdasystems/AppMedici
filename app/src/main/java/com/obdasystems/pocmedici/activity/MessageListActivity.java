@@ -144,7 +144,7 @@ public class MessageListActivity extends AppCompatActivity implements SwipeRefre
                             message.setColor(getRandomMaterialColor("400"));
                             messages.add(message);
                         }
-
+                        recursiveGetInboxCallCounter=0;
                         mAdapter.notifyDataSetChanged();
                         swipeRefreshLayout.setRefreshing(false);
                     } else {

@@ -66,4 +66,21 @@ public interface MediciApi {
     @POST("users/devices/unregister")
     Call<JSONObject> unregisterInstanceId(@Body UserDeviceRegistrationRequest request);
 
+    /**********************
+        PRESCRIPTIONS
+     ***********************/
+    @GET("prescriptions")
+    Call<RestPrescriptions> getPrescriptions();
+
+    /**********************
+         DRUGS
+     ***********************/
+    @GET("drugs")
+    Call<RestDrugList> getDrugs();
+
+    /**********************
+         CALENDAR EVENTS
+     ***********************/
+    @GET("prescriptions")
+    Call<RestCalendarEventList> getCalendarEvents();
 }

@@ -13,7 +13,10 @@ import java.util.Calendar;
 
 public class EventResumeeActivity extends AppCompatActivity {
 
-    private String eventTitle;
+    private String title;
+    private String description;
+    private int type;
+
     private int year;
     private int month;
     private String monthName;
@@ -21,7 +24,7 @@ public class EventResumeeActivity extends AppCompatActivity {
     private String dayName;
     private int hour;
     private int minutes;
-    private String notes;
+
 
     private Toolbar toolbar;
 
@@ -35,7 +38,10 @@ public class EventResumeeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_event_resumee);
 
         Intent intent = getIntent();
-        eventTitle = intent.getStringExtra("eventTitle");
+        title = intent.getStringExtra("title");
+        description = intent.getStringExtra("description");
+        type = intent.getIntExtra("type",-1);
+
         year = intent.getIntExtra("year",-1);
         month = intent.getIntExtra("month",-1);
         monthName = intent.getStringExtra("monthName");
@@ -43,14 +49,13 @@ public class EventResumeeActivity extends AppCompatActivity {
         dayName = intent.getStringExtra("dayName");
         hour = intent.getIntExtra("hour",-1);
         minutes = intent.getIntExtra("minutes",-1);
-        notes = intent.getStringExtra("notes");
 
         titleTextView = (TextView)  findViewById(R.id.eventTitleText);
-        titleTextView.setText(eventTitle);
+        titleTextView.setText(title);
         dateTextView = (TextView)  findViewById(R.id.eventDateText);
         dateTextView.setText(getTimestampString());
         noteTextView = (TextView)  findViewById(R.id.eventNotesText);
-        noteTextView.setText(notes);
+        noteTextView.setText(description);
 
         toolbar = (Toolbar) findViewById(R.id.event_resumee_toolbar);
         toolbar.setNavigationIcon(R.drawable.baseline_arrow_back_black_24dp);

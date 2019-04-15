@@ -219,7 +219,7 @@ public class NewFormPageActivity extends AppCompatActivity implements PageQuesti
      *****************************/
 
     @Override
-    public void getQuestionsTaskFinished(FormPageActivity.FormQuestionsContainer container) {
+    public void getQuestionsTaskFinished(NewFormPageActivity.FormQuestionsContainer container) {
         adapter.setQuestions(container.questions);
         adapter.setQuestionsWithAnswers(container.questionsWithAnswers);
         adapter.setAlreadyAnsweredQuestions(container.answeredQuestions);
@@ -227,7 +227,7 @@ public class NewFormPageActivity extends AppCompatActivity implements PageQuesti
     }
 
     @Override
-    public void getUnansweredQuestionsTaskFinished(FormPageActivity.IncompleteContainer container) {
+    public void getUnansweredQuestionsTaskFinished(NewFormPageActivity.IncompleteContainer container) {
         List<CtcaeFormQuestion> unansweredQuestions = container.unansweredQuestions;
         List<Integer> incompletePages = container.incompletePages;
         if(incompletePages.isEmpty()) {
@@ -535,7 +535,7 @@ public class NewFormPageActivity extends AppCompatActivity implements PageQuesti
     }*/
 
     //get all questions yet to be answered current filling process
-    private static class GetUnansweredQuestionsQueryAsyncTask extends AsyncTask<Void, Void, FormPageActivity.IncompleteContainer> {
+    private static class GetUnansweredQuestionsQueryAsyncTask extends AsyncTask<Void, Void, NewFormPageActivity.IncompleteContainer> {
         private Context ctx;
         private ProgressDialog progDial;
         private int fpId;
@@ -566,34 +566,26 @@ public class NewFormPageActivity extends AppCompatActivity implements PageQuesti
         }
 
         @Override
-        protected FormPageActivity.IncompleteContainer doInBackground(Void... voids) {
+        protected NewFormPageActivity.IncompleteContainer doInBackground(Void... voids) {
             repository = new CtcaeIncompleteFillingProcessRepository(app,fpId,fId);
             List<CtcaeFormQuestion> questions = repository.getIncompleteQuestions();
             List<Integer> pageNumbers = repository.getIncompletePages();
-            FormPageActivity.IncompleteContainer container = new FormPageActivity.IncompleteContainer(questions,pageNumbers);
+            NewFormPageActivity.IncompleteContainer container = new NewFormPageActivity.IncompleteContainer(questions,pageNumbers);
             return container;
         }
 
         @Override
-        protected void onPostExecute(FormPageActivity.IncompleteContainer container) {
+        protected void onPostExecute(NewFormPageActivity.IncompleteContainer container) {
             super.onPostExecute(container);
             progDial.dismiss();
             delegate.getUnansweredQuestionsTaskFinished(container);
         }
     }
 
-    public static class IncompleteContainer {
-        List<CtcaeFormQuestion> unansweredQuestions;
-        List<Integer> incompletePages;
 
-        IncompleteContainer( List<CtcaeFormQuestion> unansweredQuest, List<Integer> incPages) {
-            unansweredQuestions = unansweredQuest;
-            incompletePages = incPages;
-        }
-    }
 
     //get all questions in page along with questions already answered in cyurrent filling process
-    private static class GetQuestionsQueryAsyncTask extends AsyncTask<Void, Void, FormPageActivity.FormQuestionsContainer> {
+    private static class GetQuestionsQueryAsyncTask extends AsyncTask<Void, Void, NewFormPageActivity.FormQuestionsContainer> {
         private Context ctx;
         private ProgressDialog progDial;
         private int pageId;
@@ -627,7 +619,7 @@ public class NewFormPageActivity extends AppCompatActivity implements PageQuesti
         }
 
         @Override
-        protected FormPageActivity.FormQuestionsContainer doInBackground(Void... voids) {
+        protected NewFormPageActivity.FormQuestionsContainer doInBackground(Void... voids) {
             repository = new CtcaeFormQuestionsRepository(app, pageId);
             List<CtcaeFormQuestion> questions = repository.getAllQuestions();
             List<JoinFormPageQuestionsWithPossibleAnswerData> answers = repository.getAllQuestionsWithAnswers();
@@ -635,12 +627,12 @@ public class NewFormPageActivity extends AppCompatActivity implements PageQuesti
             answeredRepository = new CtcaeFillingProcessAnsweredQuestionRepository(app,fpId,fId);
             List<CtcaeFormQuestionAnswered> answeredQuestions = answeredRepository.getAnsweredQuestions();
 
-            FormPageActivity.FormQuestionsContainer cont = new FormPageActivity.FormQuestionsContainer(answers,questions, answeredQuestions);
+            NewFormPageActivity.FormQuestionsContainer cont = new NewFormPageActivity.FormQuestionsContainer(answers,questions, answeredQuestions);
             return cont;
         }
 
         @Override
-        protected void onPostExecute(FormPageActivity.FormQuestionsContainer formQuestionsContainer) {
+        protected void onPostExecute(NewFormPageActivity.FormQuestionsContainer formQuestionsContainer) {
             super.onPostExecute(formQuestionsContainer);
             progDial.dismiss();
             delegate.getQuestionsTaskFinished(formQuestionsContainer);
@@ -659,4 +651,16 @@ public class NewFormPageActivity extends AppCompatActivity implements PageQuesti
             answeredQuestions = answeredQuest;
         }
     }
+
+    public static class IncompleteContainer {
+        List<CtcaeFormQuestion> unansweredQuestions;
+        List<Integer> incompletePages;
+
+        IncompleteContainer( List<CtcaeFormQuestion> unansweredQuest, List<Integer> incPages) {
+            unansweredQuestions = unansweredQuest;
+            incompletePages = incPages;
+        }
+    }
+
+
 }

@@ -85,6 +85,8 @@ public class MainActivity extends AppCompatActivity {
         ImageView prescrView = findViewById(R.id.image_prescriptions);
         Picasso.with(ctx).load(R.drawable.pulsante_prescrizioni_rect_slim).resize(1000, 250).into(prescrView);
 
+        ImageView drugView = findViewById(R.id.image_drugs);
+        Picasso.with(ctx).load(R.drawable.pulsante_info_farmaci_rect_slim).resize(1000, 250).into(prescrView);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.main_toolbar);
         setSupportActionBar(toolbar);
@@ -222,13 +224,10 @@ public class MainActivity extends AppCompatActivity {
 
         switch (view.getId()) {
             case R.id.card_ctcae_form:
-                //activityClass = FormListActivity.class;
                 activityClass = NewFormListActivity.class;
                 break;
             case R.id.card_sensors:
-                //activityClass = StepCounterActivity.class;
                 activityClass = PieChartStepCounterActivity.class;
-                //activityClass = PieChartHelloStepCounterActivity.class;
                 break;
             case R.id.card_messages:
                 activityClass = MessageListActivity.class;
@@ -236,12 +235,12 @@ public class MainActivity extends AppCompatActivity {
             case R.id.card_calendar:
                 activityClass = CalendarMaterialActivity.class;
                 break;
-            //case R.id.card_negative_event:
             case R.id.card_prescriptions:
                 activityClass = PrescriptionListActivity.class;
                 break;
-            //case R.id.card_user_profile:
-            //case R.id.card_settings:
+            case R.id.card_drugs:
+                activityClass = DrugListActivity.class;
+                break;
             default:
                 activityClass = NewFormListActivity.class;
                 break;
