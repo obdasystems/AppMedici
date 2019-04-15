@@ -14,7 +14,7 @@ import com.google.firebase.messaging.RemoteMessage;
 import com.jaredrummler.android.device.DeviceName;
 import com.obdasystems.pocmedici.R;
 import com.obdasystems.pocmedici.network.MediciApiClient;
-import com.obdasystems.pocmedici.network.MediciApiInterface;
+import com.obdasystems.pocmedici.network.MediciApi;
 import com.obdasystems.pocmedici.network.request.UserDeviceRegistrationRequest;
 import com.obdasystems.pocmedici.utils.SaveSharedPreference;
 
@@ -57,7 +57,7 @@ public class NotificationFirebaseMessagingService extends FirebaseMessagingServi
                     String token = task.getResult().getToken();
                     String deviceDescription = DeviceName.getDeviceName();
                     String authToken = SaveSharedPreference.getAuthorizationToken(this);
-                    MediciApiInterface apiInterface = MediciApiClient.createService(MediciApiInterface.class, authToken);
+                    MediciApi apiInterface = MediciApiClient.createService(MediciApi.class, authToken);
                     UserDeviceRegistrationRequest registrationRequest = new UserDeviceRegistrationRequest();
                     registrationRequest.setDeviceDescription(deviceDescription);
                     registrationRequest.setRegistrationToken(token);

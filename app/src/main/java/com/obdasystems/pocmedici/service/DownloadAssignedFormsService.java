@@ -9,7 +9,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.obdasystems.pocmedici.network.MediciApiClient;
-import com.obdasystems.pocmedici.network.MediciApiInterface;
+import com.obdasystems.pocmedici.network.MediciApi;
 import com.obdasystems.pocmedici.network.NetworkUtils;
 import com.obdasystems.pocmedici.network.RestForm;
 import com.obdasystems.pocmedici.network.RestFormPage;
@@ -71,7 +71,7 @@ public class DownloadAssignedFormsService extends Service {
             }
             authorizationToken = SaveSharedPreference.getAuthorizationToken(this);
 
-            MediciApiInterface apiService = MediciApiClient.createService(MediciApiInterface.class, authorizationToken);
+            MediciApi apiService = MediciApiClient.createService(MediciApi.class, authorizationToken);
 
             Call<List<RestForm>> call = apiService.getQuestionnaires();
             call.enqueue(new Callback<List<RestForm>>() {

@@ -7,12 +7,10 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Parcel;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.support.v4.app.ActivityCompat;
@@ -24,10 +22,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.obdasystems.pocmedici.R;
@@ -36,12 +31,11 @@ import com.obdasystems.pocmedici.listener.OnRecyclerViewPositionClickListener;
 import com.obdasystems.pocmedici.message.model.Message;
 import com.obdasystems.pocmedici.message.model.OutMessage;
 import com.obdasystems.pocmedici.network.MediciApiClient;
-import com.obdasystems.pocmedici.network.MediciApiInterface;
+import com.obdasystems.pocmedici.network.MediciApi;
 import com.obdasystems.pocmedici.network.NetworkUtils;
 import com.obdasystems.pocmedici.utils.SaveSharedPreference;
 
 import java.io.File;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedList;
@@ -307,7 +301,7 @@ public class WriteMessageActivity extends AppCompatActivity {
             }
             authorizationToken = SaveSharedPreference.getAuthorizationToken(this);
 
-            MediciApiInterface apiService = MediciApiClient.createService(MediciApiInterface.class, authorizationToken);
+            MediciApi apiService = MediciApiClient.createService(MediciApi.class, authorizationToken);
 
             apiService.sendMessage(date, text, subject, adverseEvent, sender, recipient).enqueue(new Callback<Message>() {
                 @Override

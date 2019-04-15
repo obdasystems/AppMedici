@@ -1,6 +1,5 @@
 package com.obdasystems.pocmedici.service;
 
-import android.app.ProgressDialog;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -11,7 +10,7 @@ import android.widget.Toast;
 
 import com.obdasystems.pocmedici.asyncresponse.StepCountersToSendAsyncResponse;
 import com.obdasystems.pocmedici.network.MediciApiClient;
-import com.obdasystems.pocmedici.network.MediciApiInterface;
+import com.obdasystems.pocmedici.network.MediciApi;
 import com.obdasystems.pocmedici.network.NetworkUtils;
 import com.obdasystems.pocmedici.persistence.entities.StepCounter;
 import com.obdasystems.pocmedici.persistence.repository.StepCounterRepository;
@@ -67,7 +66,7 @@ public class SendFinalizedStepCountersService extends Service implements StepCou
             }
             authorizationToken = SaveSharedPreference.getAuthorizationToken(this);
 
-            MediciApiInterface apiService = MediciApiClient.createService(MediciApiInterface.class, authorizationToken);
+            MediciApi apiService = MediciApiClient.createService(MediciApi.class, authorizationToken);
 
             for(StepCounter sp: stepCounters) {
                 Calendar cal = Calendar.getInstance();

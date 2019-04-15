@@ -15,7 +15,7 @@ public class NetworkUtils {
 
     public static void requestNewAuthorizationToken(String pwd, String usr, Context context) {
 
-        MediciApiInterface apiService = MediciApiClient.createService(MediciApiInterface.class, usr, pwd);
+        MediciApi apiService = MediciApiClient.createService(MediciApi.class, "");
 
         Call<LoginResponse> call = apiService.requestAuthentication(pwd,usr);
         call.enqueue(new Callback<LoginResponse>() {

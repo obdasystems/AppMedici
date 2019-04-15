@@ -1,7 +1,6 @@
 package com.obdasystems.pocmedici.service;
 
 import android.Manifest;
-import android.app.Application;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -16,12 +15,9 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.location.Location;
-import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.IBinder;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
@@ -34,20 +30,12 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.obdasystems.pocmedici.R;
-import com.obdasystems.pocmedici.asyncresponse.PageQuestionsAsyncResponse;
-import com.obdasystems.pocmedici.message.model.Message;
 import com.obdasystems.pocmedici.network.MediciApiClient;
-import com.obdasystems.pocmedici.network.MediciApiInterface;
+import com.obdasystems.pocmedici.network.MediciApi;
 import com.obdasystems.pocmedici.network.NetworkUtils;
 import com.obdasystems.pocmedici.persistence.repository.PositionRepository;
 import com.obdasystems.pocmedici.utils.SaveSharedPreference;
@@ -56,9 +44,6 @@ import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.util.Calendar;
 import java.util.GregorianCalendar;
 
 import retrofit2.Call;
@@ -283,7 +268,7 @@ public class GpsTrackingService extends Service {
             }
             authorizationToken = SaveSharedPreference.getAuthorizationToken(this);
 
-            MediciApiInterface apiService = MediciApiClient.createService(MediciApiInterface.class, authorizationToken);
+            MediciApi apiService = MediciApiClient.createService(MediciApi.class, authorizationToken);
 
             apiService.sendPosition(timestamp, "gps", point.toString()).enqueue(new Callback<String>() {
                 @Override

@@ -24,7 +24,7 @@ import com.obdasystems.pocmedici.adapter.MessagesAdapter;
 import com.obdasystems.pocmedici.message.helper.DividerItemDecoration;
 import com.obdasystems.pocmedici.message.model.Message;
 import com.obdasystems.pocmedici.network.MediciApiClient;
-import com.obdasystems.pocmedici.network.MediciApiInterface;
+import com.obdasystems.pocmedici.network.MediciApi;
 import com.obdasystems.pocmedici.network.NetworkUtils;
 import com.obdasystems.pocmedici.utils.SaveSharedPreference;
 
@@ -125,7 +125,7 @@ public class MessageListActivity extends AppCompatActivity implements SwipeRefre
             }
             authorizationToken = SaveSharedPreference.getAuthorizationToken(this);
 
-            MediciApiInterface apiService = MediciApiClient.createService(MediciApiInterface.class, authorizationToken);
+            MediciApi apiService = MediciApiClient.createService(MediciApi.class, authorizationToken);
 
             Call<List<Message>> call = apiService.getInbox();
             call.enqueue(new Callback<List<Message>>() {

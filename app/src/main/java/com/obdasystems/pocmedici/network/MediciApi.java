@@ -16,17 +16,18 @@ import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
 
-public interface MediciApiInterface {
+public interface MediciApi {
 
-    @POST("auth/login")
+    @POST("/auth/login")
     @FormUrlEncoded
-    Call<LoginResponse> requestAuthentication(@Field("password") String pwd, @Field("username") String usrname);
+    Call<LoginResponse> requestAuthentication(@Field("password") String pwd,
+                                              @Field("username") String usrname);
 
     /**********************
             FORMS
      ***********************/
 
-    @GET("forms")
+    @GET("/forms")
     Call<List<RestForm>> getQuestionnaires();
 
     @POST("forms/{formId}/submit")
@@ -36,10 +37,10 @@ public interface MediciApiInterface {
              Messages
      ***********************/
 
-    @GET("messages")
+    @GET("/messages")
     Call<List<Message>> getInbox();
 
-    @POST("messages")
+    @POST("/messages")
     @FormUrlEncoded
     Call<Message> sendMessage(@Field("date") Long date,
                               @Field("text") String text,
