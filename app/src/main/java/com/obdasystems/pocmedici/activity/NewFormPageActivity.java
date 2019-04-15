@@ -17,24 +17,34 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 import com.obdasystems.pocmedici.R;
-import com.obdasystems.pocmedici.adapter.FormQuestionListAdapter;
 import com.obdasystems.pocmedici.adapter.NewFormQuestionListAdapter;
 import com.obdasystems.pocmedici.asyncresponse.PageQuestionsAsyncResponse;
 import com.obdasystems.pocmedici.message.helper.DividerItemDecoration;
+import com.obdasystems.pocmedici.message.model.Message;
+import com.obdasystems.pocmedici.network.MediciApiClient;
+import com.obdasystems.pocmedici.network.MediciApiInterface;
+import com.obdasystems.pocmedici.network.NetworkUtils;
+import com.obdasystems.pocmedici.network.RestFilledForm;
 import com.obdasystems.pocmedici.persistence.entities.CtcaeFormPage;
 import com.obdasystems.pocmedici.persistence.entities.CtcaeFormQuestion;
 import com.obdasystems.pocmedici.persistence.entities.CtcaeFormQuestionAnswered;
 import com.obdasystems.pocmedici.persistence.entities.JoinFormPageQuestionsWithPossibleAnswerData;
 import com.obdasystems.pocmedici.persistence.repository.CtcaeFillingProcessAnsweredQuestionRepository;
-import com.obdasystems.pocmedici.persistence.repository.CtcaeFinalizeFillingProcessRepository;
+import com.obdasystems.pocmedici.persistence.repository.CtcaeFillingProcessRepository;
 import com.obdasystems.pocmedici.persistence.repository.CtcaeFormQuestionsRepository;
 import com.obdasystems.pocmedici.persistence.repository.CtcaeIncompleteFillingProcessRepository;
+import com.obdasystems.pocmedici.utils.SaveSharedPreference;
 
 import java.util.GregorianCalendar;
 import java.util.LinkedList;
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class NewFormPageActivity extends AppCompatActivity implements PageQuestionsAsyncResponse {
 
@@ -54,6 +64,7 @@ public class NewFormPageActivity extends AppCompatActivity implements PageQuesti
     private Toolbar toolbar;
 
     private String authorizationToken;
+    private int recursiveSubmitFormCounter=-1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,7 +113,6 @@ public class NewFormPageActivity extends AppCompatActivity implements PageQuesti
             CtcaeFormPage page = intent.getParcelableExtra(extraName);
             formPages.add(page);
         }
-
 
         recyclerView =  (RecyclerView) findViewById(R.id.question_list_recycler_view);
         adapter = new NewFormQuestionListAdapter(questions, questionsWithAnswers, answeredQuestions, fillingProcessId, formId, getApplication(), this);
@@ -223,7 +233,7 @@ public class NewFormPageActivity extends AppCompatActivity implements PageQuesti
             //finalize filling process
             GregorianCalendar gc = new GregorianCalendar();
             gc.setTimeInMillis(System.currentTimeMillis());
-            NewFormPageActivity.FinalizeFillingProcessQueryAsyncTask task = new NewFormPageActivity.FinalizeFillingProcessQueryAsyncTask(fillingProcessId, gc, this, this.getApplication(),this);
+            NewFormPageActivity.FinalizeFillingProcessQueryAsyncTask task = new NewFormPageActivity.FinalizeFillingProcessQueryAsyncTask(fillingProcessId, formId, gc, this,this);
             task.execute();
         }
         else {
@@ -253,18 +263,86 @@ public class NewFormPageActivity extends AppCompatActivity implements PageQuesti
     }
 
     @Override
-    public void finalizeFillingProcessTaskFinished(int result) {
+    public void finalizeFillingProcessTaskFinished(RestFilledForm result) {
         Log.i("appMedici","["+this.getClass()+"]finalized fillingProcessId="+fillingProcessId+" " +
                 "update return value="+result);
-        if(result>0){
-            Intent formlistIntent = new Intent(this, NewFormListActivity.class);
-            formlistIntent.putExtra("filledForm", formId);
-            formlistIntent.putExtra("fillingProcess", fillingProcessId);
-            startActivity(formlistIntent);
+        if(recursiveSubmitFormCounter<0) {
+            recursiveSubmitFormCounter = 0;
+        }
+
+        Context ctx = this;
+        PageQuestionsAsyncResponse delegate = this;
+
+        if(result!=null){
+            if(recursiveSubmitFormCounter<15) {
+                recursiveSubmitFormCounter++;
+                String usr = "james";
+                String pwd = "bush";
+
+
+                String authorizationToken = SaveSharedPreference.getAuthorizationToken(this);
+                if (authorizationToken == null) {
+                    NetworkUtils.requestNewAuthorizationToken(pwd, usr, this);
+                }
+                authorizationToken = SaveSharedPreference.getAuthorizationToken(this);
+
+                MediciApiInterface apiService = MediciApiClient.createService(MediciApiInterface.class, authorizationToken);
+
+                apiService.sendFilledForm(formId, result).enqueue(new Callback<String>() {
+                    @Override
+                    public void onResponse(Call<String> call, Response<String> response) {
+                        if (response.isSuccessful()) {
+                            Log.i("appMedici", "Questionnaire sent to server." + response.body().toString());
+                            Toast.makeText(getApplicationContext(), "Questionnaire sent to server.", Toast.LENGTH_LONG).show();
+                            NewFormPageActivity.DeleteFillingProcessQueryAsyncTask task = new NewFormPageActivity.DeleteFillingProcessQueryAsyncTask(fillingProcessId, ctx, delegate);
+                            task.execute();
+                        } else {
+                            switch (response.code()) {
+                                case 401:
+                                    NetworkUtils.requestNewAuthorizationToken(pwd, usr, ctx);
+                                    Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to fetch message list (401)");
+                                    if (!SaveSharedPreference.getAuthorizationIssue(ctx)) {
+                                        finalizeFillingProcessTaskFinished(result);
+                                    } else {
+                                        String issueDescription = SaveSharedPreference.getAuthorizationIssueDescription(ctx);
+                                        Toast.makeText(getApplicationContext(), "Unable to submit questionnaire (401) [" + issueDescription + "]", Toast.LENGTH_LONG).show();
+                                        Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to submit questionnaire (401) [" + issueDescription + "]");
+                                    }
+                                    break;
+                                case 404:
+                                    Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to submit questionnaire (404)");
+                                    Toast.makeText(getApplicationContext(), "Unable to submit questionnaire (404)", Toast.LENGTH_LONG).show();
+                                    break;
+                                case 500:
+                                    Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to submit questionnaire (500)");
+                                    Toast.makeText(getApplicationContext(), "Unable to submit questionnaire (500)", Toast.LENGTH_LONG).show();
+                                    break;
+                                default:
+                                    Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to submit questionnaire (UNKNOWN)");
+                                    Toast.makeText(getApplicationContext(), "Unable to submit questionnaire (UNKNOWN)", Toast.LENGTH_LONG).show();
+                                    break;
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<String> call, Throwable t) {
+                        Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to submit questionnaire : " + t.getMessage());
+                        Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to submit questionnaire : " + t.getStackTrace());
+                        Toast.makeText(getApplicationContext(), "Unable to submit questionnaire ..", Toast.LENGTH_LONG).show();
+                    }
+                });
+
+            }
+            else {
+                Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Max number of calls to submitQuestionnaire() reached!!");
+                Toast.makeText(getApplicationContext(), "Max number of calls to submitQuestionnaire() reached!!", Toast.LENGTH_LONG).show();
+            }
+
         }
         else {
             //warning message
-            String msg = "Problems encountered while submitting filled form. Please try again";
+            String msg = "Problems encountered while submitting filled questionnaire. Please try again";
             AlertDialog dialog = new AlertDialog.Builder(NewFormPageActivity.this).create();
             dialog.setTitle("Submit filled form alert");
             dialog.setMessage(msg);
@@ -278,12 +356,139 @@ public class NewFormPageActivity extends AppCompatActivity implements PageQuesti
         }
     }
 
+    @Override
+    public void deleteFillingProcessTaskFinished() {
+        Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Max number of calls to submitQuestionnaire() reached!!");
+        backToFormList();
+
+    }
+
+    private void backToFormList() {
+        Intent formlistIntent = new Intent(this, NewFormListActivity.class);
+        formlistIntent.putExtra("filledForm", formId);
+        formlistIntent.putExtra("fillingProcess", fillingProcessId);
+        startActivity(formlistIntent);
+    }
+
+
+    /*@Override
+    public void finalizeFillingProcessTaskFinished(int result) {
+        Log.i("appMedici","["+this.getClass()+"]finalized fillingProcessId="+fillingProcessId+" " +
+                "update return value="+result);
+        if(result>0){
+
+
+
+            Intent formlistIntent = new Intent(this, NewFormListActivity.class);
+            formlistIntent.putExtra("filledForm", formId);
+            formlistIntent.putExtra("fillingProcess", fillingProcessId);
+            startActivity(formlistIntent);
+        }
+        else {
+            //warning message
+            String msg = "Problems encountered while submitting filled questionnaire. Please try again";
+            AlertDialog dialog = new AlertDialog.Builder(NewFormPageActivity.this).create();
+            dialog.setTitle("Submit filled form alert");
+            dialog.setMessage(msg);
+            dialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+            dialog.show();
+        }
+    }*/
+
     /*****************************
      * ASYNC TASKS
      *****************************/
 
+    private static class FinalizeFillingProcessQueryAsyncTask extends AsyncTask<Void, Void, RestFilledForm> {
+        private Context ctx;
+        private ProgressDialog progDial;
+        private int fpId;
+        private int formId;
+        private GregorianCalendar calendar;
+        private CtcaeFillingProcessRepository repository;
+        private PageQuestionsAsyncResponse delegate;
+
+        FinalizeFillingProcessQueryAsyncTask( int fillingProcId, int formId, GregorianCalendar cal, Context context, PageQuestionsAsyncResponse delegate) {
+            ctx = context;
+            this.fpId = fillingProcId;
+            this.formId = formId;
+            this.calendar = cal;
+            progDial = new ProgressDialog(ctx);
+            this.delegate = delegate;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progDial.setMessage("Submitting filled form...");
+            progDial.setIndeterminate(false);
+            progDial.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            progDial.setCancelable(false);
+            progDial.show();
+        }
+
+        @Override
+        protected RestFilledForm doInBackground(Void... voids) {
+            repository = new CtcaeFillingProcessRepository(ctx);
+            RestFilledForm res = repository.finalizeFillingProcess(fpId,formId,calendar);
+            return res;
+        }
+
+        @Override
+        protected void onPostExecute(RestFilledForm res) {
+            super.onPostExecute(res);
+            progDial.dismiss();
+            delegate.finalizeFillingProcessTaskFinished(res);
+        }
+    }
+
+
+    private static class DeleteFillingProcessQueryAsyncTask extends AsyncTask<Void, Void, Void> {
+        private Context ctx;
+        private ProgressDialog progDial;
+        private int fpId;
+        private CtcaeFillingProcessRepository repository;
+        private PageQuestionsAsyncResponse delegate;
+
+        DeleteFillingProcessQueryAsyncTask( int fillingProcId, Context context, PageQuestionsAsyncResponse delegate) {
+            ctx = context;
+            this.fpId = fillingProcId;
+            progDial = new ProgressDialog(ctx);
+            this.delegate = delegate;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progDial.setMessage("Submitting filled form...");
+            progDial.setIndeterminate(false);
+            progDial.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            progDial.setCancelable(false);
+            progDial.show();
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            repository = new CtcaeFillingProcessRepository(ctx);
+            repository.deleteFillingProcess(fpId);
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void res) {
+            super.onPostExecute(res);
+            progDial.dismiss();
+            delegate.deleteFillingProcessTaskFinished();
+        }
+    }
+
     //set end timestamp for current filling process
-    private static class FinalizeFillingProcessQueryAsyncTask extends AsyncTask<Void, Void, Integer> {
+    /*private static class FinalizeFillingProcessQueryAsyncTask extends AsyncTask<Void, Void, Integer> {
         private Context ctx;
         private ProgressDialog progDial;
         private int fpId;
@@ -326,7 +531,7 @@ public class NewFormPageActivity extends AppCompatActivity implements PageQuesti
             progDial.dismiss();
             delegate.finalizeFillingProcessTaskFinished(res);
         }
-    }
+    }*/
 
     //get all questions yet to be answered current filling process
     private static class GetUnansweredQuestionsQueryAsyncTask extends AsyncTask<Void, Void, FormPageActivity.IncompleteContainer> {

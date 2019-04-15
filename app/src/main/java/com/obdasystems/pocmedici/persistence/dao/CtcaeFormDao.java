@@ -197,6 +197,9 @@ public interface CtcaeFormDao {
     @Delete
     void deleteFillingProcess(CtcaeFormFillingProcess fillProc);
 
+    @Query("DELETE FROM ctcae_form_filling_process WHERE id=:fillProcId")
+    void deleteFillingProcess(int fillProcId);
+
     /*@Query("UPDATE ctcae_form_filling_process SET end_date=")
     int updateFillingProcess(int fillProcId, GregorianCalendar endDate);*/
 
@@ -281,6 +284,8 @@ public interface CtcaeFormDao {
 
     @Query("SELECT * FROM ctcae_form_question_answered WHERE proc_id=:procId")
     List<CtcaeFormQuestionAnswered> getAllQuestionAnsweredByProcessId(int procId);
+
+
 
     @Query("SELECT * FROM ctcae_form_question_answered WHERE form_id=:formId")
     LiveData<List<CtcaeFormQuestionAnswered>> getAllQuestionAnsweredByFormId(int formId);

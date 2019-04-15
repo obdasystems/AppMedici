@@ -5,10 +5,12 @@ import com.obdasystems.pocmedici.message.model.Message;
 import java.util.List;
 
 import retrofit2.Call;
+import retrofit2.http.Body;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
+import retrofit2.http.Path;
 
 public interface MediciApiInterface {
 
@@ -16,8 +18,19 @@ public interface MediciApiInterface {
     @FormUrlEncoded
     Call<String> requestAuthentication(@Field("password") String pwd, @Field("username") String usrname);
 
+    /**********************
+            FORMS
+     ***********************/
+
     @GET("forms")
     Call<List<RestForm>> getQuestionnaires();
+
+    @POST("forms/{formId}/submit")
+    Call<String> sendFilledForm(@Path("formId") int formId, @Body RestFilledForm filledForm);
+
+    /**********************
+             Messages
+     ***********************/
 
     @GET("messages")
     Call<List<Message>> getInbox();
@@ -30,6 +43,11 @@ public interface MediciApiInterface {
                               @Field("adverseEvent") Boolean adverseEvent,
                               @Field("sender") String sender,
                               @Field("recipient") String recipient);
+
+
+    /**********************
+             Sensors
+     ***********************/
 
     @POST("/devices/measures/gps")
     @FormUrlEncoded
