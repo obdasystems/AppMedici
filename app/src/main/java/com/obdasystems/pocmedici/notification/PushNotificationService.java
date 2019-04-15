@@ -1,7 +1,9 @@
 package com.obdasystems.pocmedici.notification;
 
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.RingtoneManager;
@@ -13,20 +15,61 @@ import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.jaredrummler.android.device.DeviceName;
 import com.obdasystems.pocmedici.R;
+import com.obdasystems.pocmedici.activity.CalendarMaterialActivity;
+import com.obdasystems.pocmedici.activity.MainActivity;
+import com.obdasystems.pocmedici.activity.MessageListActivity;
+import com.obdasystems.pocmedici.activity.NewFormListActivity;
 import com.obdasystems.pocmedici.network.MediciApiClient;
 import com.obdasystems.pocmedici.network.MediciApi;
 import com.obdasystems.pocmedici.network.request.UserDeviceRegistrationRequest;
 import com.obdasystems.pocmedici.utils.SaveSharedPreference;
 
+import java.util.Map;
+
 public class PushNotificationService extends FirebaseMessagingService {
     private final String CHANNEL_ID = "appMedici push notification";
-    private final int NOTIFICATION_ID = 98765;
+
+    private final int NOTIFICATION_ID_MESSAGE = 98765;
+    private final int NOTIFICATION_ID_FORM = 98766;
+    private final int NOTIFICATION_ID_EVENT = 98767;
+
+    private final String NOTIFICATION_TYPE_MESSAGE = "new_message";
+    private final String NOTIFICATION_TYPE_FORM = "new_form";
+    private final String NOTIFICATION_TYPE_EVENT = "new_event";
 
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
+        super.onMessageReceived(remoteMessage);
+
+        Map<String,String> dataMap =  remoteMessage.getData();
+        String type = dataMap.get("type");
+
+        Class activityClass;
+        int notId;
+
+        switch (type){
+            case NOTIFICATION_TYPE_MESSAGE:
+                activityClass = MessageListActivity.class;
+                notId = NOTIFICATION_ID_MESSAGE;
+                break;
+            case NOTIFICATION_TYPE_FORM:
+                activityClass = NewFormListActivity.class;
+                notId = NOTIFICATION_ID_FORM;
+                break;
+            case NOTIFICATION_TYPE_EVENT:
+                activityClass = CalendarMaterialActivity.class;
+                notId = NOTIFICATION_ID_EVENT;
+                break;
+                default:
+                    activityClass = MainActivity.class;
+                    notId = NOTIFICATION_ID_MESSAGE;
+        }
+
+        Intent intent = new Intent(this, activityClass);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
         Bitmap icon = BitmapFactory.decodeResource(getResources(), R.drawable.icons8_caduceus_48);
 
-        super.onMessageReceived(remoteMessage);
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setContentTitle(remoteMessage.getNotification().getTitle())
                 .setContentText(remoteMessage.getNotification().getBody())
@@ -35,10 +78,11 @@ public class PushNotificationService extends FirebaseMessagingService {
                 .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
                 .setSmallIcon(R.drawable.icons8_caduceus_48)
                 .setLargeIcon(Bitmap.createScaledBitmap(icon, 128, 128, false))
-                .setAutoCancel(true);
+                .setAutoCancel(true)
+                .setContentIntent(pendingIntent);
 
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.notify(NOTIFICATION_ID, notificationBuilder.build());
+        notificationManager.notify(notId, notificationBuilder.build());
     }
 
     @Override

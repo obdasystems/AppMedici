@@ -119,8 +119,8 @@ public class DownloadAssignedFormsService extends Service {
             });
         }
         else {
-            Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Max number of calls to getInbox() reached!!");
-            Toast.makeText(getApplicationContext(), "Max number of calls to getInbox() reached!!", Toast.LENGTH_LONG).show();
+            Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Max number of calls to downloadAssignedForms() reached!!");
+            Toast.makeText(getApplicationContext(), "Max number of calls to downloadAssignedForms() reached!!", Toast.LENGTH_LONG).show();
         }
     }
 

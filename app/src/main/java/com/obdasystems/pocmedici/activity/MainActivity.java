@@ -21,6 +21,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.obdasystems.pocmedici.R;
 import com.obdasystems.pocmedici.network.NetworkUtils;
 import com.obdasystems.pocmedici.service.DownloadAssignedFormsService;
@@ -266,7 +267,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
         Intent intent = new Intent(this, activityClass);
-        intent.putExtra("token", authorizationToken);
         startActivity(intent);
     }
 
@@ -307,6 +307,12 @@ public class MainActivity extends AppCompatActivity {
     /*****************************
      *      * AUTHENTICATION
      *****************************/
+    private void authOnFirebase(){
+        FirebaseInstanceId.getInstance()
+                .getInstanceId();
+    }
+
+
     private void checkAuthorizationToken() {
         String usr = "james";
         String pwd = "bush";
