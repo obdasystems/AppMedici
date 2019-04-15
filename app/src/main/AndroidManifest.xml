@@ -30,17 +30,25 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
+        <!-- Prescriptions -->
         <activity
             android:name=".activity.PrescriptionListActivity"
             android:label="@string/title_activity_prescription_list"
             android:theme="@style/AppTheme.NoActionBar"></activity>
+
+        <!-- drugs -->
+        <activity
+            android:name=".activity.DrugActivity"
+            android:label="@string/title_activity_prescription_list"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
+        <activity
+            android:name=".activity.DrugListActivity"
+            android:label="@string/title_activity_prescription_list"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
+
         <!-- StepCounter Activity -->
-        <activity android:name=".activity.StepCounterActivity"
-            android:label="Step Counter History"></activity>
         <activity android:name=".activity.PieChartStepCounterActivity"
             android:label="Step Counter"></activity>
-        <activity android:name=".activity.PieChartHelloStepCounterActivity"
-            android:label="Hello Step Counter"></activity>
 
         <!-- Calendar Activity -->
         <activity android:name=".activity.CalendarMaterialActivity"
@@ -76,13 +84,10 @@
             </intent-filter>
         </activity>
 
-
-
         <!-- Login Activity -->
         <activity
             android:name=".activity.LoginActivity"
             android:label="@string/app_name">
-
         </activity>
 
         <!-- SERVICES -->
