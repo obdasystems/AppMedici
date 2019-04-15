@@ -9,6 +9,7 @@ import android.graphics.BitmapFactory;
 import android.media.RingtoneManager;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.messaging.FirebaseMessagingService;
@@ -21,10 +22,18 @@ import com.obdasystems.pocmedici.activity.MessageListActivity;
 import com.obdasystems.pocmedici.activity.NewFormListActivity;
 import com.obdasystems.pocmedici.network.MediciApiClient;
 import com.obdasystems.pocmedici.network.MediciApi;
+import com.obdasystems.pocmedici.network.NetworkUtils;
 import com.obdasystems.pocmedici.network.request.UserDeviceRegistrationRequest;
 import com.obdasystems.pocmedici.utils.SaveSharedPreference;
 
+import org.json.JSONObject;
+
+import java.io.IOException;
 import java.util.Map;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class PushNotificationService extends FirebaseMessagingService {
     private final String CHANNEL_ID = "appMedici push notification";
@@ -85,6 +94,7 @@ public class PushNotificationService extends FirebaseMessagingService {
         notificationManager.notify(notId, notificationBuilder.build());
     }
 
+
     @Override
     public void onNewToken(String s) {
         super.onNewToken(s);
@@ -105,7 +115,42 @@ public class PushNotificationService extends FirebaseMessagingService {
                     UserDeviceRegistrationRequest registrationRequest = new UserDeviceRegistrationRequest();
                     registrationRequest.setDeviceDescription(deviceDescription);
                     registrationRequest.setRegistrationToken(token);
-                    apiInterface.registerInstanceId(registrationRequest);
+                        apiInterface.registerInstanceId(registrationRequest)
+                                .enqueue(new Callback<JSONObject>() {
+                                    @Override
+                                    public void onResponse(Call<JSONObject> call, Response<JSONObject> response) {
+                                        if (response.isSuccessful()) {
+                                            Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Firebase token sent!!");
+
+                                        } else {
+                                            switch (response.code()) {
+                                                case 401:
+                                                    Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to send firebase token to server (401)");
+                                                    break;
+                                                case 404:
+                                                    Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to send firebase token to server (404)");
+                                                    Toast.makeText(getApplicationContext(), "Unable to send firebase token to server (404)", Toast.LENGTH_LONG).show();
+
+                                                    break;
+                                                case 500:
+                                                    Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to send firebase token to server (500)");
+                                                    Toast.makeText(getApplicationContext(), "Unable to send firebase token to server (500)", Toast.LENGTH_LONG).show();
+
+                                                    break;
+                                                default:
+                                                    Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to send firebase token to server (UNKNOWN)");
+                                                    Toast.makeText(getApplicationContext(), "Unable to send firebase token to server (UNKNOWN)", Toast.LENGTH_LONG).show();
+
+                                                    break;
+                                            }
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onFailure(Call<JSONObject> call, Throwable t) {
+
+                                    }
+                                });
                 });
     }
 

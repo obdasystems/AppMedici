@@ -13,7 +13,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MediciApiClient {
-    public static final String BASE_URL = "http://10.0.0.195:9000/api/";
+    public static final String BASE_URL = "http://192.168.1.20:3000/api/";
     //public static final String BASE_URL = "http://obdatest.dis.uniroma1.it:3000/api/";
     private static OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
     private static Interceptor generalErrorInterceptor;
@@ -30,7 +30,7 @@ public class MediciApiClient {
     }
 
     public static <S> S createService(Class<S> serviceClass, final String authToken) {
-        if (!TextUtils.isEmpty(authToken)) {
+        //if (!TextUtils.isEmpty(authToken)) {
             HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
             loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
             AuthenticationInterceptor interceptor = new AuthenticationInterceptor(authToken);
@@ -46,7 +46,8 @@ public class MediciApiClient {
                         .addConverterFactory(GsonConverterFactory.create(gson))
                         .build();
             }
-        }
+        //}
+
 
         return retrofit.create(serviceClass);
     }

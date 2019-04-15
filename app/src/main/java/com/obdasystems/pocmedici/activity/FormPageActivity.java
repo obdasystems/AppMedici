@@ -20,12 +20,12 @@ import android.view.View;
 import com.obdasystems.pocmedici.R;
 import com.obdasystems.pocmedici.adapter.FormQuestionListAdapter;
 import com.obdasystems.pocmedici.asyncresponse.PageQuestionsAsyncResponse;
+import com.obdasystems.pocmedici.network.RestFilledForm;
 import com.obdasystems.pocmedici.persistence.entities.CtcaeFormPage;
 import com.obdasystems.pocmedici.persistence.entities.CtcaeFormQuestion;
 import com.obdasystems.pocmedici.persistence.entities.CtcaeFormQuestionAnswered;
 import com.obdasystems.pocmedici.persistence.entities.JoinFormPageQuestionsWithPossibleAnswerData;
 import com.obdasystems.pocmedici.persistence.repository.CtcaeFillingProcessAnsweredQuestionRepository;
-import com.obdasystems.pocmedici.persistence.repository.CtcaeFinalizeFillingProcessRepository;
 import com.obdasystems.pocmedici.persistence.repository.CtcaeFormQuestionsRepository;
 import com.obdasystems.pocmedici.persistence.repository.CtcaeIncompleteFillingProcessRepository;
 
@@ -312,6 +312,15 @@ public class FormPageActivity extends AppCompatActivity implements PageQuestions
     }
 
     @Override
+    public void finalizeFillingProcessTaskFinished(RestFilledForm result) {
+
+    }
+
+    @Override
+    public void deleteFillingProcessTaskFinished() {
+
+    }
+
     public void finalizeFillingProcessTaskFinished(int result) {
         Log.i("appMedici","["+this.getClass()+"]finalized fillingProcessId="+fillingProcessId+" " +
                 "update return value="+result);
@@ -347,7 +356,6 @@ public class FormPageActivity extends AppCompatActivity implements PageQuestions
         private ProgressDialog progDial;
         private int fpId;
         private GregorianCalendar calendar;
-        private CtcaeFinalizeFillingProcessRepository repository;
 
 
         private Application app;
@@ -374,16 +382,13 @@ public class FormPageActivity extends AppCompatActivity implements PageQuestions
 
         @Override
         protected Integer doInBackground(Void... voids) {
-            repository = new CtcaeFinalizeFillingProcessRepository(app, fpId, calendar);
-            int res = repository.getUpdateReturnValue();
-            return res;
+            return 1;
         }
 
         @Override
         protected void onPostExecute(Integer res) {
             super.onPostExecute(res);
             progDial.dismiss();
-            delegate.finalizeFillingProcessTaskFinished(res);
         }
     }
 

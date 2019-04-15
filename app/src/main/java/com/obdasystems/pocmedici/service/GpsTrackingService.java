@@ -37,12 +37,14 @@ import com.obdasystems.pocmedici.R;
 import com.obdasystems.pocmedici.network.MediciApiClient;
 import com.obdasystems.pocmedici.network.MediciApi;
 import com.obdasystems.pocmedici.network.NetworkUtils;
+import com.obdasystems.pocmedici.network.RestPosition;
 import com.obdasystems.pocmedici.persistence.repository.PositionRepository;
 import com.obdasystems.pocmedici.utils.SaveSharedPreference;
 
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.io.WKTWriter;
 
 import java.util.GregorianCalendar;
 
@@ -70,6 +72,7 @@ public class GpsTrackingService extends Service {
         super.onCreate();
         counter=0;
         buildNotification();
+        requestLocationUpdates();
         //loginToFirebase();
     }
 
@@ -257,7 +260,7 @@ public class GpsTrackingService extends Service {
 
     private void sendPositionToServer(Point point, long timestamp) {
         if(counter<15) {
-            Log.i("appMedici", "Sending position " + point.toString() + " [counter=" + counter + "]");
+
             String usr = "james";
             String pwd = "bush";
             counter++;
@@ -270,11 +273,16 @@ public class GpsTrackingService extends Service {
 
             MediciApi apiService = MediciApiClient.createService(MediciApi.class, authorizationToken);
 
-            apiService.sendPosition(timestamp, "gps", point.toString()).enqueue(new Callback<String>() {
+            WKTWriter wktw = new WKTWriter();
+            Log.i("appMedici", "Sending position " + wktw.write(point) + " [counter=" + counter + "]");
+            RestPosition rp = new RestPosition(wktw.write(point), timestamp);
+
+            apiService.sendPosition(rp).enqueue(new Callback<String>() {
                 @Override
                 public void onResponse(Call<String> call, Response<String> response) {
                     if (response.isSuccessful()) {
                         Log.i("appMedici", "Position sent to server." + response.body().toString());
+                        counter=0;
                     } else {
                         switch (response.code()) {
                             case 401:
@@ -293,11 +301,11 @@ public class GpsTrackingService extends Service {
                                 Toast.makeText(getApplicationContext(), "Unable to send position (404)", Toast.LENGTH_LONG).show();
                                 break;
                             case 500:
-                                Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to send message (500)");
+                                Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to send position (500)");
                                 Toast.makeText(getApplicationContext(), "Unable to send position (500)", Toast.LENGTH_LONG).show();
                                 break;
                             default:
-                                Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to send message (UNKNOWN)");
+                                Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to send position (UNKNOWN)");
                                 Toast.makeText(getApplicationContext(), "Unable to send position (UNKNOWN)", Toast.LENGTH_LONG).show();
                                 break;
                         }

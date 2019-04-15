@@ -12,6 +12,7 @@ import com.obdasystems.pocmedici.asyncresponse.StepCountersToSendAsyncResponse;
 import com.obdasystems.pocmedici.network.MediciApiClient;
 import com.obdasystems.pocmedici.network.MediciApi;
 import com.obdasystems.pocmedici.network.NetworkUtils;
+import com.obdasystems.pocmedici.network.RestStepCounter;
 import com.obdasystems.pocmedici.persistence.entities.StepCounter;
 import com.obdasystems.pocmedici.persistence.repository.StepCounterRepository;
 import com.obdasystems.pocmedici.utils.SaveSharedPreference;
@@ -73,7 +74,9 @@ public class SendFinalizedStepCountersService extends Service implements StepCou
                 cal.set(sp.getYear(), sp.getMonth(), sp.getDay());
                 long timestamp = cal.getTimeInMillis();
 
-                apiService.sendStepCount(timestamp, "pedometer", sp.getStepCount()).enqueue(new Callback<String>() {
+                RestStepCounter rsc = new RestStepCounter(sp.getStepCount(), timestamp);
+
+                apiService.sendStepCount(rsc).enqueue(new Callback<String>() {
                     @Override
                     public void onResponse(Call<String> call, Response<String> response) {
                         if (response.isSuccessful()) {

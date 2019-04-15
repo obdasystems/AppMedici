@@ -18,7 +18,7 @@ import retrofit2.http.Path;
 
 public interface MediciApi {
 
-    @POST("/auth/login")
+    @POST("auth/login")
     @FormUrlEncoded
     Call<LoginResponse> requestAuthentication(@Field("password") String pwd,
                                               @Field("username") String usrname);
@@ -27,20 +27,20 @@ public interface MediciApi {
             FORMS
      ***********************/
 
-    @GET("/forms")
+    @GET("forms")
     Call<List<RestForm>> getQuestionnaires();
 
     @POST("forms/{formId}/submit")
-    Call<String> sendFilledForm(@Path("formId") int formId, @Body RestFilledForm filledForm);
+    Call<JSONObject> sendFilledForm(@Path("formId") int formId, @Body RestFilledForm filledForm);
 
     /**********************
              Messages
      ***********************/
 
-    @GET("/messages")
+    @GET("messages")
     Call<List<Message>> getInbox();
 
-    @POST("/messages")
+    @POST("messages")
     @FormUrlEncoded
     Call<Message> sendMessage(@Field("date") Long date,
                               @Field("text") String text,
@@ -54,22 +54,16 @@ public interface MediciApi {
              Sensors
      ***********************/
 
-    @POST("/devices/measures/gps")
-    @FormUrlEncoded
-    Call<String> sendPosition(@Field("date") long timestamp,
-                              @Field("type") String type,
-                              @Field("geometry") String position);
+    @POST("devices/measures/gps")
+    Call<String> sendPosition(@Body RestPosition position);
 
-    @POST("/devices/measures/pedometer")
-    @FormUrlEncoded
-    Call<String> sendStepCount(@Field("date") long timestamp,
-                               @Field("type") String type,
-                               @Field("count") int stepCount);
+    @POST("devices/measures/pedometer")
+    Call<String> sendStepCount(@Body RestStepCounter counter);
 
-    @POST("/users/devices/register")
+    @POST("users/devices/register")
     Call<JSONObject> registerInstanceId(@Body UserDeviceRegistrationRequest request);
 
-    @POST("/users/devices/unregister")
+    @POST("users/devices/unregister")
     Call<JSONObject> unregisterInstanceId(@Body UserDeviceRegistrationRequest request);
 
 }

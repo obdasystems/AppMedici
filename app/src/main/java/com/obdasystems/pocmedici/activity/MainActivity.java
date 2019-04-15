@@ -4,7 +4,6 @@ import android.Manifest;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.LocationManager;
 import android.os.Bundle;
@@ -18,12 +17,15 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.google.firebase.iid.FirebaseInstanceId;
+import com.jaredrummler.android.device.DeviceName;
 import com.obdasystems.pocmedici.R;
+import com.obdasystems.pocmedici.network.MediciApi;
+import com.obdasystems.pocmedici.network.MediciApiClient;
 import com.obdasystems.pocmedici.network.NetworkUtils;
+import com.obdasystems.pocmedici.network.request.UserDeviceRegistrationRequest;
 import com.obdasystems.pocmedici.service.DownloadAssignedFormsService;
 import com.obdasystems.pocmedici.service.GpsTrackingService;
 import com.obdasystems.pocmedici.service.SendFinalizedStepCountersService;
@@ -33,11 +35,13 @@ import com.obdasystems.pocmedici.utils.SaveSharedPreference;
 import com.obdasystems.pocmedici.utils.TimeUtils;
 import com.squareup.picasso.Picasso;
 
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.geom.Point;
+import org.json.JSONObject;
 
 import java.util.Calendar;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -49,6 +53,8 @@ public class MainActivity extends AppCompatActivity {
     private static final int LOCATION_PERMISSIONS_REQUEST = 100;
 
     private Context ctx;
+
+    private int authCounter = 0;
 
     StepCounterService mSensorService;
 
@@ -150,38 +156,13 @@ public class MainActivity extends AppCompatActivity {
             SaveSharedPreference.setLastTimeQuestionnairesRequested(this,todayRepr);
         }
 
+        authOnFirebase();
 
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-
-
-
-        /*Picasso.with(this).load(R.drawable.pulsante_questionnaire_rect).resize(950, 250).into(new Target() {
-            @Override
-            public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                questLayout.setBackground(new BitmapDrawable(getResources(), bitmap));
-            }
-
-            @Override
-            public void onBitmapFailed(Drawable errorDrawable) {
-
-            }
-
-            @Override
-            public void onPrepareLoad(Drawable placeHolderDrawable) {
-
-            }
-        });*/
-
-        SharedPreferences sp = getSharedPreferences("app_medici_login", MODE_PRIVATE);
-        boolean logged = sp.getBoolean("logged",false);
-        if(!logged) {
-            Intent logIntent = new Intent(this,LoginActivity.class);
-            startActivityForResult(logIntent, MAIN_LOGIN_CODE);
-        }
     }
 
 
@@ -308,8 +289,80 @@ public class MainActivity extends AppCompatActivity {
      *      * AUTHENTICATION
      *****************************/
     private void authOnFirebase(){
+
         FirebaseInstanceId.getInstance()
-                .getInstanceId();
+                .getInstanceId()
+                .addOnCompleteListener(task -> {
+                    if (!task.isSuccessful()) {
+                        Log.w("appMedici", "getInstanceId failed", task.getException());
+                        return;
+                    }
+                    // Get new Instance ID token
+                    String token = task.getResult().getToken();
+                    sendFirebaseTokenToServer(token);
+                });
+
+
+
+    }
+
+    private void sendFirebaseTokenToServer(String token) {
+        String usr = "james";
+        String pwd = "bush";
+
+        if(authCounter<30) {
+            authCounter++;
+            String deviceDescription = DeviceName.getDeviceName();
+            String authToken = SaveSharedPreference.getAuthorizationToken(this);
+            MediciApi apiInterface = MediciApiClient.createService(MediciApi.class, authToken);
+            UserDeviceRegistrationRequest registrationRequest = new UserDeviceRegistrationRequest();
+            registrationRequest.setDeviceDescription(deviceDescription);
+            registrationRequest.setRegistrationToken(token);
+            apiInterface.registerInstanceId(registrationRequest)
+                    .enqueue(new Callback<JSONObject>() {
+                        @Override
+                        public void onResponse(Call<JSONObject> call, Response<JSONObject> response) {
+                            if (response.isSuccessful()) {
+                                Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Firebase token sent!!");
+                                authCounter = 0;
+                            } else {
+                                switch (response.code()) {
+                                    case 401:
+                                        NetworkUtils.requestNewAuthorizationToken(pwd, usr, ctx);
+                                        Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to send firebase token to server (401)");
+                                        if (!SaveSharedPreference.getAuthorizationIssue(ctx)) {
+                                            sendFirebaseTokenToServer(token);
+                                        } else {
+                                            String issueDescription = SaveSharedPreference.getAuthorizationIssueDescription(ctx);
+                                            Toast.makeText(getApplicationContext(), "Unable to send firebase token to server (401) [" + issueDescription + "]", Toast.LENGTH_LONG).show();
+                                            Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to send firebase token to server (401) [" + issueDescription + "]");
+                                        }
+                                        break;
+                                    case 404:
+                                        Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to send firebase token to server (404)");
+                                        Toast.makeText(getApplicationContext(), "Unable to send firebase token to server (404)", Toast.LENGTH_LONG).show();
+
+                                        break;
+                                    case 500:
+                                        Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to send firebase token to server (500)");
+                                        Toast.makeText(getApplicationContext(), "Unable to send firebase token to server (500)", Toast.LENGTH_LONG).show();
+
+                                        break;
+                                    default:
+                                        Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to send firebase token to server (UNKNOWN)");
+                                        Toast.makeText(getApplicationContext(), "Unable to send firebase token to server (UNKNOWN)", Toast.LENGTH_LONG).show();
+
+                                        break;
+                                }
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<JSONObject> call, Throwable t) {
+
+                        }
+                    });
+        }
     }
 
 

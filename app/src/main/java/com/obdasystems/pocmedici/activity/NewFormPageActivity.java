@@ -37,6 +37,8 @@ import com.obdasystems.pocmedici.persistence.repository.CtcaeFormQuestionsReposi
 import com.obdasystems.pocmedici.persistence.repository.CtcaeIncompleteFillingProcessRepository;
 import com.obdasystems.pocmedici.utils.SaveSharedPreference;
 
+import org.json.JSONObject;
+
 import java.util.GregorianCalendar;
 import java.util.LinkedList;
 import java.util.List;
@@ -287,9 +289,9 @@ public class NewFormPageActivity extends AppCompatActivity implements PageQuesti
 
                 MediciApi apiService = MediciApiClient.createService(MediciApi.class, authorizationToken);
 
-                apiService.sendFilledForm(formId, result).enqueue(new Callback<String>() {
+                apiService.sendFilledForm(formId, result).enqueue(new Callback<JSONObject>() {
                     @Override
-                    public void onResponse(Call<String> call, Response<String> response) {
+                    public void onResponse(Call<JSONObject> call, Response<JSONObject> response) {
                         if (response.isSuccessful()) {
                             Log.i("appMedici", "Questionnaire sent to server." + response.body().toString());
                             Toast.makeText(getApplicationContext(), "Questionnaire sent to server.", Toast.LENGTH_LONG).show();
@@ -325,7 +327,7 @@ public class NewFormPageActivity extends AppCompatActivity implements PageQuesti
                     }
 
                     @Override
-                    public void onFailure(Call<String> call, Throwable t) {
+                    public void onFailure(Call<JSONObject> call, Throwable t) {
                         Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to submit questionnaire : " + t.getMessage());
                         Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to submit questionnaire : " + t.getStackTrace());
                         Toast.makeText(getApplicationContext(), "Unable to submit questionnaire ..", Toast.LENGTH_LONG).show();
