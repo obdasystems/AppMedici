@@ -23,6 +23,7 @@ public class DrugActivity extends AppCompatActivity {
         ctx = this;
         setContentView(R.layout.activity_drug);
         Toolbar toolbar = findViewById(R.id.toolbar);
+        toolbar.setNavigationIcon(R.drawable.baseline_arrow_back_black_24dp);
         setSupportActionBar(toolbar);
 
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
@@ -49,7 +50,7 @@ public class DrugActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         WebView webView = findViewById(R.id.drug_details_view);
-        webView.loadUrl("this.urll");
+        webView.loadUrl(this.url);
     }
 
     @Override

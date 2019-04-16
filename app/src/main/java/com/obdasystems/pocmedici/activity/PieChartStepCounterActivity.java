@@ -170,7 +170,7 @@ public class PieChartStepCounterActivity extends AppCompatActivity implements St
     //get all questions in page along with questions already answered in cyurrent filling process
     private static class GetTodayStepCounterTask extends AsyncTask<Void, Void, StepCounter> {
         private Context ctx;
-        private ProgressDialog progDial;
+        //private ProgressDialog progDial;
         private int year, month, day;
         private StepCounterRepository repository;
         private StepCounterAsyncResponse delegate;
@@ -180,18 +180,18 @@ public class PieChartStepCounterActivity extends AppCompatActivity implements St
             this.year = year;
             this.month = month;
             this.day = day;
-            progDial = new ProgressDialog(ctx);
+            //progDial = new ProgressDialog(ctx);
             this.delegate = delegate;
         }
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            progDial.setMessage("Retrieving step counter...");
+            /*progDial.setMessage("Retrieving step counter...");
             progDial.setIndeterminate(false);
             progDial.setProgressStyle(ProgressDialog.STYLE_SPINNER);
             progDial.setCancelable(false);
-            progDial.show();
+            progDial.show();*/
         }
 
         @Override
@@ -204,7 +204,7 @@ public class PieChartStepCounterActivity extends AppCompatActivity implements St
         @Override
         protected void onPostExecute(StepCounter sp) {
             super.onPostExecute(sp);
-            progDial.dismiss();
+            //progDial.dismiss();
             delegate.getTodayStepCounterTaskFinished(sp);
         }
     }

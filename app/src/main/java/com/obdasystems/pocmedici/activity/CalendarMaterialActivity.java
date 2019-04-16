@@ -299,6 +299,7 @@ public class CalendarMaterialActivity extends AppCompatActivity {
         else {
             Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Max number of calls to getCalendarEvents() reached!!");
             Toast.makeText(getApplicationContext(), "Max number of calls to getCalendarEvents() reached!!", Toast.LENGTH_LONG).show();
+            recursiveCallCounter=0;
         }
     }
 

@@ -13,8 +13,8 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MediciApiClient {
-    public static final String BASE_URL = "http://192.168.1.20:3000/api/";
-    //public static final String BASE_URL = "http://obdatest.dis.uniroma1.it:3000/api/";
+    //public static final String BASE_URL = "http://192.168.1.20:3000/api/";
+    public static final String BASE_URL = "http://obdatest.dis.uniroma1.it:3000/api/";
     private static OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
     private static Interceptor generalErrorInterceptor;
     private static Retrofit retrofit = null;

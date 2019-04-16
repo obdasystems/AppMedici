@@ -28,6 +28,7 @@ public class StepCounterListAdapter extends RecyclerView.Adapter<StepCounterList
 
     //CUSTOM METHODS
     public void setCounters(List<StepCounter> counters) {
+        this.stepCounters.clear();
         this.stepCounters = counters;
     }
 

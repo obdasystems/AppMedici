@@ -17,6 +17,8 @@ import com.obdasystems.pocmedici.persistence.entities.StepCounter;
 import com.obdasystems.pocmedici.persistence.repository.StepCounterRepository;
 import com.obdasystems.pocmedici.utils.SaveSharedPreference;
 
+import org.json.JSONObject;
+
 import java.util.Calendar;
 import java.util.List;
 
@@ -76,11 +78,12 @@ public class SendFinalizedStepCountersService extends Service implements StepCou
 
                 RestStepCounter rsc = new RestStepCounter(sp.getStepCount(), timestamp);
 
-                apiService.sendStepCount(rsc).enqueue(new Callback<String>() {
+                apiService.sendStepCount(rsc).enqueue(new Callback<JSONObject>() {
                     @Override
-                    public void onResponse(Call<String> call, Response<String> response) {
+                    public void onResponse(Call<JSONObject> call, Response<JSONObject> response) {
                         if (response.isSuccessful()) {
                             Log.i("appMedici", "Step count sent to server." + response.body().toString());
+                            counter=0;
                             FinalizeStepCounterQueryAsyncTask task = new FinalizeStepCounterQueryAsyncTask(ctx,sp);
                             task.execute();
                         } else {
@@ -113,7 +116,7 @@ public class SendFinalizedStepCountersService extends Service implements StepCou
                     }
 
                     @Override
-                    public void onFailure(Call<String> call, Throwable t) {
+                    public void onFailure(Call<JSONObject> call, Throwable t) {
                         Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to send Step count : " + t.getMessage());
                         Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to send Step count : " + t.getStackTrace());
                         Toast.makeText(ctx, "Unable to send Step count ..", Toast.LENGTH_LONG).show();
@@ -124,6 +127,7 @@ public class SendFinalizedStepCountersService extends Service implements StepCou
         else {
             Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Max number of calls to sendPositionToServer() reached!!");
             Toast.makeText(getApplicationContext(), "Max number of calls to sendPositionToServer() reached!!", Toast.LENGTH_LONG).show();
+            counter=0;
         }
     }
 

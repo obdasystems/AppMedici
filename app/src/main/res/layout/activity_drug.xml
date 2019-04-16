@@ -20,7 +20,11 @@
 
     </android.support.design.widget.AppBarLayout>
 
+
+
     <WebView
+        android:layout_marginTop="?attr/actionBarSize"
+        android:paddingTop="?attr/actionBarSize"
         android:id="@+id/drug_details_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

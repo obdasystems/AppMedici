@@ -239,7 +239,7 @@ public class NewFormQuestionListAdapter extends RecyclerView.Adapter<NewFormQues
     }
 
     private static class QueryAsyncTask extends AsyncTask<Void, Void, Void> {
-        private ProgressDialog progDial;
+        //private ProgressDialog progDial;
         private CtcaeFillingProcessAnsweredQuestionRepository repository;
         private int pageId;
         private int questionId;
@@ -256,18 +256,18 @@ public class NewFormQuestionListAdapter extends RecyclerView.Adapter<NewFormQues
             this.questionId = questionId;
             this.answerId = answerId;
             this.ctx = context;
-            progDial = new ProgressDialog(ctx);
+            //progDial = new ProgressDialog(ctx);
             this.app = app;
         }
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            progDial.setMessage("Saving answer...");
+            /*progDial.setMessage("Saving answer...");
             progDial.setIndeterminate(false);
             progDial.setProgressStyle(ProgressDialog.STYLE_SPINNER);
             progDial.setCancelable(false);
-            progDial.show();
+            progDial.show();*/
         }
 
         @Override
@@ -280,7 +280,7 @@ public class NewFormQuestionListAdapter extends RecyclerView.Adapter<NewFormQues
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
-            progDial.dismiss();
+            //progDial.dismiss();
         }
     }
 }

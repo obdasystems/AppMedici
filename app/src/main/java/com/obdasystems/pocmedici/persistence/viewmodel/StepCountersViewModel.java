@@ -17,11 +17,11 @@ public class StepCountersViewModel extends AndroidViewModel {
     public StepCountersViewModel (Application app) {
         super(app);
         repository = new StepCounterRepository(app);
-        allCounters = repository.getAllStepCounters();
         //Log.i("ROOM","CtcaeFormViewModel "+allForms.getValue().size());
     }
 
     public LiveData<List<StepCounter>> getAllCounters() {
+        allCounters = repository.getAllStepCounters();
         return allCounters;
     }
 }

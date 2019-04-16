@@ -37,6 +37,7 @@ public class PrescriptionListActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_prescription_list);
         Toolbar toolbar = findViewById(R.id.toolbar);
+        toolbar.setNavigationIcon(R.drawable.baseline_arrow_back_black_24dp);
         setSupportActionBar(toolbar);
 
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
@@ -60,7 +61,7 @@ public class PrescriptionListActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         webView = findViewById(R.id.prescription_details_view);
-        webView.loadUrl("http://192.168.10.1:8081/pantorc.html");
+        getPrescriptions();
     }
 
     @Override
@@ -135,6 +136,7 @@ public class PrescriptionListActivity extends AppCompatActivity {
         else {
             Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Max number of calls to getPrescriptions() reached!!");
             Toast.makeText(getApplicationContext(), "Max number of calls to getPrescriptions() reached!!", Toast.LENGTH_LONG).show();
+            recursiveCallCounter=0;
         }
     }
 

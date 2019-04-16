@@ -239,6 +239,7 @@ public class NewFormListActivity extends AppCompatActivity implements SwipeRefre
             swipeRefreshLayout.setRefreshing(false);
             Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Max number of calls to downloadAssignedForms() reached!!");
             Toast.makeText(getApplicationContext(), "Max number of calls to downloadAssignedForms() reached!!", Toast.LENGTH_LONG).show();
+            restCounter = 0;
         }
     }
 

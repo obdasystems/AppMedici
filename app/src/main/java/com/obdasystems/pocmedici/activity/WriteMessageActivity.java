@@ -15,6 +15,7 @@ import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -25,6 +26,7 @@ import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.obdasystems.pocmedici.BuildConfig;
 import com.obdasystems.pocmedici.R;
 import com.obdasystems.pocmedici.adapter.WriteMessageAttachmentAdapter;
 import com.obdasystems.pocmedici.listener.OnRecyclerViewPositionClickListener;
@@ -308,6 +310,7 @@ public class WriteMessageActivity extends AppCompatActivity {
                 public void onResponse(Call<Message> call, Response<Message> response) {
                     if (response.isSuccessful()) {
                         Log.i("appMedici", "Message sent to server." + response.body().toString());
+                        recursiveSendMessageCounter=0;
                         backToMessageList();
                     } else {
                         switch (response.code()) {
@@ -351,6 +354,7 @@ public class WriteMessageActivity extends AppCompatActivity {
         else {
             Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Max number of calls to sendMessage() reached!!");
             Toast.makeText(getApplicationContext(), "Max number of calls to sendMessage() reached!!", Toast.LENGTH_LONG).show();
+            recursiveSendMessageCounter=0;
         }
     }
 
@@ -410,7 +414,8 @@ public class WriteMessageActivity extends AppCompatActivity {
 
     private void openCamera() {
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        currentCameraAttachmentUri = Uri.fromFile(getOutputMediaFile());
+        //currentCameraAttachmentUri = Uri.fromFile(getOutputMediaFile());
+        currentCameraAttachmentUri = FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID,getOutputMediaFile());
         intent.putExtra(MediaStore.EXTRA_OUTPUT, currentCameraAttachmentUri);
 
         startActivityForResult(intent, PICTURE_CAMERA_REQUEST_CODE);

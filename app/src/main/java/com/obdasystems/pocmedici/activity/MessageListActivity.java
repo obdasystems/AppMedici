@@ -192,6 +192,7 @@ public class MessageListActivity extends AppCompatActivity implements SwipeRefre
         else {
             Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Max number of calls to getInbox() reached!!");
             Toast.makeText(getApplicationContext(), "Max number of calls to getInbox() reached!!", Toast.LENGTH_LONG).show();
+            recursiveGetInboxCallCounter=0;
         }
     }
 

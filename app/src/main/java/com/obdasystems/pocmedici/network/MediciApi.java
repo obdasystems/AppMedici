@@ -55,10 +55,10 @@ public interface MediciApi {
      ***********************/
 
     @POST("devices/measures/gps")
-    Call<String> sendPosition(@Body RestPosition position);
+    Call<JSONObject> sendPosition(@Body RestPosition position);
 
     @POST("devices/measures/pedometer")
-    Call<String> sendStepCount(@Body RestStepCounter counter);
+    Call<JSONObject> sendStepCount(@Body RestStepCounter counter);
 
     @POST("users/devices/register")
     Call<JSONObject> registerInstanceId(@Body UserDeviceRegistrationRequest request);

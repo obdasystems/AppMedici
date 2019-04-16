@@ -297,6 +297,7 @@ public class NewFormPageActivity extends AppCompatActivity implements PageQuesti
                             Toast.makeText(getApplicationContext(), "Questionnaire sent to server.", Toast.LENGTH_LONG).show();
                             NewFormPageActivity.DeleteFillingProcessQueryAsyncTask task = new NewFormPageActivity.DeleteFillingProcessQueryAsyncTask(fillingProcessId, ctx, delegate);
                             task.execute();
+                            recursiveSubmitFormCounter = 0;
                         } else {
                             switch (response.code()) {
                                 case 401:
@@ -354,6 +355,7 @@ public class NewFormPageActivity extends AppCompatActivity implements PageQuesti
                         }
                     });
             dialog.show();
+            recursiveSubmitFormCounter = 0;
         }
     }
 

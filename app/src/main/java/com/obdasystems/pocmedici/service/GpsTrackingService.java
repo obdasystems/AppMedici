@@ -34,6 +34,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.obdasystems.pocmedici.R;
+import com.obdasystems.pocmedici.activity.MainActivity;
 import com.obdasystems.pocmedici.network.MediciApiClient;
 import com.obdasystems.pocmedici.network.MediciApi;
 import com.obdasystems.pocmedici.network.NetworkUtils;
@@ -41,6 +42,7 @@ import com.obdasystems.pocmedici.network.RestPosition;
 import com.obdasystems.pocmedici.persistence.repository.PositionRepository;
 import com.obdasystems.pocmedici.utils.SaveSharedPreference;
 
+import org.json.JSONObject;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
@@ -80,7 +82,12 @@ public class GpsTrackingService extends Service {
     private void buildNotification() {
         String stop = "stop";
         registerReceiver(stopReceiver, new IntentFilter(stop));
-        PendingIntent broadcastIntent = PendingIntent.getBroadcast(this, 0, new Intent(stop), PendingIntent.FLAG_UPDATE_CURRENT);
+        //PendingIntent broadcastIntent = PendingIntent.getBroadcast(this, 0, new Intent(stop), PendingIntent.FLAG_UPDATE_CURRENT);
+
+        Intent notificationIntent = new Intent(getApplicationContext(), MainActivity.class);
+        notificationIntent.setAction(MainActivity.ACTION_MAIN);  // A string containing the action name
+        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        PendingIntent contentPendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
 
         // Create the persistent notification//
         Bitmap icon = BitmapFactory.decodeResource(getResources(), R.drawable.icons8_caduceus_48);
@@ -94,10 +101,12 @@ public class GpsTrackingService extends Service {
                 .setContentText(getString(R.string.tracking_enabled_notif))
                 .setSmallIcon(R.drawable.icons8_caduceus_48)
                 .setLargeIcon(Bitmap.createScaledBitmap(icon, 128, 128, false))
-                .setContentIntent(broadcastIntent)
+                //.setContentIntent(broadcastIntent)
+                .setContentIntent(contentPendingIntent)
                 .setOngoing(true)
 //                .setDeleteIntent(contentPendingIntent)  // if needed
                 .build();
+        notification.flags = notification.flags | Notification.FLAG_NO_CLEAR;
         startForeground(NOTIFICATION_ID, notification);
 
 
@@ -156,7 +165,7 @@ public class GpsTrackingService extends Service {
         LocationRequest request = new LocationRequest();
 
         //Specify how often your app should request the device’s location//
-        request.setInterval(10000);
+        request.setInterval(60000);
 
         //Get the most accurate location data available//
         request.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
@@ -277,9 +286,9 @@ public class GpsTrackingService extends Service {
             Log.i("appMedici", "Sending position " + wktw.write(point) + " [counter=" + counter + "]");
             RestPosition rp = new RestPosition(wktw.write(point), timestamp);
 
-            apiService.sendPosition(rp).enqueue(new Callback<String>() {
+            apiService.sendPosition(rp).enqueue(new Callback<JSONObject>() {
                 @Override
-                public void onResponse(Call<String> call, Response<String> response) {
+                public void onResponse(Call<JSONObject> call, Response<JSONObject> response) {
                     if (response.isSuccessful()) {
                         Log.i("appMedici", "Position sent to server." + response.body().toString());
                         counter=0;
@@ -313,7 +322,7 @@ public class GpsTrackingService extends Service {
                 }
 
                 @Override
-                public void onFailure(Call<String> call, Throwable t) {
+                public void onFailure(Call<JSONObject> call, Throwable t) {
                     Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to send position : " + t.getMessage());
                     Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to send position : " + t.getStackTrace());
                     Toast.makeText(ctx, "Unable to send position ..", Toast.LENGTH_LONG).show();
@@ -323,6 +332,7 @@ public class GpsTrackingService extends Service {
         else {
             Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Max number of calls to sendPositionToServer() reached!!");
             Toast.makeText(getApplicationContext(), "Max number of calls to sendPositionToServer() reached!!", Toast.LENGTH_LONG).show();
+            counter=0;
         }
     }
 

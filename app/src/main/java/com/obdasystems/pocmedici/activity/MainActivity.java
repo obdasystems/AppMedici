@@ -70,8 +70,26 @@ public class MainActivity extends AppCompatActivity {
 
         ctx = this;
 
+        loadImages();
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.main_toolbar);
+        setSupportActionBar(toolbar);
+
+        checkServices();
+
+        checkAuthorizationToken();
+
+        checkInfosToServer();
+
+        authOnFirebase();
+
+    }
+
+
+
+    private void loadImages() {
         ImageView formImageView = findViewById(R.id.image_ctcae_form);
-        Picasso.with(ctx).load(R.drawable.pulsante_questionnaire_rect_slim3).resize(1000, 250).into(formImageView);
+        Picasso.with(ctx).load(R.drawable.pulsante_questionnaire_rect_slim).resize(1000, 250).into(formImageView);
 
         ImageView sensorImageView = findViewById(R.id.image_sensors);
         Picasso.with(ctx).load(R.drawable.pulsante_sensori_rect_slim).resize(1000, 250).into(sensorImageView);
@@ -86,79 +104,7 @@ public class MainActivity extends AppCompatActivity {
         Picasso.with(ctx).load(R.drawable.pulsante_prescrizioni_rect_slim).resize(1000, 250).into(prescrView);
 
         ImageView drugView = findViewById(R.id.image_drugs);
-        Picasso.with(ctx).load(R.drawable.pulsante_info_farmaci_rect_slim).resize(1000, 250).into(prescrView);
-
-        Toolbar toolbar = (Toolbar) findViewById(R.id.main_toolbar);
-        setSupportActionBar(toolbar);
-
-        Intent mServiceIntent = new Intent(this, StepCounterForegroundService.class);
-        mServiceIntent.setAction(MainActivity.ACTION_START_SERVICE);
-        if (!isMyServiceRunning(StepCounterForegroundService.class)) {
-            startService(mServiceIntent);
-            Log.i("appMedici", "["+this.getClass().getSimpleName()+"]Step counter service started");
-        }
-        else {
-            Log.i("appMedici", "["+this.getClass().getSimpleName()+"]Found step counter service already running");
-        }
-
-
-        //LOCATION TRACKING
-        //Check whether GPS tracking is enabled//
-        LocationManager lm = (LocationManager) getSystemService(LOCATION_SERVICE);
-        if (!lm.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-            Log.i("appMedici", "["+this.getClass().getSimpleName()+"] GPS provider is off!!");
-            //finish();
-        }
-
-        //Check whether this app has access to the location permission
-        int permission = ContextCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_FINE_LOCATION);
-
-        //If the location permission has been granted, then start the TrackerService
-        if (permission == PackageManager.PERMISSION_GRANTED) {
-            startTrackerService();
-        } else {
-
-        //If the app doesn’t currently have access to the user’s location, then request access//
-        ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSIONS_REQUEST);
-        }
-
-        checkAuthorizationToken();
-
-
-        Calendar cal = Calendar.getInstance();
-        String todayRepr = TimeUtils.getSimpleDateStringRepresentation(cal);
-        String lastDateStepCountersSent = SaveSharedPreference.getLastTimeStepcountersSent(this);
-        if(lastDateStepCountersSent!=null) {
-            Log.i("appMedici", "[" + this.getClass().getSimpleName() + "] lastDateStepCountersSent=" + lastDateStepCountersSent);
-        }
-        else {
-            Log.i("appMedici", "[" + this.getClass().getSimpleName() + "] lastDateStepCountersSent= null" );
-        }
-
-        if(lastDateStepCountersSent== null || !todayRepr.equals(lastDateStepCountersSent)) {
-            Log.i("appMedici", "[" + this.getClass().getSimpleName() + "] creating intent SendFinalizedStepCountersService");
-            Intent sendStepCountersIntent = new Intent(this, SendFinalizedStepCountersService.class);
-            startService(sendStepCountersIntent);
-            SaveSharedPreference.setLastTimeStepcountersSent(this,todayRepr);
-        }
-
-        String lastDateFormsRequested = SaveSharedPreference.getLastTimeQuestionnairesRequested(this);
-        if(lastDateStepCountersSent!=null) {
-            Log.i("appMedici", "[" + this.getClass().getSimpleName() + "] lastDateFormsRequested=" + lastDateFormsRequested);
-        }
-        else {
-            Log.i("appMedici", "[" + this.getClass().getSimpleName() + "] lastDateFormsRequested= null" );
-        }
-        if(lastDateFormsRequested== null || !todayRepr.equals(lastDateFormsRequested)) {
-            Log.i("appMedici", "[" + this.getClass().getSimpleName() + "] creating intent DownloadAssignedFormsService");
-            Intent downloadFormsIntent = new Intent(this, DownloadAssignedFormsService.class);
-            startService(downloadFormsIntent);
-            SaveSharedPreference.setLastTimeQuestionnairesRequested(this,todayRepr);
-        }
-
-        authOnFirebase();
+        Picasso.with(ctx).load(R.drawable.pulsante_info_farmaci_rect_slim).resize(1000, 250).into(drugView);
 
     }
 
@@ -172,18 +118,12 @@ public class MainActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         if (requestCode == LOCATION_PERMISSIONS_REQUEST && grantResults.length == 1
                 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            //...then start the GPS tracking service//
             startTrackerService();
         } else {
             Toast.makeText(this, "Please enable location services to allow GPS tracking", Toast.LENGTH_SHORT).show();
         }
     }
 
-    private void startTrackerService() {
-        startService(new Intent(this, GpsTrackingService.class));
-        Toast.makeText(this, "GPS tracking enabled", Toast.LENGTH_SHORT).show();
-        //finish();
-    }
 
     /*****************************
      * TOOLBAR METHODS
@@ -263,6 +203,77 @@ public class MainActivity extends AppCompatActivity {
      *
      *      * SERVICES MANAGEMENT METHODS
      *****************************/
+
+    private void checkServices() {
+
+        if (!isMyServiceRunning(StepCounterForegroundService.class)) {
+            startStepCounterService();
+        }
+
+        //LOCATION TRACKING
+        LocationManager lm = (LocationManager) getSystemService(LOCATION_SERVICE);
+        if (!lm.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            Log.i("appMedici", "["+this.getClass().getSimpleName()+"] GPS provider is off!!");
+            //CHIEDI DI ACCENDERE GPS;
+        }
+        else {
+            int permission = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
+            if (permission == PackageManager.PERMISSION_GRANTED) {
+                if (!isMyServiceRunning(GpsTrackingService.class)) {
+                    startTrackerService();
+                }
+            } else {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSIONS_REQUEST);
+            }
+        }
+    }
+
+    private void startStepCounterService() {
+        Intent mServiceIntent = new Intent(this, StepCounterForegroundService.class);
+        mServiceIntent.setAction(MainActivity.ACTION_START_SERVICE);
+        startService(mServiceIntent);
+        Log.i("appMedici", "["+this.getClass().getSimpleName()+"]Step counter service started");
+    }
+
+    private void startTrackerService() {
+        startService(new Intent(this, GpsTrackingService.class));
+        Toast.makeText(this, "GPS tracking enabled", Toast.LENGTH_SHORT).show();
+    }
+
+    private void checkInfosToServer() {
+        Calendar cal = Calendar.getInstance();
+        String todayRepr = TimeUtils.getSimpleDateStringRepresentation(cal);
+        String lastDateStepCountersSent = SaveSharedPreference.getLastTimeStepcountersSent(this);
+        if(lastDateStepCountersSent!=null) {
+            Log.i("appMedici", "[" + this.getClass().getSimpleName() + "] lastDateStepCountersSent=" + lastDateStepCountersSent);
+        }
+        else {
+            Log.i("appMedici", "[" + this.getClass().getSimpleName() + "] lastDateStepCountersSent= null" );
+        }
+
+        if(lastDateStepCountersSent== null || !todayRepr.equals(lastDateStepCountersSent)) {
+            Log.i("appMedici", "[" + this.getClass().getSimpleName() + "] creating intent SendFinalizedStepCountersService");
+            Intent sendStepCountersIntent = new Intent(this, SendFinalizedStepCountersService.class);
+            startService(sendStepCountersIntent);
+            SaveSharedPreference.setLastTimeStepcountersSent(this,todayRepr);
+        }
+
+        String lastDateFormsRequested = SaveSharedPreference.getLastTimeQuestionnairesRequested(this);
+        if(lastDateStepCountersSent!=null) {
+            Log.i("appMedici", "[" + this.getClass().getSimpleName() + "] lastDateFormsRequested=" + lastDateFormsRequested);
+        }
+        else {
+            Log.i("appMedici", "[" + this.getClass().getSimpleName() + "] lastDateFormsRequested= null" );
+        }
+        if(lastDateFormsRequested== null || !todayRepr.equals(lastDateFormsRequested)) {
+            Log.i("appMedici", "[" + this.getClass().getSimpleName() + "] creating intent DownloadAssignedFormsService");
+            Intent downloadFormsIntent = new Intent(this, DownloadAssignedFormsService.class);
+            startService(downloadFormsIntent);
+            SaveSharedPreference.setLastTimeQuestionnairesRequested(this,todayRepr);
+        }
+
+    }
+
     private boolean isMyServiceRunning(Class<?> serviceClass) {
         ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
         for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
@@ -361,6 +372,9 @@ public class MainActivity extends AppCompatActivity {
 
                         }
                     });
+        }
+        else {
+            authCounter = 0;
         }
     }
 

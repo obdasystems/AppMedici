@@ -32,19 +32,15 @@
         android:usesCleartextTraffic="true">
         <!-- Prescriptions -->
         <activity
-            android:name=".activity.PrescriptionListActivity"
-            android:label="@string/title_activity_prescription_list"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:name=".activity.PrescriptionListActivity"></activity>
 
         <!-- drugs -->
         <activity
             android:name=".activity.DrugActivity"
-            android:label="@string/title_activity_prescription_list"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            ></activity>
         <activity
             android:name=".activity.DrugListActivity"
-            android:label="@string/title_activity_prescription_list"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            ></activity>
 
         <!-- StepCounter Activity -->
         <activity android:name=".activity.PieChartStepCounterActivity"
@@ -140,5 +136,19 @@
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
+
+
+        <provider
+            android:name="android.support.v4.content.FileProvider"
+            android:grantUriPermissions="true"
+            android:exported="false"
+            android:authorities="${applicationId}">
+
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_provider_paths"/>
+
+        </provider>
+
     </application>
 </manifest>

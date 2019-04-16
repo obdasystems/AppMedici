@@ -15,6 +15,7 @@
         app:layout_constraintBottom_toBottomOf="parent">
 
         <android.support.v7.widget.RecyclerView
+            android:paddingTop="?attr/actionBarSize"
             android:id="@+id/recycler_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
