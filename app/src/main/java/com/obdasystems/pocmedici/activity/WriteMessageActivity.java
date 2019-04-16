@@ -422,8 +422,7 @@ public class WriteMessageActivity extends AppCompatActivity {
     }
 
     private static File getOutputMediaFile(){
-        File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES), "AppMedici");
+        File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "AppMedici");
 
         if (!mediaStorageDir.exists()){
             if (!mediaStorageDir.mkdirs()){

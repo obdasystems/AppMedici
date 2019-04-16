@@ -7,16 +7,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.Toast;
 
 import com.applandeo.materialcalendarview.CalendarView;
 import com.applandeo.materialcalendarview.EventDay;
-import com.applandeo.materialcalendarview.exceptions.OutOfDateRangeException;
-import com.applandeo.materialcalendarview.utils.DateUtils;
 import com.obdasystems.pocmedici.R;
 import com.obdasystems.pocmedici.calendar.material.DrawableUtils;
-import com.obdasystems.pocmedici.message.model.Message;
 import com.obdasystems.pocmedici.network.MediciApi;
 import com.obdasystems.pocmedici.network.MediciApiClient;
 import com.obdasystems.pocmedici.network.NetworkUtils;
@@ -24,14 +20,11 @@ import com.obdasystems.pocmedici.network.RestCalendarEvent;
 import com.obdasystems.pocmedici.network.RestCalendarEventList;
 import com.obdasystems.pocmedici.utils.SaveSharedPreference;
 
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -112,6 +105,7 @@ public class CalendarMaterialActivity extends AppCompatActivity {
         calendarView.setMaximumDate(max);
 
 
+        getCalendarEvents();
 
 
         calendarView.setOnDayClickListener(eventDay ->{

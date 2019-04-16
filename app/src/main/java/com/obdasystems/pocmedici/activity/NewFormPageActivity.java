@@ -76,7 +76,6 @@ public class NewFormPageActivity extends AppCompatActivity implements PageQuesti
         setToolbarTitle();
 
         Intent intent = getIntent();
-        authorizationToken = intent.getStringExtra("token");
         fillingProcessId = intent.getIntExtra("fillingProcessId",-1);
         formId = intent.getIntExtra("formId",-1);
         totalPagecount = intent.getIntExtra("pageCount", 0);
