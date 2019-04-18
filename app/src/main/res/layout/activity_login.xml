@@ -34,7 +34,7 @@
                 android:layout_marginTop="32sp"
                 android:layout_marginBottom="16sp"
                 android:layout_gravity="center_horizontal"
-                android:contentDescription="ITCO Logo"
+                android:contentDescription="@string/app_name"
                 android:src="@drawable/itco_logo" />
 
             <android.support.design.widget.TextInputLayout
@@ -48,7 +48,7 @@
                     android:layout_marginStart="16sp"
                     android:layout_marginEnd="16sp"
                     android:layout_marginBottom="4sp"
-                    android:background="@drawable/textfield_bg"
+                    android:background="@drawable/bg_textfield"
                     android:hint="@string/prompt_email"
                     android:inputType="textPersonName"
                     android:maxLines="1"
@@ -68,7 +68,7 @@
                     android:layout_marginStart="16sp"
                     android:layout_marginEnd="16sp"
                     android:layout_marginBottom="4sp"
-                    android:background="@drawable/textfield_bg"
+                    android:background="@drawable/bg_textfield"
                     android:hint="@string/prompt_password"
                     android:imeActionId="6"
                     android:imeActionLabel="@string/action_sign_in_short"
@@ -83,11 +83,10 @@
             <Button
                 android:id="@+id/sign_in_button"
                 style="?android:textAppearanceSmall"
-                android:backgroundTint="#CCCCCC"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:layout_margin="8dp"
+                android:layout_margin="16dp"
                 android:text="@string/action_sign_in"
                 android:textStyle="bold" />
 
