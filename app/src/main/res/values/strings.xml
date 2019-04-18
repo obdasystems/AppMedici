@@ -40,6 +40,9 @@
     <string name="action_submit_form">Submit form</string>
     <string name="action_fill_form">Fill form</string>
 
+    <!-- Main Activity -->
+    <string name="permission_location_denied">Please enable location services to allow GPS tracking</string>
+
     <!-- GMail-like inbox-->
     <string name="action_settings">Settings</string>
     <string name="action_search">Search</string>

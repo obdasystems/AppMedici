@@ -20,15 +20,13 @@ import com.obdasystems.pocmedici.activity.CalendarMaterialActivity;
 import com.obdasystems.pocmedici.activity.MainActivity;
 import com.obdasystems.pocmedici.activity.MessageListActivity;
 import com.obdasystems.pocmedici.activity.NewFormListActivity;
-import com.obdasystems.pocmedici.network.MediciApiClient;
 import com.obdasystems.pocmedici.network.MediciApi;
-import com.obdasystems.pocmedici.network.NetworkUtils;
+import com.obdasystems.pocmedici.network.MediciApiClient;
 import com.obdasystems.pocmedici.network.request.UserDeviceRegistrationRequest;
 import com.obdasystems.pocmedici.utils.SaveSharedPreference;
 
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.util.Map;
 
 import retrofit2.Call;
