@@ -44,7 +44,7 @@ public class CalendarActivity extends AppActivity {
         ctx = this;
 
         Toolbar toolbar = find(R.id.calendar_material_toolbar);
-        toolbar.setNavigationIcon(R.drawable.baseline_arrow_back_black_24dp);
+        toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp);
         setSupportActionBar(toolbar);
         toolbar.setNavigationOnClickListener(v -> backToMain());
 

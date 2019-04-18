@@ -22,7 +22,7 @@ public class ReadMessageActivity extends AppActivity {
         setContentView(R.layout.activity_read_message);
 
         Toolbar toolbar = find(R.id.read_message_toolbar);
-        toolbar.setNavigationIcon(R.drawable.baseline_arrow_back_black_24dp);
+        toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp);
         setSupportActionBar(toolbar);
         toolbar.setNavigationOnClickListener(v -> goToMessageList());
 

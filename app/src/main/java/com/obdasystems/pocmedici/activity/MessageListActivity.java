@@ -53,7 +53,7 @@ public class MessageListActivity extends AppCompatActivity implements SwipeRefre
         ctx = this;
         setContentView(R.layout.activity_message_list);
         Toolbar toolbar = (Toolbar) findViewById(R.id.message_list_toolbar);
-        toolbar.setNavigationIcon(R.drawable.baseline_arrow_back_black_24dp);
+        toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp);
         setSupportActionBar(toolbar);
 
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {

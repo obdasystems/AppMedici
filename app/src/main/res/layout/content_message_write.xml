@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:gravity="start"
+    android:gravity="start|top"
     android:orientation="vertical"
     android:layout_marginTop="?attr/actionBarSize"
     android:layout_marginBottom="10dp"
@@ -12,59 +10,102 @@
     android:layout_marginEnd="5dp"
     android:scrollbars="vertical">
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top"
+        android:layout_weight="10"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:labelFor="@id/write_message_edit_subject"
+            android:text="@string/message_write_recipient_label" />
+
+        <android.support.design.widget.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <EditText
+                android:id="@+id/write_message_edit_recipient"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:ems="10"
+                android:hint="@string/message_write_recipient_hint"
+                android:inputType="textPersonName" />
+
+        </android.support.design.widget.TextInputLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:labelFor="@id/write_message_edit_subject"
+            android:text="@string/message_write_subject_label" />
+
+        <android.support.design.widget.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <EditText
+                android:id="@+id/write_message_edit_subject"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:ems="10"
+                android:hint="@string/message_write_subject_hint"
+                android:inputType="textPersonName" />
+
+        </android.support.design.widget.TextInputLayout>
+
+        <!-- Horizontal separator -->
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="2dip"
+            android:layout_marginTop="8dp"
+            android:background="#BCBCBCBC" />
+
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <EditText
+                android:id="@+id/write_message_edit_body"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginStart="8dp"
+                android:background="@null"
+                android:ems="10"
+                android:hint="@string/message_write_content_hint"
+                android:inputType="textMultiLine" />
+
+        </android.support.design.widget.TextInputLayout>
+
+    </LinearLayout>
+
     <TextView
-        android:id="@+id/write_message_subject_label"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="start|top"
-        android:layout_marginTop="5dp"
-        android:layout_marginStart="5dp"
-        android:layout_marginEnd="5dp"
-        android:gravity="start|top"
-        android:text="Subject" />
+        android:layout_marginStart="8dp"
+        android:text="@string/message_write_attachment_label" />
 
-    <EditText
-        android:id="@+id/write_message_edit_subject"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="start|top"
-        android:gravity="start|top"
-        android:layout_marginTop="5dp"
-        android:layout_marginStart="5dp"
-        android:layout_marginEnd="5dp"
-        android:ems="10"
-        android:inputType="textPersonName"
-        android:text="Subject of message" />
-
-    <TextView
-        android:id="@+id/write_message_body_label"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="start|top"
-        android:gravity="start|top"
-        android:layout_marginTop="10dp"
-        android:layout_marginStart="5dp"
-        android:layout_marginEnd="5dp"
-        android:text="Message body" />
-
-    <EditText
-        android:id="@+id/write_message_edit_body"
-        android:layout_width="match_parent"
-        android:layout_gravity="start|top"
-        android:ems="10"
-        android:gravity="start|top"
-        android:layout_marginTop="5dp"
-        android:layout_marginStart="5dp"
-        android:layout_marginEnd="5dp"
-        android:layout_height="150dp"
-        android:inputType="textMultiLine"
-        android:text="Body of message" />
+    <!-- Horizontal separator -->
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="1dip"
+        android:background="#BCBCBCBC" />
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/write_message_attachment_recycler_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_weight="1"
         android:scrollbars="vertical" />
-
 
 </LinearLayout>

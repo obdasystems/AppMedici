@@ -11,11 +11,11 @@
         android:title="@string/tab_label_messages"/>
     <item
         android:id="@+id/tab_item_user_profile"
-        android:icon="@drawable/ic_person_black_24dp"
+        android:icon="@drawable/ic_person_white_24dp"
         android:title="@string/tab_label_user_profile"/>
     <item
         android:id="@+id/tab_item_settings"
-        android:icon="@drawable/ic_settings_black_24dp"
+        android:icon="@drawable/ic_settings_white_24dp"
         android:title="@string/tab_label_settings"/>
 
 </menu>

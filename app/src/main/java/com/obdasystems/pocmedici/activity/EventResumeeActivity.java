@@ -58,7 +58,7 @@ public class EventResumeeActivity extends AppCompatActivity {
         noteTextView.setText(description);
 
         toolbar = (Toolbar) findViewById(R.id.event_resumee_toolbar);
-        toolbar.setNavigationIcon(R.drawable.baseline_arrow_back_black_24dp);
+        toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp);
         setSupportActionBar(toolbar);
 
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {

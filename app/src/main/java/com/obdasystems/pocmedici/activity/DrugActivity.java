@@ -1,38 +1,27 @@
 package com.obdasystems.pocmedici.activity;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.View;
 import android.webkit.WebView;
 
 import com.obdasystems.pocmedici.R;
 
-public class DrugActivity extends AppCompatActivity {
-
-    private Context ctx;
+public class DrugActivity extends AppActivity {
     private String url;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ctx = this;
         setContentView(R.layout.activity_drug);
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        toolbar.setNavigationIcon(R.drawable.baseline_arrow_back_black_24dp);
-        setSupportActionBar(toolbar);
-
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                backToList();
-            }
-        });
 
         Intent intent = getIntent();
         url = intent.getStringExtra("url");
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp);
+        toolbar.setTitle(intent.getStringExtra("name"));
+        setSupportActionBar(toolbar);
+        toolbar.setNavigationOnClickListener(v -> backToList());
 
         /*FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -56,9 +45,9 @@ public class DrugActivity extends AppCompatActivity {
         backToList();
     }
 
-
     private void backToList() {
-        Intent mainIntent = new Intent(ctx, DrugListActivity.class);
+        Intent mainIntent = new Intent(this, DrugListActivity.class);
         startActivity(mainIntent);
     }
+
 }

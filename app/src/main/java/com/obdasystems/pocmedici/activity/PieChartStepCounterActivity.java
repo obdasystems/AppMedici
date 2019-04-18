@@ -65,7 +65,7 @@ public class PieChartStepCounterActivity extends AppCompatActivity implements St
         setContentView(R.layout.activity_piechart_step_counter);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.step_counter_toolbar);
-        toolbar.setNavigationIcon(R.drawable.baseline_arrow_back_black_24dp);
+        toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp);
         setSupportActionBar(toolbar);
 
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {

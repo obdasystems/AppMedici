@@ -45,7 +45,7 @@ public class DrugListActivity extends AppActivity implements
         ctx = this;
         setContentView(R.layout.activity_drug_list);
         Toolbar toolbar = find(R.id.toolbar);
-        toolbar.setNavigationIcon(R.drawable.baseline_arrow_back_black_24dp);
+        toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp);
         setSupportActionBar(toolbar);
         toolbar.setNavigationOnClickListener(v -> backToMain());
 
@@ -164,6 +164,7 @@ public class DrugListActivity extends AppActivity implements
         RestDrug drug = drugs.get(position);
         Intent drugIntent = new Intent(this, DrugActivity.class);
         drugIntent.putExtra("url", drug.getUrl());
+        drugIntent.putExtra("name", drug.getName());
         startActivity(drugIntent);
     }
 

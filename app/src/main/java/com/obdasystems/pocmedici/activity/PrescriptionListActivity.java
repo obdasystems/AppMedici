@@ -31,7 +31,7 @@ public class PrescriptionListActivity extends AppActivity {
         // Setup toolbar
         setContentView(R.layout.activity_prescription_list);
         Toolbar toolbar = find(R.id.toolbar);
-        toolbar.setNavigationIcon(R.drawable.baseline_arrow_back_black_24dp);
+        toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp);
         setSupportActionBar(toolbar);
         toolbar.setNavigationOnClickListener(v -> onBackPressed());
 

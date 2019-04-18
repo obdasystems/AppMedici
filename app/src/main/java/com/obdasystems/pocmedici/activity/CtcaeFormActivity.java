@@ -32,7 +32,7 @@ public class CtcaeFormActivity extends AppActivity
         setContentView(R.layout.activity_ctcae_form);
 
         Toolbar toolbar = find(R.id.form_toolbar);
-        toolbar.setNavigationIcon(R.drawable.baseline_arrow_back_black_24dp);
+        toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp);
         setSupportActionBar(toolbar);
         toolbar.setNavigationOnClickListener(v -> {
             Intent formListIntent = new Intent(context(), FormListActivity.class);

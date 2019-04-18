@@ -55,6 +55,15 @@
     <string name="action_send">Send</string>
     <string name="message_send_failure">Unable to send message …</string>
 
+    <!-- Write Message Activity -->
+    <string name="message_write_recipient_label">To:</string>
+    <string name="message_write_recipient_hint">Write to …</string>
+    <string name="message_write_subject_label">Subject:</string>
+    <string name="message_write_subject_hint">Write a subject …</string>
+    <string name="message_write_content_label">Content:</string>
+    <string name="message_write_content_hint">Write a message …</string>
+    <string name="message_write_attachment_label">Attachments</string>
+
     <!-- Read Message Activity -->
     <string name="message_read_sender">From:</string>
     <string name="message_read_recipient">To:</string>
@@ -91,7 +100,12 @@
     <string name="steps">steps</string>
     <string name="average">Average</string>
     <string name="total">Total</string>
-    <string name="title_activity_prescription_list">PrescriptionListActivity</string>
+
+    <!-- Prescription List Activity -->
+    <string name="prescription_list_title">Prescriptions</string>
+
+    <!-- Leaflets Activity -->
+    <string name="drug_list_title">Leaflets</string>
 
     <!-- Form Activity -->
     <string name="form_page_count">Number of pages:</string>

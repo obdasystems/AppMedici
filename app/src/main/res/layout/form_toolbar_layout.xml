@@ -12,7 +12,7 @@
         android:gravity="center"
         android:paddingLeft="5dp"
         android:paddingRight="5dp"
-        android:src="@drawable/baseline_assignment_black_24dp"
+        android:src="@drawable/ic_assignment_white_24dp"
         android:onClick="onClickFillForm"/>
 
     <TextView

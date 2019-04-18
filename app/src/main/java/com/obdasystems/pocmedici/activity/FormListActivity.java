@@ -64,7 +64,7 @@ public class FormListActivity extends AppActivity implements
         setContentView(R.layout.activity_form_list_new);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.new_form_list_toolbar);
-        toolbar.setNavigationIcon(R.drawable.baseline_arrow_back_black_24dp);
+        toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp);
         setSupportActionBar(toolbar);
 
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {

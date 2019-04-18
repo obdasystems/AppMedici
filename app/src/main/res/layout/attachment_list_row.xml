@@ -32,7 +32,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
-            android:src="@drawable/icons8_cancel_26"/>
+            android:src="@drawable/ic_cancel_black_24dp" />
 
     </RelativeLayout>
 

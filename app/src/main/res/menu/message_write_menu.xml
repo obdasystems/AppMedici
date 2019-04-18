@@ -2,16 +2,18 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:mContext="com.obdasystems.pocmedici.activity.MessageListActivity">
+
     <item
         android:id="@+id/write_message_action_attach"
-        android:icon="@drawable/baseline_attach_file_black_24dp"
+        android:icon="@drawable/ic_attach_file_white_24dp"
         android:orderInCategory="100"
         android:title="@string/action_attach_file"
-        app:showAsAction="always" />
+        app:showAsAction="ifRoom" />
     <item
         android:id="@+id/write_message_action_send"
-        android:icon="@drawable/paper_plane_26"
+        android:icon="@drawable/ic_send_white_24dp"
         android:orderInCategory="100"
         android:title="@string/action_send"
         app:showAsAction="always" />
+
 </menu>
