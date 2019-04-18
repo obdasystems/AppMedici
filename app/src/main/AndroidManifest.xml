@@ -62,10 +62,10 @@
 
         <!-- CTCAE Form activities -->
         <activity
-            android:name=".activity.NewFormListActivity"
+            android:name=".activity.FormListActivity"
             android:label="Available forms"></activity>
         <activity
-            android:name=".activity.NewFormPageActivity"
+            android:name=".activity.FormPageActivity"
             android:label=""></activity>
         <activity android:name=".activity.CtcaeFormActivity"
             android:label=""></activity>

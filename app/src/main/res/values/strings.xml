@@ -93,8 +93,9 @@
     <string name="total">Total</string>
     <string name="title_activity_prescription_list">PrescriptionListActivity</string>
 
-    <!-- Form Instructions -->
-    <string name="form_successful">Questionnaire Sent!</string>
+    <!-- Form Activity -->
+    <string name="form_page_count">Number of pages:</string>
+    <string name="form_submit_success">Questionnaire Sent!</string>
     <string name="form_instructions">
         PRO-CTCAE is a patient-reported outcome measure developed to evaluate
         symptomatic toxicity in patients on cancer clinical trials.

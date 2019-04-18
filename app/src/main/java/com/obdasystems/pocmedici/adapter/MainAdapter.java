@@ -15,11 +15,8 @@ import com.squareup.picasso.Picasso;
 import java.util.List;
 
 public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MainViewHolder> {
-
     private final LayoutInflater inflater;
-
     private OnMainRecyclerViewItemClickListener mClickListener;
-
     private List<String> imageNames;
     private Context ctx;
 
@@ -40,15 +37,12 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MainViewHolder
     public void onBindViewHolder(MainAdapter.MainViewHolder holder, int position) {
         if(imageNames!=null && imageNames.size()>0 ) {
             String imageName = imageNames.get(position);
-            int id = ctx.getResources().getIdentifier(imageName, "drawable", ctx.getPackageName());
-
-            //if(position%2==0) {
-                Picasso.with(ctx).load(id).resize(1000, 250).into(holder.rowImageView);
-            /*}
-            else {
-                holder.rowImageView.setImageResource(id);
-            }*/
-
+            int id = ctx.getResources()
+                    .getIdentifier(imageName, "drawable", ctx.getPackageName());
+            Picasso.with(ctx)
+                    .load(id)
+                    .resize(1000, 250)
+                    .into(holder.rowImageView);
         }
     }
 
@@ -60,20 +54,16 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MainViewHolder
         return 0;
     }
 
-
-    //CUSTOM METHODS
+    // CUSTOM METHODS
     public void setImages(List<String> imageNames) {
         this.imageNames = imageNames;
     }
-
 
     public void setOnItemClickListener(final OnMainRecyclerViewItemClickListener listener) {
         this.mClickListener = listener;
     }
 
-
     class MainViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        //private final TextView formTitleItemView;ì
         private final ImageView rowImageView;
 
         private MainViewHolder(View itemView) {
@@ -89,4 +79,5 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MainViewHolder
             }
         }
     }
+
 }

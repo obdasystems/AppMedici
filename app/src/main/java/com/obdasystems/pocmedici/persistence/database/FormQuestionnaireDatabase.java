@@ -21,15 +21,39 @@ import com.obdasystems.pocmedici.persistence.entities.CtcaePossibleAnswer;
 import com.obdasystems.pocmedici.persistence.entities.Position;
 import com.obdasystems.pocmedici.persistence.entities.StepCounter;
 
-@Database(entities = {CtcaeForm.class, CtcaeFormFillingProcess.class, CtcaeFormPage.class, CtcaeFormQuestion.class,
-                      CtcaeFormQuestionAnswered.class, CtcaePossibleAnswer.class, StepCounter.class, Position.class},
-          version = 1)
+@Database(
+        entities = {
+                CtcaeForm.class,
+                CtcaeFormFillingProcess.class,
+                CtcaeFormPage.class,
+                CtcaeFormQuestionAnswered.class,
+                CtcaeFormQuestion.class,
+                CtcaePossibleAnswer.class,
+                Position.class,
+                StepCounter.class
+        },
+        version = 1
+)
 @TypeConverters({DateTypeConverter.class})
 public abstract class FormQuestionnaireDatabase extends RoomDatabase {
-
-    public abstract CtcaeFormDao formDao();
-
     private static volatile FormQuestionnaireDatabase INSTANCE;
+
+    public static FormQuestionnaireDatabase getDatabase(final Context context) {
+        if (INSTANCE == null) {
+            synchronized (FormQuestionnaireDatabase.class) {
+                if (INSTANCE == null) {
+                    INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
+                            FormQuestionnaireDatabase.class, "form_database")
+                            .addCallback(callBack)
+                            // Uncomment the migration below to get an initial db population
+                            //.addMigrations(MIGRATION_1_1)
+                            .build();
+                }
+            }
+
+        }
+        return INSTANCE;
+    }
 
     private static RoomDatabase.Callback callBack = new RoomDatabase.Callback() {
         @Override
@@ -39,32 +63,24 @@ public abstract class FormQuestionnaireDatabase extends RoomDatabase {
         }
     };
 
-    public static FormQuestionnaireDatabase getDatabase(final Context context) {
-        if(INSTANCE == null){
-            synchronized (FormQuestionnaireDatabase.class) {
-                if(INSTANCE == null) {
-                    INSTANCE = Room.databaseBuilder(context.getApplicationContext(),FormQuestionnaireDatabase.class,
-                                                    "form_questionnaire_database_50").addCallback(callBack).build();
-                    /*INSTANCE = Room.databaseBuilder(context.getApplicationContext(),FormQuestionnaireDatabase.class,
-                            "form_questionnaire_database_30").addMigrations(MIGRATION_1_1).build();*/
-                }
-            }
+    public abstract CtcaeFormDao formDao();
 
-        }
-        return INSTANCE;
-    }
-
+    /* ******************************************
+     * MIGRATIONS
+     ********************************************/
 
     static final Migration MIGRATION_1_1 = new Migration(1, 1) {
         @Override
-        public void migrate(SupportSQLiteDatabase database) {
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
             // Since we didn't alter the table, there's nothing else to do here.
         }
     };
 
+    /* ******************************************
+     * DEMO DATABASE POPULATION
+     ********************************************/
 
     private static class PopulateDbAsync extends AsyncTask<Void, Void, Void> {
-
         private final CtcaeFormDao mDao;
 
         PopulateDbAsync(FormQuestionnaireDatabase db) {
@@ -258,9 +274,8 @@ public abstract class FormQuestionnaireDatabase extends RoomDatabase {
             CtcaePossibleAnswer form1Page4Question4Poss2 = new CtcaePossibleAnswer(1442,form1.getId(),form1Page4.getId(),form1Page4Question4.getId(),"NO");
             mDao.insertPossibleAnswer(form1Page4Question4Poss2);*/
 
-
-            StepCounter sp = new StepCounter(300,2019,3,26,0);
-            StepCounter sp1 = new StepCounter(250,2019,3,25,0);
+            StepCounter sp = new StepCounter(300, 2019, 3, 26, 0);
+            StepCounter sp1 = new StepCounter(250, 2019, 3, 25, 0);
             mDao.insertStepCounter(sp);
             mDao.insertStepCounter(sp1);
 

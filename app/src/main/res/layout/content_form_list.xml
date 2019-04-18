@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:mContext="com.obdasystems.pocmedici.activity.NewFormListActivity"
+    tools:mContext="com.obdasystems.pocmedici.activity.FormListActivity"
     tools:showIn="@layout/activity_form_list_new">
 
     <android.support.v4.widget.SwipeRefreshLayout

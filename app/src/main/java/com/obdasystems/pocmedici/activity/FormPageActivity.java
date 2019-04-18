@@ -20,7 +20,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.obdasystems.pocmedici.R;
-import com.obdasystems.pocmedici.adapter.NewFormQuestionListAdapter;
+import com.obdasystems.pocmedici.adapter.FormQuestionListAdapter;
 import com.obdasystems.pocmedici.asyncresponse.PageQuestionsAsyncResponse;
 import com.obdasystems.pocmedici.message.helper.DividerItemDecoration;
 import com.obdasystems.pocmedici.network.MediciApi;
@@ -48,7 +48,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class NewFormPageActivity extends AppActivity
+public class FormPageActivity extends AppActivity
         implements PageQuestionsAsyncResponse {
     private int currentPageIndex = 1;
     private int totalPagecount = 0;
@@ -62,7 +62,7 @@ public class NewFormPageActivity extends AppActivity
     private int formId;
 
     private RecyclerView recyclerView;
-    private NewFormQuestionListAdapter adapter;
+    private FormQuestionListAdapter adapter;
     private Toolbar toolbar;
 
     private String authorizationToken;
@@ -116,7 +116,7 @@ public class NewFormPageActivity extends AppActivity
         }
 
         recyclerView =  (RecyclerView) findViewById(R.id.question_list_recycler_view);
-        adapter = new NewFormQuestionListAdapter(questions, questionsWithAnswers, answeredQuestions, fillingProcessId, formId, getApplication(), this);
+        adapter = new FormQuestionListAdapter(questions, questionsWithAnswers, answeredQuestions, fillingProcessId, formId, getApplication(), this);
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
         recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
@@ -129,7 +129,7 @@ public class NewFormPageActivity extends AppActivity
                 currentPageIndex = 1;
             }
             currPage = formPages.get(currentPageIndex-1);
-            NewFormPageActivity.GetQuestionsQueryAsyncTask task = new NewFormPageActivity.GetQuestionsQueryAsyncTask(currPage.getId(), fillingProcessId, formId,this,this.getApplication(),this);
+            FormPageActivity.GetQuestionsQueryAsyncTask task = new FormPageActivity.GetQuestionsQueryAsyncTask(currPage.getId(), fillingProcessId, formId,this,this.getApplication(),this);
             task.execute();
         }
 
@@ -182,7 +182,7 @@ public class NewFormPageActivity extends AppActivity
     }
 
     private void setToolbarTitle() {
-        NewFormPageActivity.this.setTitle("Page nr "+currentPageIndex);
+        FormPageActivity.this.setTitle("Page nr "+currentPageIndex);
     }
 
     private void goToNextPage() {
@@ -196,7 +196,7 @@ public class NewFormPageActivity extends AppActivity
 
     private void goToPreviousPage() {
         if(currentPageIndex == 1) {
-            Intent formlistIntent = new Intent(this, NewFormListActivity.class);
+            Intent formlistIntent = new Intent(this, FormListActivity.class);
             startActivity(formlistIntent);
         }
         else {
@@ -219,7 +219,7 @@ public class NewFormPageActivity extends AppActivity
      *****************************/
 
     @Override
-    public void getQuestionsTaskFinished(NewFormPageActivity.FormQuestionsContainer container) {
+    public void getQuestionsTaskFinished(FormPageActivity.FormQuestionsContainer container) {
         adapter.setQuestions(container.questions);
         // FIXME: sort answers by code
         List<JoinFormPageQuestionsWithPossibleAnswerData> answers =
@@ -231,14 +231,14 @@ public class NewFormPageActivity extends AppActivity
     }
 
     @Override
-    public void getUnansweredQuestionsTaskFinished(NewFormPageActivity.IncompleteContainer container) {
+    public void getUnansweredQuestionsTaskFinished(FormPageActivity.IncompleteContainer container) {
         List<CtcaeFormQuestion> unansweredQuestions = container.unansweredQuestions;
         List<Integer> incompletePages = container.incompletePages;
         if(incompletePages.isEmpty()) {
             //finalize filling process
             GregorianCalendar gc = new GregorianCalendar();
             gc.setTimeInMillis(System.currentTimeMillis());
-            NewFormPageActivity.FinalizeFillingProcessQueryAsyncTask task = new NewFormPageActivity.FinalizeFillingProcessQueryAsyncTask(fillingProcessId, formId, gc, this,this);
+            FormPageActivity.FinalizeFillingProcessQueryAsyncTask task = new FormPageActivity.FinalizeFillingProcessQueryAsyncTask(fillingProcessId, formId, gc, this,this);
             task.execute();
         }
         else {
@@ -254,7 +254,7 @@ public class NewFormPageActivity extends AppActivity
                 }
                 msg += incompletePages.get(i);
             }
-            AlertDialog dialog = new AlertDialog.Builder(NewFormPageActivity.this).create();
+            AlertDialog dialog = new AlertDialog.Builder(FormPageActivity.this).create();
             dialog.setTitle("Incomplete form alert");
             dialog.setMessage(msg);
             dialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
@@ -298,8 +298,8 @@ public class NewFormPageActivity extends AppActivity
                     public void onResponse(Call<JSONObject> call, Response<JSONObject> response) {
                         if (response.isSuccessful()) {
                             Log.i("appMedici", "Questionnaire sent to server." + response.body().toString());
-                            snack(recyclerView, R.string.form_successful, Snackbar.LENGTH_LONG);
-                            NewFormPageActivity.DeleteFillingProcessQueryAsyncTask task = new NewFormPageActivity.DeleteFillingProcessQueryAsyncTask(fillingProcessId, ctx, delegate);
+                            snack(recyclerView, R.string.form_submit_success, Snackbar.LENGTH_LONG);
+                            FormPageActivity.DeleteFillingProcessQueryAsyncTask task = new FormPageActivity.DeleteFillingProcessQueryAsyncTask(fillingProcessId, ctx, delegate);
                             task.execute();
                             recursiveSubmitFormCounter = 0;
                         } else {
@@ -349,7 +349,7 @@ public class NewFormPageActivity extends AppActivity
         else {
             //warning message
             String msg = "Problems encountered while submitting filled questionnaire. Please try again";
-            AlertDialog dialog = new AlertDialog.Builder(NewFormPageActivity.this).create();
+            AlertDialog dialog = new AlertDialog.Builder(FormPageActivity.this).create();
             dialog.setTitle("Submit filled form alert");
             dialog.setMessage(msg);
             dialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
@@ -371,7 +371,7 @@ public class NewFormPageActivity extends AppActivity
     }
 
     private void backToFormList() {
-        Intent formlistIntent = new Intent(this, NewFormListActivity.class);
+        Intent formlistIntent = new Intent(this, FormListActivity.class);
         formlistIntent.putExtra("filledForm", formId);
         formlistIntent.putExtra("fillingProcess", fillingProcessId);
         startActivity(formlistIntent);
@@ -386,7 +386,7 @@ public class NewFormPageActivity extends AppActivity
 
 
 
-            Intent formlistIntent = new Intent(this, NewFormListActivity.class);
+            Intent formlistIntent = new Intent(this, FormListActivity.class);
             formlistIntent.putExtra("filledForm", formId);
             formlistIntent.putExtra("fillingProcess", fillingProcessId);
             startActivity(formlistIntent);
@@ -394,7 +394,7 @@ public class NewFormPageActivity extends AppActivity
         else {
             //warning message
             String msg = "Problems encountered while submitting filled questionnaire. Please try again";
-            AlertDialog dialog = new AlertDialog.Builder(NewFormPageActivity.this).create();
+            AlertDialog dialog = new AlertDialog.Builder(FormPageActivity.this).create();
             dialog.setTitle("Submit filled form alert");
             dialog.setMessage(msg);
             dialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
@@ -541,7 +541,7 @@ public class NewFormPageActivity extends AppActivity
     }*/
 
     //get all questions yet to be answered current filling process
-    private static class GetUnansweredQuestionsQueryAsyncTask extends AsyncTask<Void, Void, NewFormPageActivity.IncompleteContainer> {
+    private static class GetUnansweredQuestionsQueryAsyncTask extends AsyncTask<Void, Void, FormPageActivity.IncompleteContainer> {
         private Context ctx;
         private ProgressDialog progDial;
         private int fpId;
@@ -572,16 +572,16 @@ public class NewFormPageActivity extends AppActivity
         }
 
         @Override
-        protected NewFormPageActivity.IncompleteContainer doInBackground(Void... voids) {
+        protected FormPageActivity.IncompleteContainer doInBackground(Void... voids) {
             repository = new CtcaeIncompleteFillingProcessRepository(app,fpId,fId);
             List<CtcaeFormQuestion> questions = repository.getIncompleteQuestions();
             List<Integer> pageNumbers = repository.getIncompletePages();
-            NewFormPageActivity.IncompleteContainer container = new NewFormPageActivity.IncompleteContainer(questions,pageNumbers);
+            FormPageActivity.IncompleteContainer container = new FormPageActivity.IncompleteContainer(questions,pageNumbers);
             return container;
         }
 
         @Override
-        protected void onPostExecute(NewFormPageActivity.IncompleteContainer container) {
+        protected void onPostExecute(FormPageActivity.IncompleteContainer container) {
             super.onPostExecute(container);
             progDial.dismiss();
             delegate.getUnansweredQuestionsTaskFinished(container);
@@ -591,7 +591,7 @@ public class NewFormPageActivity extends AppActivity
 
 
     //get all questions in page along with questions already answered in cyurrent filling process
-    private static class GetQuestionsQueryAsyncTask extends AsyncTask<Void, Void, NewFormPageActivity.FormQuestionsContainer> {
+    private static class GetQuestionsQueryAsyncTask extends AsyncTask<Void, Void, FormPageActivity.FormQuestionsContainer> {
         private Context ctx;
         private ProgressDialog progDial;
         private int pageId;
@@ -625,7 +625,7 @@ public class NewFormPageActivity extends AppActivity
         }
 
         @Override
-        protected NewFormPageActivity.FormQuestionsContainer doInBackground(Void... voids) {
+        protected FormPageActivity.FormQuestionsContainer doInBackground(Void... voids) {
             repository = new CtcaeFormQuestionsRepository(app, pageId);
             List<CtcaeFormQuestion> questions = repository.getAllQuestions();
             List<JoinFormPageQuestionsWithPossibleAnswerData> answers = repository.getAllQuestionsWithAnswers();
@@ -633,12 +633,12 @@ public class NewFormPageActivity extends AppActivity
             answeredRepository = new CtcaeFillingProcessAnsweredQuestionRepository(app,fpId,fId);
             List<CtcaeFormQuestionAnswered> answeredQuestions = answeredRepository.getAnsweredQuestions();
 
-            NewFormPageActivity.FormQuestionsContainer cont = new NewFormPageActivity.FormQuestionsContainer(answers,questions, answeredQuestions);
+            FormPageActivity.FormQuestionsContainer cont = new FormPageActivity.FormQuestionsContainer(answers,questions, answeredQuestions);
             return cont;
         }
 
         @Override
-        protected void onPostExecute(NewFormPageActivity.FormQuestionsContainer formQuestionsContainer) {
+        protected void onPostExecute(FormPageActivity.FormQuestionsContainer formQuestionsContainer) {
             super.onPostExecute(formQuestionsContainer);
             progDial.dismiss();
             delegate.getQuestionsTaskFinished(formQuestionsContainer);

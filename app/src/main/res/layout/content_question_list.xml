@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:mContext="com.obdasystems.pocmedici.activity.NewFormPageActivity"
+    tools:mContext="com.obdasystems.pocmedici.activity.FormPageActivity"
     tools:showIn="@layout/activity_new_form_page">
 
 

@@ -1,17 +1,12 @@
 package com.obdasystems.pocmedici.activity;
 
 import android.Manifest;
-import android.app.ActivityManager;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -20,7 +15,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
 
 import com.obdasystems.pocmedici.R;
 import com.obdasystems.pocmedici.adapter.MainAdapter;
@@ -38,126 +32,108 @@ import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
 
-public class MainRecyclerActivity extends AppCompatActivity implements OnMainRecyclerViewItemClickListener {
-
-    public final static String ACTION_MAIN = "action MAIN";
-    public final static String ACTION_START_SERVICE = "action start service";
-
-    private final int MAIN_LOGIN_CODE = 10000;
-
+public class MainRecyclerActivity extends AppActivity
+        implements OnMainRecyclerViewItemClickListener {
+    public static final String ACTION_MAIN = "action MAIN";
+    public static final String ACTION_START_SERVICE = "action start service";
     private static final int LOCATION_PERMISSIONS_REQUEST = 100;
+    private static final int MAIN_LOGIN_CODE = 10000;
 
-    private Context ctx;
+    private static final String QUESTIONNAIRE_IMAGE_NAME = "pulsante_questionnaire_rect_slim3";
+    private static final String SENSORS_IMAGE_NAME = "pulsante_sensori_rect_slim";
+    private static final String MESSAGES_IMAGE_NAME = "pulsante_messaggi_rect_slim";
+    private static final String CALENDAR_IMAGE_NAME = "pulsante_calendario_rect_slim";
+    private static final String PRESCRIPTION_IMAGE_NAME = "pulsante_prescrizioni_rect_slim";
 
-    private RecyclerView recyclerView;
-    private MainAdapter mAdapter;
-
-    private final String QUESTIONNAIRE_IMAGE_NAME = "pulsante_questionnaire_rect_slim3";
-    private final String SENSORS_IMAGE_NAME = "pulsante_sensori_rect_slim";
-    private final String MESSAGES_IMAGE_NAME = "pulsante_messaggi_rect_slim";
-    private final String CALENDAR_IMAGE_NAME = "pulsante_calendario_rect_slim";
-    private final String PRESCRIPTION_IMAGE_NAME = "pulsante_prescrizioni_rect_slim";
-
+    // Instance variables
     private List<String> imageNames;
-
-    private void initializeImageNames() {
-        imageNames = new LinkedList<>();
-        imageNames.add(QUESTIONNAIRE_IMAGE_NAME);
-        imageNames.add(SENSORS_IMAGE_NAME);
-        imageNames.add(MESSAGES_IMAGE_NAME);
-        imageNames.add(CALENDAR_IMAGE_NAME);
-        imageNames.add(PRESCRIPTION_IMAGE_NAME);
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_recycler);
-        ctx = this;
         initializeImageNames();
 
-        mAdapter = new MainAdapter(this);
+        MainAdapter mAdapter = new MainAdapter(this);
         mAdapter.setOnItemClickListener(this);
         mAdapter.setImages(imageNames);
 
-        recyclerView = (RecyclerView) findViewById(R.id.main_recycler_view);
-        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
-        /*ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT);
-
-        recyclerView.setLayoutParams(params);*/
+        // Instance variables
+        RecyclerView recyclerView = find(R.id.main_recycler_view);
+        RecyclerView.LayoutManager mLayoutManager =
+                new LinearLayoutManager(getApplicationContext());
 
         recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
-        recyclerView.addItemDecoration(new DividerItemDecoration(this, LinearLayoutManager.VERTICAL));
+        recyclerView.addItemDecoration(
+                new DividerItemDecoration(this, LinearLayoutManager.VERTICAL));
         recyclerView.setAdapter(mAdapter);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.main_recycler_toolbar);
+        Toolbar toolbar = find(R.id.main_recycler_toolbar);
         setSupportActionBar(toolbar);
 
-        Intent mServiceIntent = new Intent(this, StepCounterForegroundService.class);
+        Intent mServiceIntent =
+                new Intent(this, StepCounterForegroundService.class);
         mServiceIntent.setAction(MainActivity.ACTION_START_SERVICE);
-        if (!isMyServiceRunning(StepCounterForegroundService.class)) {
+        if (!isServiceRunning(StepCounterForegroundService.class)) {
             startService(mServiceIntent);
-            Log.i("appMedici", "[" + this.getClass().getSimpleName() + "]Step counter service started");
+            Log.i(tag(), "Step counter service started");
         } else {
-            Log.i("appMedici", "[" + this.getClass().getSimpleName() + "]Found step counter service already running");
+            Log.i(tag(), "Found step counter service already running");
         }
 
-
-        //LOCATION TRACKING
-        //Check whether GPS tracking is enabled//
+        // LOCATION TRACKING
+        // Check whether GPS tracking is enabled
         LocationManager lm = (LocationManager) getSystemService(LOCATION_SERVICE);
         if (!lm.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-            Log.i("appMedici", "[" + this.getClass().getSimpleName() + "] GPS provider is off!!");
-            //finish();
+            Log.i(tag(), "GPS provider is off!!");
         }
 
-        //Check whether this app has access to the location permission
-        int permission = ContextCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_FINE_LOCATION);
-
-        //If the location permission has been granted, then start the TrackerService
-        if (permission == PackageManager.PERMISSION_GRANTED) {
+        // Check whether this app has access to the location permission
+        if (hasPermission(Manifest.permission.ACCESS_FINE_LOCATION)) {
+            // If the location permission has been granted, then start the TrackerService
             startTrackerService();
         } else {
-
-            //If the app doesn’t currently have access to the user’s location, then request access//
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSIONS_REQUEST);
+            // If the app doesn’t currently have access to
+            // the user’s location, then request access
+            requestPermission(LOCATION_PERMISSIONS_REQUEST,
+                    Manifest.permission.ACCESS_FINE_LOCATION);
         }
 
         checkAuthorizationToken();
 
-
         Calendar cal = Calendar.getInstance();
         String todayRepr = TimeUtils.getSimpleDateStringRepresentation(cal);
-        String lastDateStepCountersSent = SaveSharedPreference.getLastTimeStepcountersSent(this);
+        String lastDateStepCountersSent =
+                SaveSharedPreference.getLastTimeStepcountersSent(this);
         if (lastDateStepCountersSent != null) {
-            Log.i("appMedici", "[" + this.getClass().getSimpleName() + "] lastDateStepCountersSent=" + lastDateStepCountersSent);
+            Log.i(tag(), "lastDateStepCountersSent=" + lastDateStepCountersSent);
         } else {
-            Log.i("appMedici", "[" + this.getClass().getSimpleName() + "] lastDateStepCountersSent= null");
+            Log.i(tag(), "lastDateStepCountersSent= null");
         }
 
-        if (lastDateStepCountersSent == null || !todayRepr.equals(lastDateStepCountersSent)) {
-            Log.i("appMedici", "[" + this.getClass().getSimpleName() + "] creating intent SendFinalizedStepCountersService");
-            Intent sendStepCountersIntent = new Intent(this, SendFinalizedStepCountersService.class);
+        if (!todayRepr.equals(lastDateStepCountersSent)) {
+            Log.i(tag(), "creating intent SendFinalizedStepCountersService");
+            Intent sendStepCountersIntent =
+                    new Intent(this, SendFinalizedStepCountersService.class);
             startService(sendStepCountersIntent);
             SaveSharedPreference.setLastTimeStepcountersSent(this, todayRepr);
         }
 
-        String lastDateFormsRequested = SaveSharedPreference.getLastTimeQuestionnairesRequested(this);
+        String lastDateFormsRequested =
+                SaveSharedPreference.getLastTimeQuestionnairesRequested(this);
         if (lastDateStepCountersSent != null) {
-            Log.i("appMedici", "[" + this.getClass().getSimpleName() + "] lastDateFormsRequested=" + lastDateFormsRequested);
+            Log.i(tag(), "lastDateFormsRequested=" + lastDateFormsRequested);
         } else {
-            Log.i("appMedici", "[" + this.getClass().getSimpleName() + "] lastDateFormsRequested= null");
+            Log.i(tag(), "lastDateFormsRequested= null");
         }
-        if (lastDateFormsRequested == null || !todayRepr.equals(lastDateFormsRequested)) {
-            Log.i("appMedici", "[" + this.getClass().getSimpleName() + "] creating intent DownloadAssignedFormsService");
-            Intent downloadFormsIntent = new Intent(this, DownloadAssignedFormsService.class);
+        if (!todayRepr.equals(lastDateFormsRequested)) {
+            Log.i(tag(), "Creating intent DownloadAssignedFormsService");
+            Intent downloadFormsIntent =
+                    new Intent(this, DownloadAssignedFormsService.class);
             startService(downloadFormsIntent);
             SaveSharedPreference.setLastTimeQuestionnairesRequested(this, todayRepr);
         }
-
 
     }
 
@@ -173,24 +149,32 @@ public class MainRecyclerActivity extends AppCompatActivity implements OnMainRec
         }
     }
 
+    private void initializeImageNames() {
+        imageNames = new LinkedList<>();
+        imageNames.add(QUESTIONNAIRE_IMAGE_NAME);
+        imageNames.add(SENSORS_IMAGE_NAME);
+        imageNames.add(MESSAGES_IMAGE_NAME);
+        imageNames.add(CALENDAR_IMAGE_NAME);
+        imageNames.add(PRESCRIPTION_IMAGE_NAME);
+    }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        if (requestCode == LOCATION_PERMISSIONS_REQUEST && grantResults.length == 1
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        if (requestCode == LOCATION_PERMISSIONS_REQUEST
+                && grantResults.length == 1
                 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            //...then start the GPS tracking service//
+            // ...then start the GPS tracking service
             startTrackerService();
         } else {
-            Toast.makeText(this, "Please enable location services to allow GPS tracking", Toast.LENGTH_SHORT).show();
+            toast(R.string.permission_location_denied);
         }
     }
 
     private void startTrackerService() {
         startService(new Intent(this, GpsTrackingService.class));
-        Toast.makeText(this, "GPS tracking enabled", Toast.LENGTH_SHORT).show();
-        //finish();
     }
-
 
     @Override
     public void onItemClick(View view, int position) {
@@ -198,7 +182,7 @@ public class MainRecyclerActivity extends AppCompatActivity implements OnMainRec
 
         switch (position) {
             case 0:
-                activityClass = NewFormListActivity.class;
+                activityClass = FormListActivity.class;
                 break;
             case 1:
                 activityClass = PieChartStepCounterActivity.class;
@@ -213,7 +197,7 @@ public class MainRecyclerActivity extends AppCompatActivity implements OnMainRec
                 activityClass = MessageListActivity.class;
                 break;
             default:
-                activityClass = NewFormListActivity.class;
+                activityClass = FormListActivity.class;
                 break;
         }
 
@@ -221,7 +205,7 @@ public class MainRecyclerActivity extends AppCompatActivity implements OnMainRec
         startActivity(intent);
     }
 
-    /*****************************
+    /* ***************************
      * TOOLBAR METHODS
      *****************************/
 
@@ -230,7 +214,6 @@ public class MainRecyclerActivity extends AppCompatActivity implements OnMainRec
         getMenuInflater().inflate(R.menu.main_menu, menu);
         return true;
     }
-
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -246,72 +229,17 @@ public class MainRecyclerActivity extends AppCompatActivity implements OnMainRec
         return super.onOptionsItemSelected(item);
     }
 
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-    }
-
-    /*public void cardViewSelected(View view) {
-        Class activityClass;
-
-        switch (view.getId()) {
-            case R.id.card_ctcae_form:
-                //activityClass = FormListActivity.class;
-                activityClass = NewFormListActivity.class;
-                break;
-            case R.id.card_sensors:
-                //activityClass = StepCounterActivity.class;
-                activityClass = PieChartStepCounterActivity.class;
-                //activityClass = PieChartHelloStepCounterActivity.class;
-                break;
-            case R.id.card_messages:
-                activityClass = MessageListActivity.class;
-                break;
-            case R.id.card_calendar:
-                activityClass = CalendarActivity.class;
-                break;
-            //case R.id.card_negative_event:
-            case R.id.card_prescriptions:
-                activityClass = MessageListActivity.class;
-                break;
-            //case R.id.card_user_profile:
-            //case R.id.card_settings:
-            default:
-                activityClass = NewFormListActivity.class;
-                break;
-        }
-
-        Intent intent = new Intent(this, activityClass);
-        intent.putExtra("token", authorizationToken);
-        startActivity(intent);
-    }*/
-
     @Override
     public void onBackPressed() {
-        //super.onBackPressed();
         Intent a = new Intent(Intent.ACTION_MAIN);
         a.addCategory(Intent.CATEGORY_HOME);
         a.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(a);
     }
 
-    /*****************************
-     *
-     *      * SERVICES MANAGEMENT METHODS
+    /* ***************************
+     * SERVICES MANAGEMENT METHODS
      *****************************/
-    private boolean isMyServiceRunning(Class<?> serviceClass) {
-        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
-        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-            if (serviceClass.getName().equals(service.service.getClassName())) {
-                Log.i("isMyServiceRunning?", true + "");
-                return true;
-            }
-        }
-        Log.i("isMyServiceRunning?", false + "");
-        return false;
-    }
-
 
     @Override
     protected void onDestroy() {
@@ -321,8 +249,8 @@ public class MainRecyclerActivity extends AppCompatActivity implements OnMainRec
 
     }
 
-    /*****************************
-     *      * AUTHENTICATION
+    /* ***************************
+     * AUTHENTICATION
      *****************************/
     private void checkAuthorizationToken() {
         String usr = "james";
@@ -332,6 +260,5 @@ public class MainRecyclerActivity extends AppCompatActivity implements OnMainRec
             NetworkUtils.requestNewAuthorizationToken(pwd, usr, this);
         }
     }
-
 
 }

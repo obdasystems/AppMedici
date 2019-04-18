@@ -17,7 +17,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.obdasystems.pocmedici.R;
-import com.obdasystems.pocmedici.adapter.NewFormListAdapter;
+import com.obdasystems.pocmedici.adapter.FormListAdapter;
 import com.obdasystems.pocmedici.asyncresponse.InsertQuestionnairesAsyncResponse;
 import com.obdasystems.pocmedici.message.helper.DividerItemDecoration;
 import com.obdasystems.pocmedici.network.MediciApi;
@@ -44,14 +44,14 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class NewFormListActivity extends AppActivity implements
+public class FormListActivity extends AppActivity implements
         SwipeRefreshLayout.OnRefreshListener,
-        NewFormListAdapter.FormAdapterListener,
+        FormListAdapter.FormAdapterListener,
         InsertQuestionnairesAsyncResponse {
     private CtcaeFormListViewModel formListViewModel;
     private List<JoinFormWithMaxPageNumberData> forms= new ArrayList<>();
     private RecyclerView recyclerView;
-    private NewFormListAdapter mAdapter;
+    private FormListAdapter mAdapter;
     private SwipeRefreshLayout swipeRefreshLayout;
     private Context ctx;
     private int restCounter = 0;
@@ -78,7 +78,7 @@ public class NewFormListActivity extends AppActivity implements
         swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.form_list_swipe_refresh_layout);
         swipeRefreshLayout.setOnRefreshListener(this);
 
-        mAdapter = new NewFormListAdapter(this, forms, this);
+        mAdapter = new FormListAdapter(this, forms, this);
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
         recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
@@ -249,7 +249,7 @@ public class NewFormListActivity extends AppActivity implements
                     }
                 }
             }
-            NewFormListActivity.InsertQuestionnairesQueryAsyncTask task = new NewFormListActivity.InsertQuestionnairesQueryAsyncTask(this,forms, pages, questions, answers,this);
+            FormListActivity.InsertQuestionnairesQueryAsyncTask task = new FormListActivity.InsertQuestionnairesQueryAsyncTask(this,forms, pages, questions, answers,this);
             task.execute();
         }
     }

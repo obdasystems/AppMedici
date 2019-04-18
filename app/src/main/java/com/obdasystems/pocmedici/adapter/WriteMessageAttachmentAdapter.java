@@ -15,13 +15,14 @@ import com.obdasystems.pocmedici.listener.OnRecyclerViewPositionClickListener;
 import java.lang.ref.WeakReference;
 import java.util.List;
 
-public class WriteMessageAttachmentAdapter extends RecyclerView.Adapter<WriteMessageAttachmentAdapter.AttachmentViewHolder>{
-
+public class WriteMessageAttachmentAdapter
+        extends RecyclerView.Adapter<WriteMessageAttachmentAdapter.AttachmentViewHolder>{
     private List<String> attachments;
     private final LayoutInflater inflater;
     private OnRecyclerViewPositionClickListener deleteListener;
 
-    public WriteMessageAttachmentAdapter (Context context, OnRecyclerViewPositionClickListener listener) {
+    public WriteMessageAttachmentAdapter(Context context,
+                                         OnRecyclerViewPositionClickListener listener) {
         inflater = LayoutInflater.from(context);
         deleteListener = listener;
     }
@@ -62,12 +63,14 @@ public class WriteMessageAttachmentAdapter extends RecyclerView.Adapter<WriteMes
         this.attachments = attachmentNames;
     }
 
-    class AttachmentViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public class AttachmentViewHolder
+            extends RecyclerView.ViewHolder implements View.OnClickListener {
         private final TextView attachmentUriTextView;
         private final ImageButton deleteAttachmentButton;
         private final WeakReference<OnRecyclerViewPositionClickListener> delListenerRef;
 
-        private AttachmentViewHolder(View itemView, OnRecyclerViewPositionClickListener listener) {
+        private AttachmentViewHolder(View itemView,
+                                     OnRecyclerViewPositionClickListener listener) {
             super(itemView);
             delListenerRef = new WeakReference<OnRecyclerViewPositionClickListener>(listener);
             attachmentUriTextView = itemView.findViewById(R.id.attachmentUriTextView);
@@ -80,4 +83,5 @@ public class WriteMessageAttachmentAdapter extends RecyclerView.Adapter<WriteMes
             delListenerRef.get().onPositionClicked(getAdapterPosition());
         }
     }
+
 }

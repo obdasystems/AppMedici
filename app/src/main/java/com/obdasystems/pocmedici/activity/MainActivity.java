@@ -158,7 +158,7 @@ public class MainActivity extends AppActivity {
 
         switch (view.getId()) {
             case R.id.card_form:
-                activityClass = NewFormListActivity.class;
+                activityClass = FormListActivity.class;
                 break;
             case R.id.card_sensors:
                 activityClass = PieChartStepCounterActivity.class;
@@ -176,7 +176,7 @@ public class MainActivity extends AppActivity {
                 activityClass = DrugListActivity.class;
                 break;
             default:
-                activityClass = NewFormListActivity.class;
+                activityClass = FormListActivity.class;
                 break;
         }
 
