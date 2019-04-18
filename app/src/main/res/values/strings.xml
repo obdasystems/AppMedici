@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">AppMedici</string>
+    <string name="app_name">ITCO</string>
 
     <!-- Strings related to login -->
     <string name="prompt_email">Username</string>
@@ -10,8 +10,8 @@
     <string name="error_invalid_password">This password is too short</string>
     <string name="error_incorrect_password">This password is incorrect</string>
     <string name="error_field_required">This field is required</string>
-    <string name="permission_rationale">"Contacts permissions are needed for providing email
-        completions."
+    <string name="permission_rationale">
+        Contacts permissions are needed for providing email completions.
     </string>
     <string name="forgot_password">Forgot password</string>
 
@@ -32,7 +32,6 @@
     <string name="card_form_negative_event">Signal Event</string>
     <string name="card_form_prescriptions">Prescriptions</string>
 
-
     <string name="card_form_ctcae_form_page">Pro-CTCAE Form Page</string>
 
     <string name="action_back">Back</string>
@@ -41,9 +40,11 @@
     <string name="action_fill_form">Fill form</string>
 
     <!-- Main Activity -->
-    <string name="permission_location_denied">Please enable location services to allow GPS tracking</string>
+    <string name="permission_location_denied">
+        Please enable location services to allow GPS tracking
+    </string>
 
-    <!-- GMail-like inbox-->
+    <!-- Message Activity-->
     <string name="action_settings">Settings</string>
     <string name="action_search">Search</string>
     <string name="action_delete">Delete</string>
@@ -52,7 +53,16 @@
     <string name="action_take_picture">Take picture</string>
     <string name="action_attachment_options">Options</string>
     <string name="action_send">Send</string>
+    <string name="message_send_failure">Unable to send message …</string>
 
+    <!-- Read Message Activity -->
+    <string name="message_read_sender">From:</string>
+    <string name="message_read_recipient">To:</string>
+    <string name="message_read_time">Date:</string>
+    <string name="message_read_subject">Subject:</string>
+    <string name="message_read_body">Body:</string>
+    <string name="message_receiver_you">You</string>
+    <string name="message_read_delete_confirm">Message deleted</string>
 
     <!-- ChatKit -->
     <string name="hint_enter_a_message">Type a message…</string>
@@ -72,8 +82,7 @@
     <string name="start_typing_status">Start typing</string>
     <string name="stop_typing_status">Stop typing</string>
 
-    <!-- Test GPS tracking with firebase -->
-    <!--<string name="tracking_enabled_notif">Tracking is currently enabled. Tap to cancel.</string>-->
+    <!-- Test GPS tracking with Firebase -->
     <string name="tracking_enabled_notif">Tracking is currently enabled. </string>
     <string name="test_email">test@test.com</string>
     <string name="test_password">testpassword</string>
@@ -83,4 +92,55 @@
     <string name="average">Average</string>
     <string name="total">Total</string>
     <string name="title_activity_prescription_list">PrescriptionListActivity</string>
+
+    <!-- Form Instructions -->
+    <string name="form_successful">Questionnaire Sent!</string>
+    <string name="form_instructions">
+        PRO-CTCAE is a patient-reported outcome measure developed to evaluate
+        symptomatic toxicity in patients on cancer clinical trials.
+
+        PRO-CTCAE responses are scored from 0 to 4, please answer all questions
+        before submitting the questionnaire.
+    </string>
+
+    <!-- Layout Debug utility values -->
+    <string name="ipsum">
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut semper nulla
+        eget massa vulputate, vitae euismod mi blandit. Ut eget orci eros.
+        Donec mauris urna, aliquet nec dolor id, ornare posuere ipsum.
+        Quisque ornare eros sed orci imperdiet, ut suscipit justo sodales.
+        Integer pulvinar velit eu orci suscipit hendrerit. Donec eu sem ac leo
+        malesuada mollis ut sit amet lacus. Vestibulum ligula velit, consequat
+        a elit quis, pulvinar viverra libero. Integer quis augue sit amet velit
+        tincidunt hendrerit. Sed vehicula orci at est tincidunt suscipit.
+        Morbi sed euismod neque. In vestibulum, mauris eu fermentum iaculis, est
+        justo volutpat dolor, eget placerat ex nibh vitae est. Fusce volutpat
+        erat non vulputate interdum.
+
+        Vestibulum ullamcorper, purus eu tincidunt facilisis, lectus dui maximus ligula,
+        nec mattis purus neque eu urna. Phasellus at dictum lectus. Aliquam sit amet
+        lacus eget dui interdum laoreet sit amet rutrum metus. Nulla vel elementum purus.
+        Praesent neque dolor, egestas ac nunc eget, bibendum tempus sapien.
+        Nam pretium lorem nisi, et mattis ipsum laoreet nec. Donec a iaculis orci,
+        ut fermentum ante. Cras vulputate nisi at felis lacinia malesuada.
+
+        Cras pulvinar quam ut quam vehicula, eget mollis mi gravida. Fusce vel semper nisi.
+        Maecenas purus justo, dapibus et congue vel, imperdiet ut arcu.
+        Pellentesque gravida tempus massa, eu molestie turpis eleifend ut.
+        Vivamus sit amet ultrices justo. Donec semper, ipsum vitae commodo consectetur,
+        ipsum lorem sollicitudin ligula, eu tempus elit purus a justo. Quisque quis leo velit.
+        Nunc finibus risus justo, a porttitor magna auctor ut. Sed interdum risus diam,
+        nec commodo velit condimentum eget.
+
+        Sed non venenatis ex. Phasellus at rhoncus sapien. Nulla interdum tristique velit
+        eget scelerisque. Sed eleifend luctus interdum. Phasellus ac lorem nec purus porta
+        efficitur. Pellentesque in magna efficitur, finibus tellus a, lacinia ipsum.
+        Cras et risus vitae arcu euismod lobortis.
+
+        Praesent arcu ante, porta ac turpis sed, pretium blandit lectus. Sed ipsum ante,
+        placerat vel tellus at, porttitor consectetur mauris. Donec eget sollicitudin turpis.
+        Pellentesque maximus, enim in tincidunt consequat, dui est accumsan risus,
+        auctor semper urna est ac tortor. Phasellus eleifend bibendum imperdiet.
+        Vestibulum at nulla justo. Ut luctus eros ac est laoreet euismod.
+    </string>
 </resources>

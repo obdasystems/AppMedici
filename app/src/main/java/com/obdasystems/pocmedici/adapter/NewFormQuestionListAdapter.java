@@ -44,7 +44,6 @@ public class NewFormQuestionListAdapter extends RecyclerView.Adapter<NewFormQues
     // dirty fix, find a better solution
     private static int currentSelectedIndex = -1;
 
-
     public NewFormQuestionListAdapter(List<CtcaeFormQuestion> questions, List<JoinFormPageQuestionsWithPossibleAnswerData> questionsWithAnswers,
                                       List<CtcaeFormQuestionAnswered> answeredQuestions, int fillingProcessId, int formId, Application app, Context context) {
         this.questions = questions;
@@ -55,7 +54,6 @@ public class NewFormQuestionListAdapter extends RecyclerView.Adapter<NewFormQues
         this.application = app;
         this.formId = formId;
     }
-
 
     @Override
     public int getItemCount() {
@@ -117,15 +115,12 @@ public class NewFormQuestionListAdapter extends RecyclerView.Adapter<NewFormQues
             holder.possAnswRadioGroupView.check(checkedRbId);
         }
 
-
-
     }
 
     @Override
     public long getItemId(int position) {
         return questions.get(position).getId();
     }
-
 
     //CUSTOM METHODS
     public void setQuestions(List<CtcaeFormQuestion> questions) {
@@ -136,11 +131,9 @@ public class NewFormQuestionListAdapter extends RecyclerView.Adapter<NewFormQues
         this.questionsWithAnswers = questionsWithAnswers;
     }
 
-
     public void setAlreadyAnsweredQuestions(List<CtcaeFormQuestionAnswered> answeredQuestions) {
         this.answeredQuestions = answeredQuestions;
     }
-
 
     public class MyViewHolder extends RecyclerView.ViewHolder {
 
@@ -190,12 +183,10 @@ public class NewFormQuestionListAdapter extends RecyclerView.Adapter<NewFormQues
                             }
                         }
 
-
                         //group.check(checkedId);
 
                         /*possAnswRadioGroupView.clearCheck();
                         group.check(checkedId);*/
-
 
                         RadioButton checked = itemView.findViewById(checkedId);
                         String checkedText;

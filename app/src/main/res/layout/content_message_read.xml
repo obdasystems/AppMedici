@@ -1,69 +1,174 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:gravity="start"
+    android:gravity="top|start"
     android:orientation="vertical"
-    android:layout_marginTop="?attr/actionBarSize"
-    android:layout_marginBottom="10dp"
-    android:layout_marginStart="5dp"
-    android:layout_marginEnd="5dp">
+    android:layout_marginTop="?attr/actionBarSize">
 
-    <TextView
-        android:id="@+id/read_message_sender"
-        android:layout_width="241dp"
-        android:layout_height="36dp"
-        android:layout_marginStart="24dp"
-        android:layout_marginLeft="24dp"
-        android:layout_marginTop="16dp"
-        android:text="SENDER"/>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="start" >
 
-    <TextView
-        android:id="@+id/read_message_timestamp"
-        android:layout_width="105dp"
-        android:layout_height="38dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
-        android:text="TIMESTAMP"/>
+        <TextView
+            android:id="@+id/message_read_sender"
+            android:labelFor="@+id/message_read_sender_field"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_margin="8sp"
+            android:maxLines="1"
+            android:textSize="18sp"
+            android:textColor="@android:color/black"
+            android:text="@string/message_read_sender" />
 
-    <TextView
-        android:id="@+id/read_message_receiver"
-        android:layout_width="371dp"
-        android:layout_height="38dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
-        android:text="RECEIVER"
-        app:layout_constraintHorizontal_bias="0.666" />
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:layout_weight="8"
+            android:gravity="start"
+            android:orientation="horizontal" >
 
-    <TextView
-        android:id="@+id/read_message_subject"
-        android:layout_width="371dp"
-        android:layout_height="36dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginTop="76dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
-        android:text="SUBJECT"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.666" />
+            <android.support.design.chip.Chip
+                android:id="@+id/message_read_sender_field"
+                style="@style/Widget.MaterialComponents.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="8sp"
+                android:maxLines="1"
+                android:textSize="@dimen/msg_text_secondary" />
+        </LinearLayout>
+    </LinearLayout>
 
-    <TextView
-        android:id="@+id/read_message_body"
-        android:layout_width="367dp"
-        android:layout_height="446dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginTop="44dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
-        android:text="BODY"/>
+    <!-- Horizontal separator -->
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="1dip"
+        android:background="#BCBCBCBC" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <TextView
+            android:id="@+id/message_read_recipient"
+            android:labelFor="@+id/message_read_recipient_field"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_margin="8sp"
+            android:maxLines="1"
+            android:textSize="18sp"
+            android:textColor="@android:color/black"
+            android:text="@string/message_read_recipient" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:layout_weight="8"
+            android:gravity="start"
+            android:orientation="horizontal" >
+
+            <android.support.design.chip.Chip
+                android:id="@+id/message_read_recipient_field"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="8sp"
+                android:maxLines="1" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- Horizontal separator -->
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="1dip"
+        android:background="#BCBCBCBC" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/message_read_timestamp"
+            android:labelFor="@+id/message_read_timestamp_field"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_margin="8sp"
+            android:maxLines="1"
+            android:textSize="18sp"
+            android:textColor="@android:color/black"
+            android:text="@string/message_read_time"/>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:layout_weight="8"
+            android:gravity="start"
+            android:orientation="horizontal" >
+
+            <android.support.design.chip.Chip
+                android:id="@+id/message_read_timestamp_field"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="8sp"
+                android:maxLines="1" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Horizontal separator -->
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="1dip"
+        android:background="#BCBCBCBC" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/message_read_subject"
+            android:labelFor="@+id/message_read_subject_field"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="8sp"
+            android:layout_weight="1"
+            android:text="@string/message_read_subject"
+            android:textSize="18sp"
+            android:textColor="@android:color/black" />
+
+        <HorizontalScrollView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="8sp"
+            android:layout_weight="8" >
+
+            <TextView
+                android:id="@+id/message_read_subject_field"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </HorizontalScrollView>
+    </LinearLayout>
+
+    <!-- Horizontal separator -->
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="1dip"
+        android:background="#BCBCBCBC" />
+
+    <android.support.design.widget.TextInputEditText
+        android:id="@+id/message_read_body_edit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="8sp"
+        android:hint="@string/message_read_body"
+        android:textSize="16sp"
+        android:text="@string/ipsum" />
 
 </LinearLayout>

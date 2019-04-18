@@ -35,15 +35,20 @@ public class CtcaePossibleAnswer {
     private int questionId;
 
     @NonNull
+    @ColumnInfo(name = "code")
+    private int code;
+
+    @NonNull
     @ColumnInfo(name = "text")
     private String text;
 
-    public CtcaePossibleAnswer(int id, int formId, int pageId, int questionId, String text) {
+    public CtcaePossibleAnswer(int id, int formId, int pageId, int questionId, int code, String text) {
         this.id = id;
         this.questionId = questionId;
         this.text = text;
         this.formId = formId;
         this.pageId = pageId;
+        this.code = code;
     }
 
     public CtcaePossibleAnswer(RestPossibleAnswer rpa, int formId, int pageId, int questionId) {
@@ -51,6 +56,7 @@ public class CtcaePossibleAnswer {
         this.questionId = questionId;
         this.text = rpa.getText();
         this.formId = formId;
+        this.code = rpa.getCode();
         this.pageId = pageId;
     }
 
@@ -70,6 +76,14 @@ public class CtcaePossibleAnswer {
     @NonNull
     public int getQuestionId() {
         return this.questionId;
+    }
+
+    public int getCode() {
+        return code;
+    }
+
+    public void setCode(int code) {
+        this.code = code;
     }
 
     @NonNull

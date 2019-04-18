@@ -8,7 +8,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -45,19 +44,17 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-
-public class NewFormListActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener, NewFormListAdapter.FormAdapterListener, InsertQuestionnairesAsyncResponse {
+public class NewFormListActivity extends AppActivity implements
+        SwipeRefreshLayout.OnRefreshListener,
+        NewFormListAdapter.FormAdapterListener,
+        InsertQuestionnairesAsyncResponse {
     private CtcaeFormListViewModel formListViewModel;
-
     private List<JoinFormWithMaxPageNumberData> forms= new ArrayList<>();
     private RecyclerView recyclerView;
     private NewFormListAdapter mAdapter;
     private SwipeRefreshLayout swipeRefreshLayout;
-
     private Context ctx;
-
     private int restCounter = 0;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,7 +94,6 @@ public class NewFormListActivity extends AppCompatActivity implements SwipeRefre
             }
         });
 
-
         // show loader and fetch forms
         swipeRefreshLayout.post(
                 new Runnable() {
@@ -109,18 +105,15 @@ public class NewFormListActivity extends AppCompatActivity implements SwipeRefre
         );
     }
 
-
     @Override
     public void onBackPressed() {
         backToMain();
     }
 
-
     private void backToMain() {
         Intent mainIntent = new Intent(ctx, MainActivity.class);
         startActivity(mainIntent);
     }
-
 
     /************************
      * SWIPE REFRESH METHODS
@@ -130,7 +123,6 @@ public class NewFormListActivity extends AppCompatActivity implements SwipeRefre
     public void onRefresh() {
         downloadAssignedForms();
     }
-
 
     /**************************
      * ADAPTER LISTENER METHODS
@@ -152,11 +144,8 @@ public class NewFormListActivity extends AppCompatActivity implements SwipeRefre
         }
     }
 
-
-
-    /************************
+    /* **********************
      * REFRESH FORM LIST
-     *
      ************************/
 
     private void downloadAssignedForms() {
@@ -233,7 +222,6 @@ public class NewFormListActivity extends AppCompatActivity implements SwipeRefre
         }
     }
 
-
     private void insertInLocalDatabase(List<RestForm> restForms) {
         Log.i("appMedici", "insertInLocalDatabase "+restForms.size());
         if(!restForms.isEmpty()) {
@@ -243,6 +231,7 @@ public class NewFormListActivity extends AppCompatActivity implements SwipeRefre
             List<CtcaePossibleAnswer> answers = new LinkedList<>();
             for(RestForm rf:restForms) {
                 CtcaeForm form = new CtcaeForm(rf);
+                form.setFormInstructions(t(R.string.form_instructions).toString());
                 forms.add(form);
                 List<RestFormPage> restFormPages = rf.getPages();
                 for (RestFormPage rfp : restFormPages) {
@@ -270,7 +259,6 @@ public class NewFormListActivity extends AppCompatActivity implements SwipeRefre
         swipeRefreshLayout.setRefreshing(false);
     }
 
-
     private static class InsertQuestionnairesQueryAsyncTask extends AsyncTask<Void, Void, Void> {
         private Context ctx;
         private CtcaeFormRepository repository;
@@ -281,7 +269,6 @@ public class NewFormListActivity extends AppCompatActivity implements SwipeRefre
         private List<CtcaePossibleAnswer> answers;
 
         private InsertQuestionnairesAsyncResponse delegate;
-
 
         InsertQuestionnairesQueryAsyncTask(Context context, List<CtcaeForm> forms, List<CtcaeFormPage> pages,
                                            List<CtcaeFormQuestion> questions, List<CtcaePossibleAnswer> answers,

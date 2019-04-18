@@ -16,7 +16,7 @@ import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.jaredrummler.android.device.DeviceName;
 import com.obdasystems.pocmedici.R;
-import com.obdasystems.pocmedici.activity.CalendarMaterialActivity;
+import com.obdasystems.pocmedici.activity.CalendarActivity;
 import com.obdasystems.pocmedici.activity.MainActivity;
 import com.obdasystems.pocmedici.activity.MessageListActivity;
 import com.obdasystems.pocmedici.activity.NewFormListActivity;
@@ -64,7 +64,7 @@ public class PushNotificationService extends FirebaseMessagingService {
                 notId = NOTIFICATION_ID_FORM;
                 break;
             case NOTIFICATION_TYPE_EVENT:
-                activityClass = CalendarMaterialActivity.class;
+                activityClass = CalendarActivity.class;
                 notId = NOTIFICATION_ID_EVENT;
                 break;
                 default:

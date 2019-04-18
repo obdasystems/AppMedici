@@ -23,7 +23,6 @@ import com.obdasystems.pocmedici.persistence.repository.CtcaePagesByFormIdReposi
 import java.util.List;
 
 public class CtcaeFormActivity extends AppCompatActivity implements FormPagesAsyncResponse {
-
     JoinFormWithMaxPageNumberData displayedForm;
     List<CtcaeFormPage> displayedFormPages;
     private Context ctx;
@@ -66,8 +65,6 @@ public class CtcaeFormActivity extends AppCompatActivity implements FormPagesAsy
         Intent mainIntent = new Intent(this, NewFormListActivity.class);
         startActivity(mainIntent);
     }
-
-
 
     /*****************************
      * TOOLBAR METHODS
@@ -205,4 +202,5 @@ public class CtcaeFormActivity extends AppCompatActivity implements FormPagesAsy
             delegate.taskFinished(ctcaeFormPages);
         }
     }
+
 }

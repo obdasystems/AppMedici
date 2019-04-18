@@ -167,7 +167,7 @@ public class MainActivity extends AppActivity {
                 activityClass = MessageListActivity.class;
                 break;
             case R.id.card_calendar:
-                activityClass = CalendarMaterialActivity.class;
+                activityClass = CalendarActivity.class;
                 break;
             case R.id.card_prescriptions:
                 activityClass = PrescriptionListActivity.class;

@@ -124,6 +124,7 @@ public class DownloadAssignedFormsService extends Service {
         }
     }
 
+    // FIXME: fix persistence of forms
     private void insertInLocalDatabase(List<RestForm> restForms) {
         Log.i("appMedici", "insertInLocalDatabase "+restForms.size());
         if(!restForms.isEmpty()) {

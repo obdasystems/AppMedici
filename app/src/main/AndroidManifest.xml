@@ -47,7 +47,7 @@
             android:label="Step Counter"></activity>
 
         <!-- Calendar Activity -->
-        <activity android:name=".activity.CalendarMaterialActivity"
+        <activity android:name=".activity.CalendarActivity"
             android:label="Calendar"></activity>
         <activity android:name=".activity.EventResumeeActivity"
             android:label="Event reminder"></activity>

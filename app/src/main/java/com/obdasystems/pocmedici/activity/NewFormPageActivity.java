@@ -8,7 +8,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import android.support.design.widget.Snackbar;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -39,6 +39,7 @@ import com.obdasystems.pocmedici.utils.SaveSharedPreference;
 
 import org.json.JSONObject;
 
+import java.util.Collections;
 import java.util.GregorianCalendar;
 import java.util.LinkedList;
 import java.util.List;
@@ -47,8 +48,8 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class NewFormPageActivity extends AppCompatActivity implements PageQuestionsAsyncResponse {
-
+public class NewFormPageActivity extends AppActivity
+        implements PageQuestionsAsyncResponse {
     private int currentPageIndex = 1;
     private int totalPagecount = 0;
     private List<CtcaeFormPage> formPages;
@@ -220,7 +221,11 @@ public class NewFormPageActivity extends AppCompatActivity implements PageQuesti
     @Override
     public void getQuestionsTaskFinished(NewFormPageActivity.FormQuestionsContainer container) {
         adapter.setQuestions(container.questions);
-        adapter.setQuestionsWithAnswers(container.questionsWithAnswers);
+        // FIXME: sort answers by code
+        List<JoinFormPageQuestionsWithPossibleAnswerData> answers =
+                container.questionsWithAnswers;
+        Collections.sort(answers, (o1, o2) -> o1.getPossibleAnswerCode() - o2.getPossibleAnswerCode());
+        adapter.setQuestionsWithAnswers(answers);
         adapter.setAlreadyAnsweredQuestions(container.answeredQuestions);
         adapter.notifyDataSetChanged();
     }
@@ -293,7 +298,7 @@ public class NewFormPageActivity extends AppCompatActivity implements PageQuesti
                     public void onResponse(Call<JSONObject> call, Response<JSONObject> response) {
                         if (response.isSuccessful()) {
                             Log.i("appMedici", "Questionnaire sent to server." + response.body().toString());
-                            Toast.makeText(getApplicationContext(), "Questionnaire sent to server.", Toast.LENGTH_LONG).show();
+                            snack(recyclerView, R.string.form_successful, Snackbar.LENGTH_LONG);
                             NewFormPageActivity.DeleteFillingProcessQueryAsyncTask task = new NewFormPageActivity.DeleteFillingProcessQueryAsyncTask(fillingProcessId, ctx, delegate);
                             task.execute();
                             recursiveSubmitFormCounter = 0;

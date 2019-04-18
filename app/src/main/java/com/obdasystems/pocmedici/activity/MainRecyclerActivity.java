@@ -207,7 +207,7 @@ public class MainRecyclerActivity extends AppCompatActivity implements OnMainRec
                 activityClass = MessageListActivity.class;
                 break;
             case 3:
-                activityClass = CalendarMaterialActivity.class;
+                activityClass = CalendarActivity.class;
                 break;
             case 4:
                 activityClass = MessageListActivity.class;
@@ -269,7 +269,7 @@ public class MainRecyclerActivity extends AppCompatActivity implements OnMainRec
                 activityClass = MessageListActivity.class;
                 break;
             case R.id.card_calendar:
-                activityClass = CalendarMaterialActivity.class;
+                activityClass = CalendarActivity.class;
                 break;
             //case R.id.card_negative_event:
             case R.id.card_prescriptions:

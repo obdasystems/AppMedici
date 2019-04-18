@@ -46,7 +46,6 @@ dependencies {
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
     implementation 'com.android.support:cardview-v7:28.0.0'
 
-
     //deve essere usato OBBLIGATORIAMENTE a partire da aprile 2019
     //servizi google per messagistica e localizzazione
     implementation 'com.google.firebase:firebase-core:16.0.8'
@@ -85,7 +84,7 @@ dependencies {
     implementation 'com.jaredrummler:android-device-names:1.1.8'
 
     // retrofit, gson
-    implementation 'com.google.code.gson:gson:2.8.0'
+    implementation 'com.google.code.gson:gson:2.8.2'
     implementation 'com.squareup.retrofit2:retrofit:2.0.2'
     implementation 'com.squareup.retrofit2:converter-gson:2.0.2'
     implementation 'com.squareup.okhttp3:logging-interceptor:3.12.1'

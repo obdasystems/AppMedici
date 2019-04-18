@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/bg_list_row"
     android:clickable="true"
     android:focusable="true"
     android:orientation="vertical"
+    android:paddingTop="@dimen/padding_list_row"
     android:paddingBottom="@dimen/padding_list_row"
-    android:paddingLeft="?listPreferredItemPaddingLeft"
-    android:paddingTop="@dimen/padding_list_row">
+    android:paddingStart="?listPreferredItemPaddingLeft"
+    android:paddingEnd="?listPreferredItemPaddingRight" >
 
     <LinearLayout
         android:id="@+id/drug_container"
@@ -16,17 +18,18 @@
         android:layout_height="wrap_content"
         android:clickable="true"
         android:orientation="vertical"
-        android:paddingLeft="72dp"
-        android:paddingRight="@dimen/padding_list_row">
+        android:paddingStart="72dp"
+        android:paddingEnd="@dimen/padding_list_row"
+        android:focusable="true" >
 
         <TextView
             android:id="@+id/drugName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ellipsize="end"
-            android:lines="2"
+            android:maxLines="1"
             android:textColor="@color/from"
-            android:textSize="24dp"
+            android:textSize="18sp"
             android:textStyle="bold" />
 
         <TextView
@@ -34,35 +37,33 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ellipsize="end"
-            android:lines="1"
+            android:maxLines="2"
             android:textColor="@color/subject"
-            android:textSize="16dp"
+            android:textSize="16sp"
             android:textStyle="bold" />
-
-
     </LinearLayout>
 
     <RelativeLayout
         android:id="@+id/drug_icon_container"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical" >
 
         <RelativeLayout
             android:id="@+id/drug_icon_back"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
 
-            <ImageView
-                android:layout_width="@dimen/icon_width_height"
-                android:layout_height="@dimen/icon_width_height"
-                android:src="@drawable/bg_circle" />
+            <!--<ImageView-->
+                <!--android:layout_width="@dimen/icon_width_height"-->
+                <!--android:layout_height="@dimen/icon_width_height"-->
+                <!--android:src="@drawable/bg_circle" />-->
 
-            <ImageView
-                android:layout_width="25dp"
-                android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:src="@drawable/ic_done_white_24dp" />
+            <!--<ImageView-->
+                <!--android:layout_width="25dp"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_centerInParent="true"-->
+                <!--android:src="@drawable/ic_done_white_24dp" />-->
         </RelativeLayout>
 
         <RelativeLayout
@@ -85,7 +86,5 @@
         </RelativeLayout>
 
     </RelativeLayout>
-
-
 
 </RelativeLayout>

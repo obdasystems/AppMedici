@@ -55,10 +55,10 @@ public interface CtcaeFormDao {
 
 
     //FORMS
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertForm(CtcaeForm form);
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertMultipleForm(List<CtcaeForm> forms);
 
     @Delete
@@ -310,7 +310,8 @@ public interface CtcaeFormDao {
 
     //questions and possible answers for a given form page
     @Query("SELECT quest.id as questionId, quest.form_id as formId, quest.page_id as pageId, " +
-            "quest.text as questionText, answ.id as possibleAnswerId, answ.text as possibleAnswerText " +
+            "quest.text as questionText, answ.id as possibleAnswerId, answ.text as possibleAnswerText, " +
+            " answ.code as possibleAnswerCode " +
             "FROM ctcae_form_question quest, ctcae_form_possible_answer answ  " +
             "WHERE quest.page_id=:pageId AND quest.id=answ.question_id " +
             "ORDER BY quest.page_id, answ.id")

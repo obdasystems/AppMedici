@@ -2,51 +2,49 @@ package com.obdasystems.pocmedici.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import android.support.design.widget.Snackbar;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
+import android.text.format.DateFormat;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.obdasystems.pocmedici.R;
 import com.obdasystems.pocmedici.message.model.Message;
 
-public class ReadMessageActivity extends AppCompatActivity {
+import java.util.Date;
+
+public class ReadMessageActivity extends AppActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_read_message);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.read_message_toolbar);
+        Toolbar toolbar = find(R.id.read_message_toolbar);
         toolbar.setNavigationIcon(R.drawable.baseline_arrow_back_black_24dp);
         setSupportActionBar(toolbar);
-
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                goToMessageList();
-            }
-        });
+        toolbar.setNavigationOnClickListener(v -> goToMessageList());
 
         Intent intent = getIntent();
         Message msg = intent.getParcelableExtra("message");
 
-        TextView subjectView = (TextView) findViewById(R.id.read_message_subject);
+        TextView subjectView = find(R.id.message_read_subject_field);
         subjectView.setText(msg.getSubject());
-        TextView bodyView = (TextView) findViewById(R.id.read_message_body);
+
+        TextView bodyView = find(R.id.message_read_body_edit);
         bodyView.setText(msg.getText());
-        TextView senderView = (TextView) findViewById(R.id.read_message_sender);
-        Log.i("appMedici", "msg from: "+msg.getSender());
+
+        TextView senderView = find(R.id.message_read_sender_field);
         senderView.setText(msg.getSender().getUsername());
-        TextView receiverView = (TextView) findViewById(R.id.read_message_receiver);
-        receiverView.setText("me");
+
+        TextView receiverView = find(R.id.message_read_recipient_field);
+        receiverView.setText(t(R.string.message_receiver_you));
+
         //senderView.setText(msg.getTo());
-        TextView timeView = (TextView) findViewById(R.id.read_message_timestamp);
-        timeView.setText(""+msg.getDate());
+        TextView timeView = find(R.id.message_read_timestamp_field);
+        timeView.setText(DateFormat.getDateFormat(this)
+                .format(new Date(msg.getDate())));
     }
 
     @Override
@@ -55,21 +53,27 @@ public class ReadMessageActivity extends AppCompatActivity {
         Intent intent = getIntent();
         Message msg = intent.getParcelableExtra("message");
 
-        TextView subjectView = (TextView) findViewById(R.id.read_message_subject);
+        TextView subjectView = find(R.id.message_read_subject_field);
         subjectView.setText(msg.getSubject());
-        TextView bodyView = (TextView) findViewById(R.id.read_message_body);
+
+        TextView bodyView = find(R.id.message_read_body_edit);
         bodyView.setText(msg.getText());
-        TextView senderView = (TextView) findViewById(R.id.read_message_sender);
+
+        TextView senderView = find(R.id.message_read_sender_field);
         senderView.setText(msg.getSender().getUsername());
-        TextView receiverView = (TextView) findViewById(R.id.read_message_receiver);
-        receiverView.setText("me");
+
+        TextView receiverView = find(R.id.message_read_recipient_field);
+        receiverView.setText(t(R.string.message_receiver_you));
+
         //senderView.setText(msg.getTo());
-        TextView timeView = (TextView) findViewById(R.id.read_message_timestamp);
-        timeView.setText(""+msg.getDate());
+        TextView timeView = find(R.id.message_read_timestamp_field);
+        timeView.setText(DateFormat.getDateFormat(this)
+                .format(new Date(msg.getDate())));
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.message_read_menu, menu);
         return true;
@@ -82,9 +86,9 @@ public class ReadMessageActivity extends AppCompatActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.read_message_action_delete) {
-            Toast.makeText(getApplicationContext(), "Deleting...", Toast.LENGTH_SHORT).show();
+            snack(find(R.id.message_read_body_edit),
+                    R.string.message_read_delete_confirm, Snackbar.LENGTH_LONG);
             return true;
         }
 
@@ -100,4 +104,5 @@ public class ReadMessageActivity extends AppCompatActivity {
     public void onBackPressed() {
         goToMessageList();
     }
+
 }

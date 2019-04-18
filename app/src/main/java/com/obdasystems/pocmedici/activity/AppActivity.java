@@ -17,6 +17,7 @@ import android.os.StrictMode;
 import android.support.annotation.CallSuper;
 import android.support.annotation.IdRes;
 import android.support.annotation.IntDef;
+import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresPermission;
@@ -126,7 +127,6 @@ public abstract class AppActivity extends AppCompatActivity {
      * @return a view with given ID if found, or {@code null} otherwise
      * @see View#findViewById(int)
      */
-    @Nullable
     public <T extends View> T find(@IdRes int id) {
         return super.findViewById(id);
     }
@@ -378,6 +378,29 @@ public abstract class AppActivity extends AppCompatActivity {
     }
 
     /**
+     * Pops up a short {@link Snackbar} notification without any action
+     * attached to the given {@link View} to display a textual
+     * representation of the specified object.
+     * This method delegates to the object's {@code toString()} method.
+     * @param view the view
+     * @param obj the object to display
+     */
+    public void snack(View view, Object obj) {
+        snack(view, obj, Snackbar.LENGTH_SHORT);
+    }
+
+    /**
+     * Pops up a short {@link Snackbar} notification without any action
+     * attached to the given{@link View} to display text from
+     * the specified string resource.
+     * @param view the view
+     * @param resId the string resource id
+     */
+    public void snack(View view, @StringRes int resId) {
+        snack(view, resId, Snackbar.LENGTH_SHORT);
+    }
+
+    /**
      * Pops up a {@link Snackbar} notification without any action
      * of the specified {@code length} attached to the given
      * {@link View} to display a textual representation of the specified object.
@@ -468,11 +491,24 @@ public abstract class AppActivity extends AppCompatActivity {
         return metrics.densityDpi;
     }
 
+    /* ******************************************
+     * Permission utilities
+     ********************************************/
+
+    /**
+     * A request code is a non-negative integer.
+     */
+    @IntRange(from = 0L)
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface RequestCode {
+
+    }
+
     /**
      * Returns true if our application has the given kind of permission,
      * such as Manifest.permission.CAMERA.
      */
-    public boolean hasPermission(String permission) {
+    public boolean hasPermission(@NonNull String permission) {
         return ContextCompat.checkSelfPermission(this,
                 permission) == PackageManager.PERMISSION_GRANTED;
     }
@@ -480,9 +516,9 @@ public abstract class AppActivity extends AppCompatActivity {
     /**
      * Pops up a request for our application to acquire the given kind of permission(s),
      * such as Manifest.permission.CAMERA.
-     * The activity uses a request code of REQ_CODE_REQUEST_PERMISSIONS.
+     * The method uses a request code of {@link AppActivity#REQ_CODE_REQUEST_PERMISSIONS}.
      */
-    public void requestPermission(String... permissions) {
+    public void requestPermission(@NonNull String... permissions) {
         ActivityCompat.requestPermissions(this,
                 permissions, REQ_CODE_REQUEST_PERMISSIONS);
     }
@@ -491,13 +527,41 @@ public abstract class AppActivity extends AppCompatActivity {
      * Checks whether the current app has all of the given permissions;
      * if it does not have any, pops up a request for our application to
      * acquire them.
-     * The activity uses a request code of REQ_CODE_REQUEST_PERMISSIONS.
+     * The method uses a request code of {@link AppActivity#REQ_CODE_REQUEST_PERMISSIONS}.
      */
-    public void ensurePermission(String... permissions) {
+    public void ensurePermission(@NonNull String... permissions) {
         for (String permission : permissions) {
             if (!hasPermission(permission)) {
                 ActivityCompat.requestPermissions(this,
                         permissions, REQ_CODE_REQUEST_PERMISSIONS);
+                break;
+            }
+        }
+    }
+
+    /**
+     * Pops up a request for our application to acquire the given kind of permission(s),
+     * such as Manifest.permission.CAMERA.
+     * The method uses a request code of {@code requestCode}.
+     */
+    public void requestPermission(@RequestCode final int requestCode,
+                                  @NonNull String... permissions) {
+        ActivityCompat.requestPermissions(this,
+                permissions, requestCode);
+    }
+
+    /**
+     * Checks whether the current app has all of the given permissions;
+     * if it does not have any, pops up a request for our application to
+     * acquire them.
+     * The method uses a request code of {@code requestCode}.
+     */
+    public void ensurePermission(@RequestCode final int requestCode,
+                                 @NonNull String... permissions) {
+        for (String permission : permissions) {
+            if (!hasPermission(permission)) {
+                ActivityCompat.requestPermissions(this,
+                        permissions, requestCode);
                 break;
             }
         }

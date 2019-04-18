@@ -38,7 +38,6 @@ public class NewFormListAdapter extends RecyclerView.Adapter<NewFormListAdapter.
     // dirty fix, find a better solution
     private static int currentSelectedIndex = -1;
 
-
     public NewFormListAdapter(Context mContext, List<JoinFormWithMaxPageNumberData> forms, NewFormListAdapter.FormAdapterListener listener) {
         this.mContext = mContext;
         this.forms = forms;
@@ -47,12 +46,10 @@ public class NewFormListAdapter extends RecyclerView.Adapter<NewFormListAdapter.
         animationItemsIndex = new SparseBooleanArray();
     }
 
-
     //CUSTOM METHODS
     public void setForms(List<JoinFormWithMaxPageNumberData> forms) {
         this.forms = forms;
     }
-
 
     public JoinFormWithMaxPageNumberData getFormAtPosition(int position) {
         if(this.forms!=null) {
@@ -74,15 +71,14 @@ public class NewFormListAdapter extends RecyclerView.Adapter<NewFormListAdapter.
         JoinFormWithMaxPageNumberData formData = forms.get(position);
 
         holder.title.setText(formData.getFormTitle());
-        holder.primaryText.setText("Periodicity:"+ formData.getFormPeriodicity() + " Class:"+formData.getFormClass());
-        holder.secondaryText.setText("Nr of pages:"+formData.getLastPageNumber());
+        // FIXME: read form periodicity from rest response
+        holder.primaryText.setText("Periodicity: Weekly");
+        holder.secondaryText.setText("Number of pages: "+formData.getLastPageNumber());
         holder.timestamp.setText("12/03/2019");//TODO DISPLAY OF REAL TIMESTAMP (IF NEEDED, OTHERWISE CANCEL)
         holder.iconText.setText(""+formData.getFormClass());
 
-
         // change the row state to activated
         holder.itemView.setActivated(selectedItems.get(position, false));
-
 
         // handle icon animation
         applyIconAnimation(holder, position);
@@ -167,7 +163,6 @@ public class NewFormListAdapter extends RecyclerView.Adapter<NewFormListAdapter.
         }
     }
 
-
     // As the views will be reused, sometimes the icon appears as
     // flipped because older view is reused. Reset the Y-axis to 0
     private void resetIconYAxis(View view) {
@@ -186,7 +181,7 @@ public class NewFormListAdapter extends RecyclerView.Adapter<NewFormListAdapter.
         return forms.get(position).getFormId();
     }
 
-    /*private void applyImportant(NewFormListAdapter.MyViewHolder holder, Message message) {
+    /*private void applyImportant(NewFormListAdapter.DrugViewHolder holder, Message message) {
         if (message.isImportant()) {
             holder.iconImp.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_star_black_24dp));
             holder.iconImp.setColorFilter(ContextCompat.getColor(mContext, R.color.icon_tint_selected));
@@ -196,7 +191,7 @@ public class NewFormListAdapter extends RecyclerView.Adapter<NewFormListAdapter.
         }
     }*/
 
-    /*private void applyReadStatus(NewFormListAdapter.MyViewHolder holder, Message message) {
+    /*private void applyReadStatus(NewFormListAdapter.DrugViewHolder holder, Message message) {
         if (message.isRead()) {
             holder.from.setTypeface(null, Typeface.NORMAL);
             holder.subject.setTypeface(null, Typeface.NORMAL);

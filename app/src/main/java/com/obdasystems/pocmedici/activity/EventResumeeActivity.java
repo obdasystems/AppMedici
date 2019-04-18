@@ -89,7 +89,7 @@ public class EventResumeeActivity extends AppCompatActivity {
     }
 
     private void backToCalendar() {
-        Intent calIntent = new Intent(this, CalendarMaterialActivity.class);
+        Intent calIntent = new Intent(this, CalendarActivity.class);
         startActivity(calIntent);
     }
 

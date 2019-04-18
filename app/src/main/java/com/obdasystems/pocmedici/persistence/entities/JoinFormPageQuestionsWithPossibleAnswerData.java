@@ -4,28 +4,24 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 public class JoinFormPageQuestionsWithPossibleAnswerData implements Parcelable {
-
     private int questionId;
-
     private int formId;
-
     private int pageId;
-
     private String questionText;
-
     private String possibleAnswerText;
-
     private int possibleAnswerId;
-
+    private int possibleAnswerCode;
 
     public JoinFormPageQuestionsWithPossibleAnswerData(int questionId, int formId, int pageId, String questionText,
-                                                       String possibleAnswerText, int possibleAnswerId) {
+                                                       String possibleAnswerText, int possibleAnswerId,
+                                                       int possibleAnswerCode) {
         this.questionId = questionId;
         this.formId = formId;
         this.pageId = pageId;
         this.questionText = questionText;
         this.possibleAnswerText = possibleAnswerText;
         this.possibleAnswerId = possibleAnswerId;
+        this.possibleAnswerCode = possibleAnswerCode;
     }
 
     public int getQuestionId() {
@@ -76,6 +72,13 @@ public class JoinFormPageQuestionsWithPossibleAnswerData implements Parcelable {
         this.possibleAnswerId = possibleAnswerId;
     }
 
+    public int getPossibleAnswerCode() {
+        return possibleAnswerCode;
+    }
+
+    public void setPossibleAnswerCode(int possibleAnswerCode) {
+        this.possibleAnswerCode = possibleAnswerCode;
+    }
 
     //Parcelable mathods
 
@@ -86,6 +89,7 @@ public class JoinFormPageQuestionsWithPossibleAnswerData implements Parcelable {
         this.questionText = inParcel.readString();
         this.possibleAnswerText = inParcel.readString();
         this.possibleAnswerId = inParcel.readInt();
+        this.possibleAnswerCode = inParcel.readInt();
     }
 
     public static final Creator<JoinFormPageQuestionsWithPossibleAnswerData> CREATOR = new Creator<JoinFormPageQuestionsWithPossibleAnswerData>() {
@@ -113,5 +117,6 @@ public class JoinFormPageQuestionsWithPossibleAnswerData implements Parcelable {
         dest.writeString(this.questionText);
         dest.writeString(this.possibleAnswerText);
         dest.writeInt(this.possibleAnswerId);
+        dest.writeInt(this.possibleAnswerCode);
     }
 }

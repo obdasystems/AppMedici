@@ -45,7 +45,7 @@ public class CtcaeForm implements Parcelable {
         this.id = restForm.getId();
         this.formClass = restForm.getFormClass();
         this.formPeriodicity = restForm.getPeriodicity();
-        this.formTitle = "FORM TITLE";
+        this.formTitle = restForm.getFormClass();
         this.formInstructions = "FORM INSTRUCTIONS";
     }
 
@@ -70,6 +70,25 @@ public class CtcaeForm implements Parcelable {
         return formInstructions;
     }
 
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public void setFormClass(@NonNull String formClass) {
+        this.formClass = formClass;
+    }
+
+    public void setFormPeriodicity(@NonNull String formPeriodicity) {
+        this.formPeriodicity = formPeriodicity;
+    }
+
+    public void setFormTitle(@NonNull String formTitle) {
+        this.formTitle = formTitle;
+    }
+
+    public void setFormInstructions(@NonNull String formInstructions) {
+        this.formInstructions = formInstructions;
+    }
 
     //Parcelable methods
 

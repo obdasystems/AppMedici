@@ -4,13 +4,12 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 public class RestCalendarEvent implements Parcelable {
-
     private Long timestamp;
     private String title;
     private String description;
-    private int type;
+    private String type;
 
-    public RestCalendarEvent(Long timestamp, String title, String description, int type) {
+    public RestCalendarEvent(Long timestamp, String title, String description, String type) {
         this.timestamp = timestamp;
         this.title = title;
         this.description = description;
@@ -41,11 +40,11 @@ public class RestCalendarEvent implements Parcelable {
         this.description = description;
     }
 
-    public int getType() {
+    public String getType() {
         return type;
     }
 
-    public void setType(int type) {
+    public void setType(String type) {
         this.type = type;
     }
 
@@ -57,7 +56,7 @@ public class RestCalendarEvent implements Parcelable {
         }
         title = in.readString();
         description = in.readString();
-        type = in.readInt();
+        type = in.readString();
     }
 
     public static final Creator<RestCalendarEvent> CREATOR = new Creator<RestCalendarEvent>() {
@@ -87,6 +86,7 @@ public class RestCalendarEvent implements Parcelable {
         }
         dest.writeString(title);
         dest.writeString(description);
-        dest.writeInt(type);
+        dest.writeString(type);
     }
+
 }

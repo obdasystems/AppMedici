@@ -2,17 +2,13 @@ package com.obdasystems.pocmedici.activity;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.TypedArray;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.View;
 import android.widget.Toast;
 
 import com.obdasystems.pocmedici.R;
@@ -32,9 +28,10 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class DrugListActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener, DrugListAdapter.DrugAdapterListener {
+public class DrugListActivity extends AppActivity implements
+        SwipeRefreshLayout.OnRefreshListener,
+        DrugListAdapter.DrugAdapterListener {
     private List<RestDrug> drugs = new ArrayList<>();
-    private RecyclerView recyclerView;
     private DrugListAdapter mAdapter;
     private SwipeRefreshLayout swipeRefreshLayout;
     private Context ctx;
@@ -47,38 +44,26 @@ public class DrugListActivity extends AppCompatActivity implements SwipeRefreshL
 
         ctx = this;
         setContentView(R.layout.activity_drug_list);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = find(R.id.toolbar);
         toolbar.setNavigationIcon(R.drawable.baseline_arrow_back_black_24dp);
         setSupportActionBar(toolbar);
+        toolbar.setNavigationOnClickListener(v -> backToMain());
 
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                backToMain();
-            }
-        });
-
-        recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
-        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_layout);
+        RecyclerView recyclerView = find(R.id.recycler_view);
+        swipeRefreshLayout = find(R.id.swipe_refresh_layout);
         swipeRefreshLayout.setOnRefreshListener(this);
 
         mAdapter = new DrugListAdapter(this, drugs, this);
-        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
+        RecyclerView.LayoutManager mLayoutManager =
+                new LinearLayoutManager(getApplicationContext());
         recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
-        recyclerView.addItemDecoration(new DividerItemDecoration(this, LinearLayoutManager.VERTICAL));
+        recyclerView.addItemDecoration(
+                new DividerItemDecoration(this, LinearLayoutManager.VERTICAL));
         recyclerView.setAdapter(mAdapter);
 
-
         // show loader and fetch messages
-        swipeRefreshLayout.post(
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        getDrugs(recursiveGetInboxCallCounter);
-                    }
-                }
-        );
+        swipeRefreshLayout.post(() -> getDrugs(recursiveGetInboxCallCounter));
     }
 
     private void backToMain() {
@@ -91,10 +76,6 @@ public class DrugListActivity extends AppCompatActivity implements SwipeRefreshL
         backToMain();
     }
 
-    /**
-     * Fetches mail messages by making HTTP request
-     * url: https://api.androidhive.info/json/inbox.json
-     */
     private void getDrugs(int counter) {
         swipeRefreshLayout.setRefreshing(true);
 
@@ -172,29 +153,11 @@ public class DrugListActivity extends AppCompatActivity implements SwipeRefreshL
         }
     }
 
-    /**
-     * chooses a random color from array.xml
-     */
-    private int getRandomMaterialColor(String typeColor) {
-        int returnColor = Color.GRAY;
-        int arrayId = getResources().getIdentifier("mdcolor_" + typeColor, "array", getPackageName());
-
-        if (arrayId != 0) {
-            TypedArray colors = getResources().obtainTypedArray(arrayId);
-            int index = (int) (Math.random() * colors.length());
-            returnColor = colors.getColor(index, Color.GRAY);
-            colors.recycle();
-        }
-        return returnColor;
-    }
-
-
     @Override
     public void onRefresh() {
         // swipe refresh is performed, fetch the messages again
         getDrugs(this.recursiveGetInboxCallCounter);
     }
-
 
     @Override
     public void onDrugRowClicked(int position) {
@@ -203,6 +166,5 @@ public class DrugListActivity extends AppCompatActivity implements SwipeRefreshL
         drugIntent.putExtra("url", drug.getUrl());
         startActivity(drugIntent);
     }
-
 
 }

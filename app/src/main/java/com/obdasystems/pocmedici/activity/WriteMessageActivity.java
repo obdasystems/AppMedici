@@ -1,9 +1,8 @@
 package com.obdasystems.pocmedici.activity;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -13,10 +12,9 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
+import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
 import android.support.v4.content.FileProvider;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -24,12 +22,10 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import com.obdasystems.pocmedici.BuildConfig;
 import com.obdasystems.pocmedici.R;
 import com.obdasystems.pocmedici.adapter.WriteMessageAttachmentAdapter;
-import com.obdasystems.pocmedici.listener.OnRecyclerViewPositionClickListener;
 import com.obdasystems.pocmedici.message.model.Message;
 import com.obdasystems.pocmedici.message.model.OutMessage;
 import com.obdasystems.pocmedici.network.MediciApi;
@@ -47,59 +43,33 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class WriteMessageActivity extends AppCompatActivity {
-
+public class WriteMessageActivity extends AppActivity {
     private static final int FILE_READ_REQUEST_CODE = 100;
     private static final int PICTURE_READ_REQUEST_CODE = 101;
     private static final int PICTURE_CAMERA_REQUEST_CODE = 102;
-
     private static final int ENABLE_CAMERA_REQUEST_CODE = 200;
 
     private List<Uri> attachmentUris = new LinkedList<>();
     private List<String> attachmentNames = new LinkedList<>();
     private Uri currentCameraAttachmentUri;
+    private boolean cameraEnabled;
 
-    private boolean cameraEnabled ;
-
-    private RecyclerView attachmentRecyclerView;
     private WriteMessageAttachmentAdapter attachmentAdapter;
-
-    private Context ctx;
 
     private int recursiveSendMessageCounter = 0;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        ctx = this;
-        recursiveSendMessageCounter = 0;
-        setContentView(R.layout.activity_write_message);
+    private static File getOutputMediaFile() {
+        File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "AppMedici");
 
-        attachmentRecyclerView = findViewById(R.id.write_message_attachment_recycler_view);
-        attachmentAdapter = new WriteMessageAttachmentAdapter(this, new OnRecyclerViewPositionClickListener() {
-            @Override
-            public void onPositionClicked(int position) {
-                attachmentUris.remove(position);
-                attachmentNames.remove(position);
-                attachmentAdapter.setAttachments(attachmentNames);
-                attachmentAdapter.notifyDataSetChanged();
+        if (!mediaStorageDir.exists()) {
+            if (!mediaStorageDir.mkdirs()) {
+                return null;
             }
-        });
-        attachmentRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        attachmentRecyclerView.setAdapter(attachmentAdapter);
-        attachmentAdapter.setAttachments(attachmentNames);
-        attachmentAdapter.notifyDataSetChanged();
-
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[] { Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE }, ENABLE_CAMERA_REQUEST_CODE);
-        }
-        else {
-            cameraEnabled = true;
         }
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.write_message_toolbar);
-        setSupportActionBar(toolbar);
-
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        return new File(mediaStorageDir.getPath() + File.separator +
+                "IMG_" + timeStamp + ".jpg");
     }
 
     /*@Override
@@ -131,6 +101,38 @@ public class WriteMessageActivity extends AppCompatActivity {
 
     }*/
 
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        recursiveSendMessageCounter = 0;
+        setContentView(R.layout.activity_write_message);
+
+        RecyclerView attachmentRecyclerView =
+                find(R.id.write_message_attachment_recycler_view);
+        attachmentAdapter =
+                new WriteMessageAttachmentAdapter(this, position -> {
+                    attachmentUris.remove(position);
+                    attachmentNames.remove(position);
+                    attachmentAdapter.setAttachments(attachmentNames);
+                    attachmentAdapter.notifyDataSetChanged();
+                });
+        attachmentRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        attachmentRecyclerView.setAdapter(attachmentAdapter);
+        attachmentAdapter.setAttachments(attachmentNames);
+        attachmentAdapter.notifyDataSetChanged();
+
+        if (hasPermission(Manifest.permission.CAMERA)) {
+            requestPermission(ENABLE_CAMERA_REQUEST_CODE,
+                    Manifest.permission.CAMERA,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        } else {
+            cameraEnabled = true;
+        }
+
+        Toolbar toolbar = find(R.id.write_message_toolbar);
+        setSupportActionBar(toolbar);
+    }
+
     private void backToMessageList() {
         Intent messageListIntent = new Intent(this, MessageListActivity.class);
         startActivity(messageListIntent);
@@ -144,10 +146,14 @@ public class WriteMessageActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == PICTURE_READ_REQUEST_CODE && resultCode == RESULT_OK && data != null) {
+
+        if (requestCode == PICTURE_READ_REQUEST_CODE
+                && resultCode == RESULT_OK && data != null) {
             Uri uri = data.getData();
-            Log.i("appMedici", "data.getData().getPath()= "+data.getData().getPath());
-            Log.i("appMedici", "data.getData().getLastPathSegment()= "+data.getData().getLastPathSegment());
+            Log.d(tag(), "data.getData().getPath()= " +
+                    data.getData().getPath());
+            Log.d(tag(), "data.getData().getLastPathSegment()= " +
+                    data.getData().getLastPathSegment());
 
             String uriString = uri.toString();
             File myFile = new File(uriString);
@@ -155,27 +161,25 @@ public class WriteMessageActivity extends AppCompatActivity {
             String displayName = null;
 
             if (uriString.startsWith("content://")) {
-                Cursor cursor = null;
-                try {
-                    cursor = getContentResolver().query(uri, null, null, null, null);
+                try (Cursor cursor = getContentResolver()
+                        .query(uri, null, null, null, null)) {
                     if (cursor != null && cursor.moveToFirst()) {
-                        displayName = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+                        displayName = cursor.getString(
+                                cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
                     }
-                } finally {
-                    cursor.close();
                 }
             } else if (uriString.startsWith("file://")) {
                 displayName = myFile.getName();
             }
-            Log.i("appMedici", "displayName= "+displayName);
+            Log.i(tag(), "displayName= " + displayName);
 
             attachmentUris.add(uri);
             attachmentNames.add(displayName);
             attachmentAdapter.setAttachments(attachmentNames);
             attachmentAdapter.notifyDataSetChanged();
-        }
-        else {
-            if(requestCode == PICTURE_CAMERA_REQUEST_CODE && resultCode == RESULT_OK) {
+        } else {
+            if (requestCode == PICTURE_CAMERA_REQUEST_CODE
+                    && resultCode == RESULT_OK) {
                 attachmentUris.add(currentCameraAttachmentUri);
                 String uriString = currentCameraAttachmentUri.toString();
                 File myFile = new File(uriString);
@@ -183,27 +187,26 @@ public class WriteMessageActivity extends AppCompatActivity {
                 String displayName = null;
 
                 if (uriString.startsWith("content://")) {
-                    Cursor cursor = null;
-                    try {
-                        cursor = getContentResolver().query(currentCameraAttachmentUri, null, null, null, null);
+                    try (Cursor cursor = getContentResolver()
+                            .query(currentCameraAttachmentUri,
+                                    null, null, null, null)) {
                         if (cursor != null && cursor.moveToFirst()) {
-                            displayName = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+                            displayName = cursor.getString(cursor
+                                    .getColumnIndex(OpenableColumns.DISPLAY_NAME));
                         }
-                    } finally {
-                        cursor.close();
                     }
                 } else if (uriString.startsWith("file://")) {
                     displayName = myFile.getName();
                 }
-                Log.i("appMedici", "displayName= "+displayName);
+                Log.i(tag(), "displayName= " + displayName);
 
                 attachmentUris.add(currentCameraAttachmentUri);
                 attachmentNames.add(displayName);
                 attachmentAdapter.setAttachments(attachmentNames);
                 attachmentAdapter.notifyDataSetChanged();
-            }
-            else {
-                if (requestCode == FILE_READ_REQUEST_CODE && resultCode == RESULT_OK && data != null) {
+            } else {
+                if (requestCode == FILE_READ_REQUEST_CODE
+                        && resultCode == RESULT_OK && data != null) {
                     Uri uri = data.getData();
                     String uriString = uri.toString();
                     File myFile = new File(uriString);
@@ -211,19 +214,20 @@ public class WriteMessageActivity extends AppCompatActivity {
                     String displayName = null;
 
                     if (uriString.startsWith("content://")) {
-                        Cursor cursor = null;
-                        try {
-                            cursor = getContentResolver().query(uri, null, null, null, null);
+                        try (Cursor cursor =
+                                     getContentResolver().query(uri,
+                                             null, null,
+                                             null, null)) {
                             if (cursor != null && cursor.moveToFirst()) {
-                                displayName = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+                                displayName = cursor
+                                        .getString(cursor
+                                                .getColumnIndex(OpenableColumns.DISPLAY_NAME));
                             }
-                        } finally {
-                            cursor.close();
                         }
                     } else if (uriString.startsWith("file://")) {
                         displayName = myFile.getName();
                     }
-                    Log.i("appMedici", "displayName= "+displayName);
+                    Log.i(tag(), "displayName= " + displayName);
 
                     attachmentUris.add(uri);
                     attachmentNames.add(displayName);
@@ -235,15 +239,13 @@ public class WriteMessageActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
         if (requestCode == ENABLE_CAMERA_REQUEST_CODE) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED
-                    && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
-                cameraEnabled = true;
-            }
-            else {
-                cameraEnabled = false;
-            }
+            cameraEnabled = grantResults.length > 0
+                    && grantResults[0] == PackageManager.PERMISSION_GRANTED
+                    && grantResults[1] == PackageManager.PERMISSION_GRANTED;
         }
     }
 
@@ -261,14 +263,11 @@ public class WriteMessageActivity extends AppCompatActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.write_message_action_attach) {
             showAttachmentDialog();
             return true;
         }
         if (id == R.id.write_message_action_send) {
-            Toast.makeText(this, "SENDING....", Toast.LENGTH_SHORT).show();
-
             OutMessage msg = new OutMessage();
             EditText body = findViewById(R.id.write_message_edit_body);
             msg.setText(body.getText().toString());
@@ -279,23 +278,26 @@ public class WriteMessageActivity extends AppCompatActivity {
             msg.setRecipient("admin");
             msg.setDate(System.currentTimeMillis());
 
-            sendMessage(System.currentTimeMillis(), body.getText().toString(), subject.getText().toString(), true, "james", "admin", recursiveSendMessageCounter);
-
-            Toast.makeText(this, "MESSAGE SENT", Toast.LENGTH_SHORT).show();
+            // FIXME: allow setting adverseEvent value
+            sendMessage(System.currentTimeMillis(),
+                    body.getText().toString(),
+                    subject.getText().toString(),
+                    true, "james", "admin",
+                    recursiveSendMessageCounter);
             return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
 
-
-    public void sendMessage(Long date, String text, String subject, boolean adverseEvent, String sender, String recipient, int counter) {
-
-        if(counter<15) {
+    public void sendMessage(Long date, String text,
+                            String subject, boolean adverseEvent,
+                            String sender, String recipient,
+                            int counter) {
+        if (counter < 15) {
             recursiveSendMessageCounter++;
             String usr = "james";
             String pwd = "bush";
-
 
             String authorizationToken = SaveSharedPreference.getAuthorizationToken(this);
             if (authorizationToken == null) {
@@ -309,33 +311,33 @@ public class WriteMessageActivity extends AppCompatActivity {
                 @Override
                 public void onResponse(Call<Message> call, Response<Message> response) {
                     if (response.isSuccessful()) {
-                        Log.i("appMedici", "Message sent to server." + response.body().toString());
-                        recursiveSendMessageCounter=0;
+                        Log.i(tag(), "Message sent to server." + response.body().toString());
+                        recursiveSendMessageCounter = 0;
                         backToMessageList();
                     } else {
                         switch (response.code()) {
                             case 401:
-                                NetworkUtils.requestNewAuthorizationToken(pwd, usr, ctx);
-                                Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to fetch message list (401)");
-                                if (!SaveSharedPreference.getAuthorizationIssue(ctx)) {
+                                NetworkUtils.requestNewAuthorizationToken(pwd, usr, context());
+                                Log.e(tag(), "Unable to fetch message list (401)");
+                                if (!SaveSharedPreference.getAuthorizationIssue(context())) {
                                     sendMessage(date, text, subject, adverseEvent, sender, recipient, recursiveSendMessageCounter);
                                 } else {
-                                    String issueDescription = SaveSharedPreference.getAuthorizationIssueDescription(ctx);
-                                    Toast.makeText(getApplicationContext(), "Unable to send message (401) [" + issueDescription + "]", Toast.LENGTH_LONG).show();
-                                    Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to send message (401) [" + issueDescription + "]");
+                                    String issueDescription = SaveSharedPreference.getAuthorizationIssueDescription(context());
+                                    toast("Unable to send message (401) [" + issueDescription + "]");
+                                    Log.e(tag(), "Unable to send message (401) [" + issueDescription + "]");
                                 }
                                 break;
                             case 404:
-                                Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to send message (404)");
-                                Toast.makeText(getApplicationContext(), "Unable to send message (404)", Toast.LENGTH_LONG).show();
+                                Log.e(tag(), "Unable to send message (404)");
+                                toast( "Unable to send message (404)");
                                 break;
                             case 500:
-                                Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to send message (500)");
-                                Toast.makeText(getApplicationContext(), "Unable to send message (500)", Toast.LENGTH_LONG).show();
+                                Log.e(tag(), "Unable to send message (500)");
+                                toast("Unable to send message (500)");
                                 break;
                             default:
-                                Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to send message (UNKNOWN)");
-                                Toast.makeText(getApplicationContext(), "Unable to send message (UNKNOWN)", Toast.LENGTH_LONG).show();
+                                Log.e(tag(), "Unable to send message (UNKNOWN)");
+                                toast("Unable to send message (UNKNOWN)");
                                 break;
                         }
                     }
@@ -343,18 +345,15 @@ public class WriteMessageActivity extends AppCompatActivity {
 
                 @Override
                 public void onFailure(Call<Message> call, Throwable t) {
-                    Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to send message : " + t.getMessage());
-                    Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to send message : " + t.getStackTrace());
-                    Toast.makeText(getApplicationContext(), "Unable to send message ..", Toast.LENGTH_LONG).show();
+                    Log.e(tag(), "Unable to send message: ", t);
+                    snack( R.string.message_send_failure, Snackbar.LENGTH_LONG);
                     backToMessageList();
                 }
             });
 
-        }
-        else {
-            Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Max number of calls to sendMessage() reached!!");
-            Toast.makeText(getApplicationContext(), "Max number of calls to sendMessage() reached!!", Toast.LENGTH_LONG).show();
-            recursiveSendMessageCounter=0;
+        } else {
+            Log.e(tag(), "Max number of calls to sendMessage() reached!!");
+            recursiveSendMessageCounter = 0;
         }
     }
 
@@ -367,25 +366,23 @@ public class WriteMessageActivity extends AppCompatActivity {
 
         new AlertDialog.Builder(this)
                 .setTitle(getString(R.string.action_attachment_options))
-                .setItems(items, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int position) {
-                        switch (position) {
-                            case 0 :
-                                openFileBrowser();
-                                break;
-                            case 1:
-                                openGallery();
-                                break;
-                            case 2 :
-                                openCamera();
-                                break;
-                        }
+                .setItems(items, (dialogInterface, position) -> {
+                    switch (position) {
+                        case 0:
+                            openFileBrowser();
+                            break;
+                        case 1:
+                            openGallery();
+                            break;
+                        case 2:
+                            openCamera();
+                            break;
                     }
                 })
                 .show();
     }
 
+    @SuppressLint("ObsoleteSdkInt")
     private void openFileBrowser() {
         Intent intent;
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
@@ -395,10 +392,10 @@ public class WriteMessageActivity extends AppCompatActivity {
             intent.addCategory(Intent.CATEGORY_OPENABLE);
         }
         intent.setType("*/*");
-
         startActivityForResult(intent, FILE_READ_REQUEST_CODE);
     }
 
+    @SuppressLint("ObsoleteSdkInt")
     private void openGallery() {
         Intent intent;
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
@@ -408,30 +405,18 @@ public class WriteMessageActivity extends AppCompatActivity {
             intent.addCategory(Intent.CATEGORY_OPENABLE);
         }
         intent.setType("image/*");
-
         startActivityForResult(intent, PICTURE_READ_REQUEST_CODE);
     }
 
     private void openCamera() {
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         //currentCameraAttachmentUri = Uri.fromFile(getOutputMediaFile());
-        currentCameraAttachmentUri = FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID,getOutputMediaFile());
+        currentCameraAttachmentUri =
+                FileProvider.getUriForFile(this,
+                        BuildConfig.APPLICATION_ID, getOutputMediaFile());
         intent.putExtra(MediaStore.EXTRA_OUTPUT, currentCameraAttachmentUri);
 
         startActivityForResult(intent, PICTURE_CAMERA_REQUEST_CODE);
     }
 
-    private static File getOutputMediaFile(){
-        File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "AppMedici");
-
-        if (!mediaStorageDir.exists()){
-            if (!mediaStorageDir.mkdirs()){
-                return null;
-            }
-        }
-
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        return new File(mediaStorageDir.getPath() + File.separator +
-                "IMG_"+ timeStamp + ".jpg");
-    }
 }

@@ -1,13 +1,12 @@
 package com.obdasystems.pocmedici.activity;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.View;
+import android.view.KeyEvent;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.Toast;
 
 import com.obdasystems.pocmedici.R;
@@ -21,26 +20,28 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class PrescriptionListActivity extends AppCompatActivity {
-
+public class PrescriptionListActivity extends AppActivity {
     private WebView webView;
     private int recursiveCallCounter = 0;
-    private Context ctx;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ctx = this;
 
+        // Setup toolbar
         setContentView(R.layout.activity_prescription_list);
-        Toolbar toolbar = findViewById(R.id.toolbar);
+        Toolbar toolbar = find(R.id.toolbar);
         toolbar.setNavigationIcon(R.drawable.baseline_arrow_back_black_24dp);
         setSupportActionBar(toolbar);
+        toolbar.setNavigationOnClickListener(v -> onBackPressed());
 
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+        // Setup Web view
+        webView = find(R.id.prescription_details_view);
+        webView.setWebViewClient(new WebViewClient() {
             @Override
-            public void onClick(View v) {
-                backToMain();
+            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                view.loadUrl(url);
+                return true;
             }
         });
 
@@ -57,7 +58,7 @@ public class PrescriptionListActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        webView = findViewById(R.id.prescription_details_view);
+        webView = find(R.id.prescription_details_view);
         getPrescriptions();
     }
 
@@ -66,13 +67,28 @@ public class PrescriptionListActivity extends AppCompatActivity {
         backToMain();
     }
 
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (event.getAction() == KeyEvent.ACTION_DOWN
+                && keyCode == KeyEvent.KEYCODE_BACK
+                && webView.canGoBack()) {
+            webView.goBack();
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
     private void updateWebView(String url) {
         this.webView.loadUrl(url);
     }
 
-    private void getPrescriptions() {
+    private void backToMain() {
+        Intent mainIntent = new Intent(this, MainActivity.class);
+        startActivity(mainIntent);
+    }
 
-        if(recursiveCallCounter<15) {
+    private void getPrescriptions() {
+        if (recursiveCallCounter < 15) {
             recursiveCallCounter++;
             String usr = "james";
             String pwd = "bush";
@@ -92,16 +108,16 @@ public class PrescriptionListActivity extends AppCompatActivity {
 
                     if (response.isSuccessful()) {
                         updateWebView(response.body().getUrl());
-                        recursiveCallCounter=0;
+                        recursiveCallCounter = 0;
                     } else {
                         switch (response.code()) {
                             case 401:
-                                NetworkUtils.requestNewAuthorizationToken(pwd, usr, ctx);
+                                NetworkUtils.requestNewAuthorizationToken(pwd, usr, context());
                                 Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to fetch prescriptions (401)");
-                                if (!SaveSharedPreference.getAuthorizationIssue(ctx)) {
+                                if (!SaveSharedPreference.getAuthorizationIssue(context())) {
                                     getPrescriptions();
                                 } else {
-                                    String issueDescription = SaveSharedPreference.getAuthorizationIssueDescription(ctx);
+                                    String issueDescription = SaveSharedPreference.getAuthorizationIssueDescription(context());
                                     Toast.makeText(getApplicationContext(), "Unable to fetch prescriptions (401) [" + issueDescription + "]", Toast.LENGTH_LONG).show();
                                     Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to fetch prescriptions (401) [" + issueDescription + "]");
                                 }
@@ -129,19 +145,11 @@ public class PrescriptionListActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), "Unable to fetch prescriptions..", Toast.LENGTH_LONG).show();
                 }
             });
-        }
-        else {
+        } else {
             Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Max number of calls to getPrescriptions() reached!!");
             Toast.makeText(getApplicationContext(), "Max number of calls to getPrescriptions() reached!!", Toast.LENGTH_LONG).show();
-            recursiveCallCounter=0;
+            recursiveCallCounter = 0;
         }
     }
-
-
-    private void backToMain() {
-        Intent mainIntent = new Intent(this, MainActivity.class);
-        startActivity(mainIntent);
-    }
-
 
 }

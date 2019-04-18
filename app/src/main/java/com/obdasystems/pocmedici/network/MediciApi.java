@@ -81,6 +81,6 @@ public interface MediciApi {
     /**********************
          CALENDAR EVENTS
      ***********************/
-    @GET("prescriptions")
+    @GET("events")
     Call<RestCalendarEventList> getCalendarEvents();
 }

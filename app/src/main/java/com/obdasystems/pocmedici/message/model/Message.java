@@ -9,19 +9,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class Message implements Parcelable {
-    /*private int id;
-    private String from;
-    private String to;
-    private String subject;
-    private String message;
-    private String timestamp;
-    private String picture;
-    private boolean isImportant;
-    private int intImportant;
-    private boolean isRead;
-    private int intRead;
-    private int color = -1;*/
-
     protected Long id;
     protected Long date;
     protected String text;
@@ -34,8 +21,6 @@ public class Message implements Parcelable {
     protected User recipient;
     protected List<Attachment> attachments = new LinkedList<>();
     private int color = -1;
-
-
 
     public Message() {
 
@@ -137,7 +122,10 @@ public class Message implements Parcelable {
         this.color = color;
     }
 
-    //Parcelable methods
+    /* ******************************************
+     * Parcelable methods
+     ********************************************/
+
     public Message(Parcel inParcel) {
         this.id = inParcel.readLong();
         this.date = inParcel.readLong();
@@ -163,18 +151,6 @@ public class Message implements Parcelable {
         this.color = inParcel.readInt();
     }
 
-    public static final Creator<Message> CREATOR = new Creator<Message>() {
-        @Override
-        public Message createFromParcel(Parcel in) {
-            return new Message(in);
-        }
-
-        @Override
-        public Message[] newArray(int size) {
-            return new Message[size];
-        }
-    };
-
     @Override
     public int describeContents() {
         return hashCode();
@@ -192,26 +168,19 @@ public class Message implements Parcelable {
         dest.writeParcelable(this.recipient,flags);
         dest.writeTypedList(this.attachments);
         dest.writeInt(this.color);
-        /*dest.writeInt(this.id);
-        dest.writeString(this.from);
-        dest.writeString(this.to);
-        dest.writeString(this.subject);
-        dest.writeString(this.message);
-        dest.writeString(this.timestamp);
-        dest.writeString(this.picture);
-        if(isImportant) {
-            dest.writeInt(1);
-        }
-        else {
-            dest.writeInt(0);
-        }
-        if(isRead) {
-            dest.writeInt(1);
-        }
-        else {
-            dest.writeInt(0);
-        }
-        dest.writeInt(this.color);*/
     }
+
+    public static final Creator<Message> CREATOR = new Creator<Message>() {
+        @Override
+        public Message createFromParcel(Parcel in) {
+            return new Message(in);
+        }
+
+        @Override
+        public Message[] newArray(int size) {
+            return new Message[size];
+        }
+    };
+
 }
 
