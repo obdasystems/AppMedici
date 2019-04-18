@@ -3,8 +3,6 @@ package com.obdasystems.pocmedici.activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -16,7 +14,6 @@ import com.obdasystems.pocmedici.R;
 import com.obdasystems.pocmedici.network.MediciApi;
 import com.obdasystems.pocmedici.network.MediciApiClient;
 import com.obdasystems.pocmedici.network.NetworkUtils;
-import com.obdasystems.pocmedici.network.RestCalendarEventList;
 import com.obdasystems.pocmedici.network.RestPrescriptions;
 import com.obdasystems.pocmedici.utils.SaveSharedPreference;
 

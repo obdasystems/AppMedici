@@ -1,7 +1,5 @@
 package com.obdasystems.pocmedici.network;
 
-import android.text.TextUtils;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 

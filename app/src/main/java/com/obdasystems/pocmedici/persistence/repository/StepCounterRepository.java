@@ -1,16 +1,12 @@
 package com.obdasystems.pocmedici.persistence.repository;
 
-import android.app.Application;
 import android.arch.lifecycle.LiveData;
 import android.content.Context;
-import android.os.Parcel;
-import android.os.Parcelable;
 
 import com.obdasystems.pocmedici.persistence.dao.CtcaeFormDao;
 import com.obdasystems.pocmedici.persistence.database.FormQuestionnaireDatabase;
 import com.obdasystems.pocmedici.persistence.entities.StepCounter;
 
-import java.util.GregorianCalendar;
 import java.util.List;
 
 public class StepCounterRepository {

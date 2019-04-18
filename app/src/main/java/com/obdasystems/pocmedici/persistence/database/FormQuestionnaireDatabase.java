@@ -9,7 +9,6 @@ import android.arch.persistence.room.migration.Migration;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
-import android.util.Log;
 
 import com.obdasystems.pocmedici.persistence.converter.DateTypeConverter;
 import com.obdasystems.pocmedici.persistence.dao.CtcaeFormDao;

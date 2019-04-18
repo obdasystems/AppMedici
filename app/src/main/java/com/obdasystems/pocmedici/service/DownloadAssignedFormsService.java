@@ -8,8 +8,8 @@ import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.obdasystems.pocmedici.network.MediciApiClient;
 import com.obdasystems.pocmedici.network.MediciApi;
+import com.obdasystems.pocmedici.network.MediciApiClient;
 import com.obdasystems.pocmedici.network.NetworkUtils;
 import com.obdasystems.pocmedici.network.RestForm;
 import com.obdasystems.pocmedici.network.RestFormPage;

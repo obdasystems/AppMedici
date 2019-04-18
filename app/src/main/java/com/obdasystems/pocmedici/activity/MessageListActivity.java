@@ -23,8 +23,8 @@ import com.obdasystems.pocmedici.R;
 import com.obdasystems.pocmedici.adapter.MessagesAdapter;
 import com.obdasystems.pocmedici.message.helper.DividerItemDecoration;
 import com.obdasystems.pocmedici.message.model.Message;
-import com.obdasystems.pocmedici.network.MediciApiClient;
 import com.obdasystems.pocmedici.network.MediciApi;
+import com.obdasystems.pocmedici.network.MediciApiClient;
 import com.obdasystems.pocmedici.network.NetworkUtils;
 import com.obdasystems.pocmedici.utils.SaveSharedPreference;
 

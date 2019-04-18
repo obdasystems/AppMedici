@@ -7,7 +7,6 @@ import com.obdasystems.pocmedici.persistence.dao.CtcaeFormDao;
 import com.obdasystems.pocmedici.persistence.database.FormQuestionnaireDatabase;
 import com.obdasystems.pocmedici.persistence.entities.CtcaeFormPage;
 import com.obdasystems.pocmedici.persistence.entities.CtcaeFormQuestion;
-import com.obdasystems.pocmedici.persistence.entities.CtcaeFormQuestionAnswered;
 
 import java.util.LinkedList;
 import java.util.List;

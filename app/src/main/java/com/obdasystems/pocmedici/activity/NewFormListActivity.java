@@ -1,7 +1,5 @@
 package com.obdasystems.pocmedici.activity;
 
-import android.app.Application;
-import android.app.ProgressDialog;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
@@ -17,16 +15,11 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
-import android.widget.ListView;
 import android.widget.Toast;
 
 import com.obdasystems.pocmedici.R;
-import com.obdasystems.pocmedici.adapter.FormListAdapter;
-import com.obdasystems.pocmedici.adapter.MessagesAdapter;
 import com.obdasystems.pocmedici.adapter.NewFormListAdapter;
-import com.obdasystems.pocmedici.asyncresponse.FinalizedFormAsyncResponse;
 import com.obdasystems.pocmedici.asyncresponse.InsertQuestionnairesAsyncResponse;
-import com.obdasystems.pocmedici.listener.OnFormRecyclerViewItemClickListener;
 import com.obdasystems.pocmedici.message.helper.DividerItemDecoration;
 import com.obdasystems.pocmedici.network.MediciApi;
 import com.obdasystems.pocmedici.network.MediciApiClient;
@@ -36,15 +29,12 @@ import com.obdasystems.pocmedici.network.RestFormPage;
 import com.obdasystems.pocmedici.network.RestFormQuestion;
 import com.obdasystems.pocmedici.network.RestPossibleAnswer;
 import com.obdasystems.pocmedici.persistence.entities.CtcaeForm;
-import com.obdasystems.pocmedici.persistence.entities.CtcaeFormFillingProcess;
 import com.obdasystems.pocmedici.persistence.entities.CtcaeFormPage;
 import com.obdasystems.pocmedici.persistence.entities.CtcaeFormQuestion;
 import com.obdasystems.pocmedici.persistence.entities.CtcaePossibleAnswer;
 import com.obdasystems.pocmedici.persistence.entities.JoinFormWithMaxPageNumberData;
 import com.obdasystems.pocmedici.persistence.repository.CtcaeFormRepository;
-import com.obdasystems.pocmedici.persistence.repository.CtcaeGetFinalizedFillingProcessRepository;
 import com.obdasystems.pocmedici.persistence.viewmodel.CtcaeFormListViewModel;
-import com.obdasystems.pocmedici.service.DownloadAssignedFormsService;
 import com.obdasystems.pocmedici.utils.SaveSharedPreference;
 
 import java.util.ArrayList;

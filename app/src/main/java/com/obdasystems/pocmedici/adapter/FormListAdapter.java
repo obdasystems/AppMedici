@@ -12,7 +12,6 @@ import android.widget.TextView;
 
 import com.obdasystems.pocmedici.R;
 import com.obdasystems.pocmedici.listener.OnFormRecyclerViewItemClickListener;
-import com.obdasystems.pocmedici.persistence.entities.CtcaeForm;
 import com.obdasystems.pocmedici.persistence.entities.JoinFormWithMaxPageNumberData;
 
 import java.util.List;

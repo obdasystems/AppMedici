@@ -1,6 +1,5 @@
 package com.obdasystems.pocmedici.activity;
 
-import android.app.ProgressDialog;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;

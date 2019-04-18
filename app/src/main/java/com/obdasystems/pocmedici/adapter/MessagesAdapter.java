@@ -4,8 +4,6 @@ import android.content.Context;
 import android.graphics.Typeface;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
-import android.text.TextUtils;
-import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.HapticFeedbackConstants;
 import android.view.LayoutInflater;
@@ -24,10 +22,8 @@ import com.obdasystems.pocmedici.message.helper.CircleTransform;
 import com.obdasystems.pocmedici.message.helper.FlipAnimator;
 import com.obdasystems.pocmedici.message.model.Message;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.GregorianCalendar;
 import java.util.List;
 
 

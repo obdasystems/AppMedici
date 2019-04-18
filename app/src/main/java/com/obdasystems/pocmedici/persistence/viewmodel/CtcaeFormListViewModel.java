@@ -4,8 +4,6 @@ import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.LiveData;
 
-import com.obdasystems.pocmedici.persistence.entities.CtcaeForm;
-import com.obdasystems.pocmedici.persistence.entities.CtcaeFormPage;
 import com.obdasystems.pocmedici.persistence.entities.JoinFormWithMaxPageNumberData;
 import com.obdasystems.pocmedici.persistence.repository.CtcaeFormRepository;
 

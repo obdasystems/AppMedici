@@ -1,7 +1,5 @@
 package com.obdasystems.pocmedici.network;
 
-import java.util.List;
-
 public class RestFilledQuestion {
 
     private int questionId;

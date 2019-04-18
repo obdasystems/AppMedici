@@ -6,7 +6,6 @@ import android.content.Context;
 import com.obdasystems.pocmedici.persistence.dao.CtcaeFormDao;
 import com.obdasystems.pocmedici.persistence.database.FormQuestionnaireDatabase;
 import com.obdasystems.pocmedici.persistence.entities.Position;
-import com.obdasystems.pocmedici.persistence.entities.StepCounter;
 
 import java.util.GregorianCalendar;
 import java.util.List;

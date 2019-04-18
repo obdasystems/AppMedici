@@ -32,8 +32,8 @@ import com.obdasystems.pocmedici.adapter.WriteMessageAttachmentAdapter;
 import com.obdasystems.pocmedici.listener.OnRecyclerViewPositionClickListener;
 import com.obdasystems.pocmedici.message.model.Message;
 import com.obdasystems.pocmedici.message.model.OutMessage;
-import com.obdasystems.pocmedici.network.MediciApiClient;
 import com.obdasystems.pocmedici.network.MediciApi;
+import com.obdasystems.pocmedici.network.MediciApiClient;
 import com.obdasystems.pocmedici.network.NetworkUtils;
 import com.obdasystems.pocmedici.utils.SaveSharedPreference;
 

@@ -35,8 +35,8 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.obdasystems.pocmedici.R;
 import com.obdasystems.pocmedici.activity.MainActivity;
-import com.obdasystems.pocmedici.network.MediciApiClient;
 import com.obdasystems.pocmedici.network.MediciApi;
+import com.obdasystems.pocmedici.network.MediciApiClient;
 import com.obdasystems.pocmedici.network.NetworkUtils;
 import com.obdasystems.pocmedici.network.RestPosition;
 import com.obdasystems.pocmedici.persistence.repository.PositionRepository;
@@ -55,13 +55,19 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class GpsTrackingService extends Service {
-
+    static final int NOTIFICATION_ID = 195;
+    private static final String TAG = GpsTrackingService.class.getSimpleName();
     private final String CHANNEL_ID = "AppMedici_PosTracking";
     private final String CHANNEL_NAME = "AppMedici Tracker Service";
-
-    private static final String TAG = GpsTrackingService.class.getSimpleName();
-    static final int NOTIFICATION_ID = 195;
-
+    protected BroadcastReceiver stopReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            //Unregister the BroadcastReceiver when the notification is tapped//
+            unregisterReceiver(stopReceiver);
+            //Stop the Service//
+            stopSelf();
+        }
+    };
     private int counter;
 
     @Override
@@ -72,7 +78,7 @@ public class GpsTrackingService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        counter=0;
+        counter = 0;
         buildNotification();
         requestLocationUpdates();
         //loginToFirebase();
@@ -92,11 +98,11 @@ public class GpsTrackingService extends Service {
         // Create the persistent notification//
         Bitmap icon = BitmapFactory.decodeResource(getResources(), R.drawable.icons8_caduceus_48);
         String channelId = "";
-        if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.O) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             channelId = createNotificationChannel(CHANNEL_ID, CHANNEL_NAME);
         }
 
-        Notification notification = new NotificationCompat.Builder(this,channelId)
+        Notification notification = new NotificationCompat.Builder(this, channelId)
                 .setContentTitle(getString(R.string.app_name))
                 .setContentText(getString(R.string.tracking_enabled_notif))
                 .setSmallIcon(R.drawable.icons8_caduceus_48)
@@ -109,9 +115,7 @@ public class GpsTrackingService extends Service {
         notification.flags = notification.flags | Notification.FLAG_NO_CLEAR;
         startForeground(NOTIFICATION_ID, notification);
 
-
     }
-
 
     @RequiresApi(Build.VERSION_CODES.O)
     private String createNotificationChannel(String channelId, String channelName) {
@@ -119,19 +123,9 @@ public class GpsTrackingService extends Service {
         nc.setLightColor(Color.BLUE);
         //nc.setLockscreenVisibility(Notification.VISIBILITY_SECRET);
         nc.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
-        ((NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE)).createNotificationChannel(nc);
+        ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE)).createNotificationChannel(nc);
         return channelId;
     }
-
-    protected BroadcastReceiver stopReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            //Unregister the BroadcastReceiver when the notification is tapped//
-            unregisterReceiver(stopReceiver);
-            //Stop the Service//
-            stopSelf();
-        }
-    };
 
     private void loginToFirebase() {
         //Authenticate with Firebase, using the email and password we created earlier//
@@ -139,7 +133,7 @@ public class GpsTrackingService extends Service {
         String password = getString(R.string.test_password);
 
         //Call OnCompleteListener if the user is signed in successfully//
-        Log.i("appMedici", "["+this.getClass().getSimpleName()+"] Signing in to firebase usr="+email + " pwd="+password+"  ...");
+        Log.i("appMedici", "[" + this.getClass().getSimpleName() + "] Signing in to firebase usr=" + email + " pwd=" + password + "  ...");
         FirebaseAuth.getInstance().signInWithEmailAndPassword(
                 email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             @Override
@@ -147,11 +141,11 @@ public class GpsTrackingService extends Service {
                 //If the user has been authenticated...//
                 if (task.isSuccessful()) {
                     //...then call requestLocationUpdates
-                    Log.i("appMedici", "["+this.getClass().getSimpleName()+"] Firebase authentication granted");
+                    Log.i("appMedici", "[" + this.getClass().getSimpleName() + "] Firebase authentication granted");
                     requestLocationUpdates();
                 } else {
                     //If sign in fails, then log the error
-                    Log.i("appMedici", "["+this.getClass().getSimpleName()+"] Firebase authentication failed");
+                    Log.i("appMedici", "[" + this.getClass().getSimpleName() + "] Firebase authentication failed");
                 }
             }
         });
@@ -161,7 +155,7 @@ public class GpsTrackingService extends Service {
     private void requestLocationUpdates() {
         String email = getString(R.string.test_email);
 
-        Log.i("appMedici", "["+this.getClass().getSimpleName()+"] Requesting location updates...");
+        Log.i("appMedici", "[" + this.getClass().getSimpleName() + "] Requesting location updates...");
         LocationRequest request = new LocationRequest();
 
         //Specify how often your app should request the device’s location//
@@ -175,17 +169,16 @@ public class GpsTrackingService extends Service {
 
         //If the app currently has access to the location permission...//
         if (permission == PackageManager.PERMISSION_GRANTED) {
-            Log.i("appMedici", "["+this.getClass().getSimpleName()+"] Access to fine location granted");
+            Log.i("appMedici", "[" + this.getClass().getSimpleName() + "] Access to fine location granted");
             //...then request location updates//
             client.requestLocationUpdates(request, new LocationCallback() {
                 @Override
                 public void onLocationResult(LocationResult locationResult) {
-                    Log.i("appMedici", "["+this.getClass().getSimpleName()+"] Getting location result");
+                    Log.i("appMedici", "[" + this.getClass().getSimpleName() + "] Getting location result");
                     //Get a reference to the database, so your app can perform read and write operations//
                     //DatabaseReference ref = FirebaseDatabase.getInstance().getReference(path);
 
                     /*DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
-
 
                     ValueEventListener insertListener = new ValueEventListener() {
                         @Override
@@ -245,15 +238,13 @@ public class GpsTrackingService extends Service {
                                         Log.i("appMedici", "["+this.getClass().getSimpleName()+"] Value was set??. Error = "+databaseError);
                                     }
                                 });*/
-                    }
-                    else {
-                        Log.i("appMedici", "["+this.getClass().getSimpleName()+"] Got null location data");
+                    } else {
+                        Log.i("appMedici", "[" + this.getClass().getSimpleName() + "] Got null location data");
                     }
                 }
             }, null);
-        }
-        else {
-            Log.i("appMedici", "["+this.getClass().getSimpleName()+"] Access to fine location failed");
+        } else {
+            Log.i("appMedici", "[" + this.getClass().getSimpleName() + "] Access to fine location failed");
         }
     }
 
@@ -261,14 +252,13 @@ public class GpsTrackingService extends Service {
         double longitude = location.getLongitude();
         double latitude = location.getLatitude();
 
-        Coordinate coordinate = new Coordinate(latitude,longitude);
+        Coordinate coordinate = new Coordinate(latitude, longitude);
         GeometryFactory factory = new GeometryFactory();
         return factory.createPoint(coordinate);
     }
 
-
     private void sendPositionToServer(Point point, long timestamp) {
-        if(counter<15) {
+        if (counter < 15) {
 
             String usr = "james";
             String pwd = "bush";
@@ -291,7 +281,7 @@ public class GpsTrackingService extends Service {
                 public void onResponse(Call<JSONObject> call, Response<JSONObject> response) {
                     if (response.isSuccessful()) {
                         Log.i("appMedici", "Position sent to server." + response.body().toString());
-                        counter=0;
+                        counter = 0;
                     } else {
                         switch (response.code()) {
                             case 401:
@@ -328,19 +318,17 @@ public class GpsTrackingService extends Service {
                     Toast.makeText(ctx, "Unable to send position ..", Toast.LENGTH_LONG).show();
                 }
             });
-        }
-        else {
+        } else {
             Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Max number of calls to sendPositionToServer() reached!!");
             Toast.makeText(getApplicationContext(), "Max number of calls to sendPositionToServer() reached!!", Toast.LENGTH_LONG).show();
-            counter=0;
+            counter = 0;
         }
     }
 
-
     //Insert location in local database
     private static class QueryAsyncTask extends AsyncTask<Void, Void, Void> {
-        private Context ctx;
         double innLat, innLong;
+        private Context ctx;
         private PositionRepository innerRepository;
 
         QueryAsyncTask(double longitude, double latitude, PositionRepository rep) {

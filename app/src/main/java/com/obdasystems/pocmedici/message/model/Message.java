@@ -4,9 +4,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.obdasystems.pocmedici.message.User;
-import com.obdasystems.pocmedici.persistence.entities.CtcaeForm;
 
-import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
