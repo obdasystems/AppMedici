@@ -109,6 +109,8 @@
 
     <!-- Form Activity -->
     <string name="form_page_count">Number of pages:</string>
+    <string name="form_page_title">Page: </string>
+    <string name="form_page_missing_answers">You have unanswered questions in pages </string>
     <string name="form_submit_success">Questionnaire Sent!</string>
     <string name="form_instructions">
         PRO-CTCAE is a patient-reported outcome measure developed to evaluate

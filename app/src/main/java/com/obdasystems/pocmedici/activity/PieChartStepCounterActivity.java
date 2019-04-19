@@ -1,20 +1,16 @@
 package com.obdasystems.pocmedici.activity;
 
-import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.View;
 import android.widget.TextView;
 
 import com.obdasystems.pocmedici.R;
@@ -34,77 +30,53 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
-public class PieChartStepCounterActivity extends AppCompatActivity implements StepCounterAsyncResponse {
-
-    private TextView stepsView, totalView, averageView;
+public class PieChartStepCounterActivity extends AppActivity
+        implements StepCounterAsyncResponse {
+    private int goal = 1000;
+    private boolean showSteps = true;
+    private NumberFormat formatter = NumberFormat.getInstance(Locale.getDefault());
+    private TextView stepsView;
     private PieModel sliceGoal, sliceCurrent;
     private PieChart pg;
-
-    private int todayOffset, total_start, since_boot, total_days;
-    public final static NumberFormat formatter = NumberFormat.getInstance(Locale.getDefault());
-    private boolean showSteps = true;
-
-    int goal = 1000;
-
-    boolean firstDraw = true;
-
-    int year, month, day;
-
-    private StepCountersViewModel viewModel;
-
-    private List<StepCounter> counters= new ArrayList<>();
-    private RecyclerView recyclerView;
+    private List<StepCounter> counters = new ArrayList<>();
     private StepCounterListAdapter mAdapter;
-
-    private Context ctx;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ctx = this;
         setContentView(R.layout.activity_piechart_step_counter);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.step_counter_toolbar);
+        Toolbar toolbar = find(R.id.step_counter_toolbar);
         toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp);
         setSupportActionBar(toolbar);
+        toolbar.setNavigationOnClickListener(v -> backToMain());
 
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                backToMain();
-            }
-        });
-
-
-        pg = (PieChart) findViewById(R.id.graph);
-        stepsView = (TextView) findViewById(R.id.steps);
+        pg = find(R.id.graph);
+        stepsView = find(R.id.steps);
 
         sliceCurrent = new PieModel("", 0, Color.parseColor("#99CC00"));
         pg.addPieSlice(sliceCurrent);
 
         // slice for the "missing" steps until reaching the goal
-        sliceGoal = new PieModel("", goal , Color.parseColor("#CC0000"));
+        sliceGoal = new PieModel("", goal, Color.parseColor("#CC0000"));
         pg.addPieSlice(sliceGoal);
 
         pg.setDrawValueInPie(false);
         pg.setUsePieRotation(true);
         pg.startAnimation();
 
-        pg.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(final View view) {
-                showSteps = !showSteps;
-                //stepsDistanceChanged();
-                Log.i("appMedici", "CLICKED ON PIECHART!!");
-                PieChartStepCounterActivity.GetTodayStepCounterTask task = getTodayStepCounterTask();
-                task.execute();
-            }
+        pg.setOnClickListener(view -> {
+            showSteps = !showSteps;
+            //stepsDistanceChanged();
+            Log.i(tag(), "CLICKED ON PIECHART!!");
+            GetTodayStepCounterTask task = getTodayStepCounterTask();
+            task.execute();
         });
 
         GetTodayStepCounterTask task = getTodayStepCounterTask();
         task.execute();
 
-        recyclerView = (RecyclerView) findViewById(R.id.step_counter_recycler_view);
+        RecyclerView recyclerView = find(R.id.step_counter_recycler_view);
 
         mAdapter = new StepCounterListAdapter(this, counters);
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
@@ -113,15 +85,12 @@ public class PieChartStepCounterActivity extends AppCompatActivity implements St
         recyclerView.addItemDecoration(new DividerItemDecoration(this, LinearLayoutManager.VERTICAL));
         recyclerView.setAdapter(mAdapter);
 
-        viewModel = ViewModelProviders.of(this).get(StepCountersViewModel.class);
-        viewModel.getAllCounters().observe(this, new Observer<List<StepCounter>>() {
-            @Override
-            public void onChanged(@Nullable List<StepCounter> stepCount) {
-                mAdapter.setCounters(stepCount);
-                mAdapter.notifyDataSetChanged();
-                PieChartStepCounterActivity.GetTodayStepCounterTask task = getTodayStepCounterTask();
-                task.execute();
-            }
+        StepCountersViewModel viewModel = ViewModelProviders.of(this).get(StepCountersViewModel.class);
+        viewModel.getAllCounters().observe(this, stepCount -> {
+            mAdapter.setCounters(stepCount);
+            mAdapter.notifyDataSetChanged();
+            GetTodayStepCounterTask task1 = getTodayStepCounterTask();
+            task1.execute();
         });
     }
 
@@ -131,7 +100,7 @@ public class PieChartStepCounterActivity extends AppCompatActivity implements St
     }
 
     private void backToMain() {
-        Intent mainIntent = new Intent(ctx, MainActivity.class);
+        Intent mainIntent = new Intent(context(), MainActivity.class);
         startActivity(mainIntent);
     }
 
@@ -147,8 +116,7 @@ public class PieChartStepCounterActivity extends AppCompatActivity implements St
         if (goal - stepsToday > 0) {
             // goal not reached yet
             sliceGoal.setValue(goal - stepsToday);
-        }
-        else {
+        } else {
             // goal reached
             pg.clearChart();
             pg.addPieSlice(sliceCurrent);
@@ -159,14 +127,13 @@ public class PieChartStepCounterActivity extends AppCompatActivity implements St
 
     private GetTodayStepCounterTask getTodayStepCounterTask() {
         Calendar cal = Calendar.getInstance();
-        year = cal.get(Calendar.YEAR);
-        month = cal.get(Calendar.MONTH) + 1;
-        day = cal.get(Calendar.DAY_OF_MONTH);
-        PieChartStepCounterActivity.GetTodayStepCounterTask task = new PieChartStepCounterActivity.GetTodayStepCounterTask(year, month, day, this, this);
-        return task;
+        int year = cal.get(Calendar.YEAR);
+        int month = cal.get(Calendar.MONTH) + 1;
+        int day = cal.get(Calendar.DAY_OF_MONTH);
+        return new GetTodayStepCounterTask(year, month, day, this, this);
     }
 
-    //get all questions in page along with questions already answered in cyurrent filling process
+    // Get all questions in page along with questions already answered in cyurrent filling process
     private static class GetTodayStepCounterTask extends AsyncTask<Void, Void, StepCounter> {
         private Context ctx;
         //private ProgressDialog progDial;
@@ -196,8 +163,7 @@ public class PieChartStepCounterActivity extends AppCompatActivity implements St
         @Override
         protected StepCounter doInBackground(Void... voids) {
             repository = new StepCounterRepository(ctx);
-            StepCounter sp = repository.getStepCounter(year, month, day);
-            return sp;
+            return repository.getStepCounter(year, month, day);
         }
 
         @Override

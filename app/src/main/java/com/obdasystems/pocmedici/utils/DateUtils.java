@@ -1,4 +1,4 @@
-package com.obdasystems.pocmedici.calendar.material;
+package com.obdasystems.pocmedici.utils;
 
 import android.content.Context;
 

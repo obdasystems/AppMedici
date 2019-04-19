@@ -1,26 +1,23 @@
 package com.obdasystems.pocmedici.activity;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.applandeo.materialcalendarview.CalendarView;
 import com.applandeo.materialcalendarview.EventDay;
 import com.obdasystems.pocmedici.R;
-import com.obdasystems.pocmedici.calendar.material.DrawableUtils;
 import com.obdasystems.pocmedici.network.MediciApi;
 import com.obdasystems.pocmedici.network.MediciApiClient;
 import com.obdasystems.pocmedici.network.NetworkUtils;
 import com.obdasystems.pocmedici.network.RestCalendarEvent;
 import com.obdasystems.pocmedici.network.RestCalendarEventList;
+import com.obdasystems.pocmedici.utils.DateUtils;
+import com.obdasystems.pocmedici.utils.DrawableUtils;
 import com.obdasystems.pocmedici.utils.SaveSharedPreference;
 
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -31,7 +28,6 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class CalendarActivity extends AppActivity {
-    private Context ctx;
     private CalendarView calendarView;
     private Map<Long, RestCalendarEvent> timestampToEvent = new HashMap<>();
     private List<EventDay> eventDays = new LinkedList<>();
@@ -41,7 +37,6 @@ public class CalendarActivity extends AppActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_calendar_material);
-        ctx = this;
 
         Toolbar toolbar = find(R.id.calendar_material_toolbar);
         toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp);
@@ -63,7 +58,6 @@ public class CalendarActivity extends AppActivity {
 
         calendarView.setOnDayClickListener(eventDay -> {
             if (eventDays.contains(eventDay)) {
-                snack(calendarView, "There is an event on this date");
                 launchEventIntent(eventDay);
             } else {
                 snack(calendarView, "No events on this date");
@@ -81,7 +75,6 @@ public class CalendarActivity extends AppActivity {
     private void launchEventIntent(EventDay eventDay) {
         Calendar cal = eventDay.getCalendar();
         Long timestamp = cal.getTimeInMillis();
-        // FIXME: fix null pointer exception
         RestCalendarEvent event = this.timestampToEvent.get(timestamp);
 
         Intent eventIntent = new Intent(this, EventResumeeActivity.class);
@@ -180,20 +173,22 @@ public class CalendarActivity extends AppActivity {
 
     private void addEventsToCalendar(RestCalendarEventList eventList) {
         for (RestCalendarEvent event : eventList.getEvents()) {
-            timestampToEvent.put(event.getTimestamp(), event);
             Calendar cal = Calendar.getInstance();
+            // Round to day as it is done in EventDay anyway
+            // FIXME: use a data structure that allows to have more events per day
             cal.setTimeInMillis(event.getTimestamp());
+            DateUtils.setMidnight(cal);
+            timestampToEvent.put(cal.getTimeInMillis(), event);
             EventDay ed = new EventDay(cal,
                     DrawableUtils.getCircleDrawableWithText(this,
                             event.getType().substring(0, 1).toUpperCase()));
             eventDays.add(ed);
-            //events.add(new EventDay(calendar1, R.drawable.sample_icon_2));
         }
         calendarView.setEvents(eventDays);
     }
 
     private void backToMain() {
-        Intent mainIntent = new Intent(ctx, MainActivity.class);
+        Intent mainIntent = new Intent(context(), MainActivity.class);
         startActivity(mainIntent);
     }
 
@@ -221,27 +216,27 @@ public class CalendarActivity extends AppActivity {
                     } else {
                         switch (response.code()) {
                             case 401:
-                                NetworkUtils.requestNewAuthorizationToken(pwd, usr, ctx);
-                                Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to fetch calendar events (401)");
-                                if (!SaveSharedPreference.getAuthorizationIssue(ctx)) {
+                                NetworkUtils.requestNewAuthorizationToken(pwd, usr, context());
+                                Log.e(tag(), "Unable to fetch calendar events (401)");
+                                if (!SaveSharedPreference.getAuthorizationIssue(context())) {
                                     getCalendarEvents();
                                 } else {
-                                    String issueDescription = SaveSharedPreference.getAuthorizationIssueDescription(ctx);
-                                    Toast.makeText(getApplicationContext(), "Unable to fetch calendar events (401) [" + issueDescription + "]", Toast.LENGTH_LONG).show();
-                                    Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to fetch calendar events (401) [" + issueDescription + "]");
+                                    String issueDescription = SaveSharedPreference.getAuthorizationIssueDescription(context());
+                                    toast("Unable to fetch calendar events (401) [" + issueDescription + "]");
+                                    Log.e(tag(), "[" + this.getClass().getSimpleName() + "] Unable to fetch calendar events (401) [" + issueDescription + "]");
                                 }
                                 break;
                             case 404:
-                                Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to fetch calendar events (404)");
-                                Toast.makeText(getApplicationContext(), "Unable to fetch calendar events (404)", Toast.LENGTH_LONG).show();
+                                Log.e(tag(), "Unable to fetch calendar events (404)");
+                                toast("Unable to fetch calendar events (404)");
                                 break;
                             case 500:
-                                Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to fetch calendar events (500)");
-                                Toast.makeText(getApplicationContext(), "Unable to fetch calendar events (500)", Toast.LENGTH_LONG).show();
+                                Log.e(tag(), "Unable to fetch calendar events (500)");
+                                toast("Unable to fetch calendar events (500)");
                                 break;
                             default:
-                                Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to fetch calendar events (UNKNOWN)");
-                                Toast.makeText(getApplicationContext(), "Unable to fetch calendar events (UNKNOWN)", Toast.LENGTH_LONG).show();
+                                Log.e(tag(), "Unable to fetch calendar events (UNKNOWN)");
+                                toast("Unable to fetch calendar events (UNKNOWN)");
                                 break;
                         }
                     }
@@ -249,52 +244,16 @@ public class CalendarActivity extends AppActivity {
 
                 @Override
                 public void onFailure(Call<RestCalendarEventList> call, Throwable t) {
-                    Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to fetch calendar events: " + t.getMessage());
-                    Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to fetch calendar events: " + t.getStackTrace());
-                    Toast.makeText(getApplicationContext(), "Unable to fetch calendar events..", Toast.LENGTH_LONG).show();
+                    Log.e(tag(), "Unable to fetch calendar events: " + t.getMessage());
+                    Log.e(tag(), "Unable to fetch calendar events: " + t.getStackTrace());
+                    toast("Unable to fetch calendar events..");
                 }
             });
         } else {
-            Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Max number of calls to getCalendarEvents() reached!!");
-            Toast.makeText(getApplicationContext(), "Max number of calls to getCalendarEvents() reached!!", Toast.LENGTH_LONG).show();
+            Log.e(tag(), "Max number of calls to getCalendarEvents() reached!!");
+            toast("Max number of calls to getCalendarEvents() reached!!");
             recursiveCallCounter = 0;
         }
-    }
-
-    private void loadDemoEvents() {
-        List<EventDay> events = new ArrayList<>();
-
-        GregorianCalendar gregCal = new GregorianCalendar();
-        gregCal.set(2019, Calendar.MARCH, 30);
-        Log.i("appMedici", "gregCal= " + gregCal.toString());
-        events.add(new EventDay(gregCal,
-                DrawableUtils.getCircleDrawableWithText(this, "Visit")));
-
-        Calendar testCal = Calendar.getInstance();
-        testCal.set(2019, Calendar.MARCH, 14);
-        Log.i("appMedici", "testCal= " + testCal.toString());
-        EventDay ed = new EventDay(testCal, DrawableUtils.getCircleDrawableWithText(this, "V"));
-        events.add(ed);
-
-        Calendar calendar = Calendar.getInstance();
-        events.add(new EventDay(calendar, DrawableUtils.getCircleDrawableWithText(this, "M")));
-
-        Calendar calendar1 = Calendar.getInstance();
-        calendar1.add(Calendar.DAY_OF_MONTH, 2);
-        events.add(new EventDay(calendar1, R.drawable.sample_icon_2));
-
-        Calendar calendar2 = Calendar.getInstance();
-        calendar2.add(Calendar.DAY_OF_MONTH, 5);
-        events.add(new EventDay(calendar2, R.drawable.sample_icon_3));
-
-        Calendar calendar3 = Calendar.getInstance();
-        calendar3.add(Calendar.DAY_OF_MONTH, 7);
-        events.add(new EventDay(calendar3, R.drawable.sample_four_icons));
-
-        Calendar calendar4 = Calendar.getInstance();
-        calendar4.add(Calendar.DAY_OF_MONTH, 13);
-        events.add(new EventDay(calendar4, DrawableUtils.getThreeDots(this)));
-        calendarView.setEvents(events);
     }
 
 }

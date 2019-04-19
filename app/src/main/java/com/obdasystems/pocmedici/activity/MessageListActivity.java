@@ -1,13 +1,11 @@
 package com.obdasystems.pocmedici.activity;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.ActionMode;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
@@ -16,8 +14,6 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.Toast;
 
 import com.obdasystems.pocmedici.R;
 import com.obdasystems.pocmedici.adapter.MessagesAdapter;
@@ -35,47 +31,35 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class MessageListActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener, MessagesAdapter.MessageAdapterListener {
+public class MessageListActivity extends AppActivity implements
+        SwipeRefreshLayout.OnRefreshListener,
+        MessagesAdapter.MessageAdapterListener {
     private List<Message> messages = new ArrayList<>();
     private RecyclerView recyclerView;
     private MessagesAdapter mAdapter;
     private SwipeRefreshLayout swipeRefreshLayout;
     private ActionModeCallback actionModeCallback;
     private ActionMode actionMode;
-    private Context ctx;
-
     private int recursiveGetInboxCallCounter = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        ctx = this;
         setContentView(R.layout.activity_message_list);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.message_list_toolbar);
+
+        Toolbar toolbar = find(R.id.message_list_toolbar);
         toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp);
         setSupportActionBar(toolbar);
+        toolbar.setNavigationOnClickListener(v -> backToMain());
 
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                backToMain();
-            }
+        FloatingActionButton fab = find(R.id.fab);
+        fab.setOnClickListener(view -> {
+            Intent mainIntent = new Intent(context(), WriteMessageActivity.class);
+            startActivity(mainIntent);
         });
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                /*Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();*/
-                Intent mainIntent = new Intent(ctx, WriteMessageActivity.class);
-                startActivity(mainIntent);
-            }
-        });
-
-        recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
-        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_layout);
+        recyclerView = find(R.id.recycler_view);
+        swipeRefreshLayout = find(R.id.swipe_refresh_layout);
         swipeRefreshLayout.setOnRefreshListener(this);
 
         mAdapter = new MessagesAdapter(this, messages, this);
@@ -88,18 +72,11 @@ public class MessageListActivity extends AppCompatActivity implements SwipeRefre
         actionModeCallback = new ActionModeCallback();
 
         // show loader and fetch messages
-        swipeRefreshLayout.post(
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        getInbox(0);
-                    }
-                }
-        );
+        swipeRefreshLayout.post(() -> getInbox(0));
     }
 
     private void backToMain() {
-        Intent mainIntent = new Intent(ctx, MainActivity.class);
+        Intent mainIntent = new Intent(context(), MainActivity.class);
         startActivity(mainIntent);
     }
 
@@ -150,30 +127,30 @@ public class MessageListActivity extends AppCompatActivity implements SwipeRefre
                     } else {
                         switch (response.code()) {
                             case 401:
-                                NetworkUtils.requestNewAuthorizationToken(pwd, usr, ctx);
-                                Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to fetch message list (401)");
-                                if (!SaveSharedPreference.getAuthorizationIssue(ctx)) {
+                                NetworkUtils.requestNewAuthorizationToken(pwd, usr, context());
+                                Log.e(tag(), "Unable to fetch message list (401)");
+                                if (!SaveSharedPreference.getAuthorizationIssue(context())) {
                                     getInbox(recursiveGetInboxCallCounter++);
                                 } else {
-                                    String issueDescription = SaveSharedPreference.getAuthorizationIssueDescription(ctx);
-                                    Toast.makeText(getApplicationContext(), "Unable to fetch message list (401) [" + issueDescription + "]", Toast.LENGTH_LONG).show();
-                                    Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to fetch message list (401) [" + issueDescription + "]");
+                                    String issueDescription = SaveSharedPreference.getAuthorizationIssueDescription(context());
+                                    toast("Unable to fetch message list (401) [" + issueDescription + "]");
+                                    Log.e(tag(), "Unable to fetch message list (401) [" + issueDescription + "]");
                                     swipeRefreshLayout.setRefreshing(false);
                                 }
                                 break;
                             case 404:
-                                Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to fetch message list (404)");
-                                Toast.makeText(getApplicationContext(), "Unable to fetch message list (404)", Toast.LENGTH_LONG).show();
+                                Log.e(tag(), "Unable to fetch message list (404)");
+                                toast("Unable to fetch message list (404)");
                                 swipeRefreshLayout.setRefreshing(false);
                                 break;
                             case 500:
-                                Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to fetch message list (500)");
-                                Toast.makeText(getApplicationContext(), "Unable to fetch message list (500)", Toast.LENGTH_LONG).show();
+                                Log.e(tag(), "Unable to fetch message list (500)");
+                                toast("Unable to fetch message list (500)");
                                 swipeRefreshLayout.setRefreshing(false);
                                 break;
                             default:
-                                Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to fetch message list (UNKNOWN)");
-                                Toast.makeText(getApplicationContext(), "Unable to fetch message list (UNKNOWN)", Toast.LENGTH_LONG).show();
+                                Log.e(tag(), "Unable to fetch message list (UNKNOWN)");
+                                toast("Unable to fetch message list (UNKNOWN)");
                                 swipeRefreshLayout.setRefreshing(false);
                                 break;
                         }
@@ -182,16 +159,16 @@ public class MessageListActivity extends AppCompatActivity implements SwipeRefre
 
                 @Override
                 public void onFailure(Call<List<Message>> call, Throwable t) {
-                    Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to fetch message list: " + t.getMessage());
-                    Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to fetch message list: " + t.getStackTrace());
-                    Toast.makeText(getApplicationContext(), "Unable to fetch message list..", Toast.LENGTH_LONG).show();
+                    Log.e(tag(), "Unable to fetch message list: " + t.getMessage());
+                    Log.e(tag(), "Unable to fetch message list: " + t.getStackTrace());
+                    toast("Unable to fetch message list..");
                     swipeRefreshLayout.setRefreshing(false);
                 }
             });
         }
         else {
-            Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Max number of calls to getInbox() reached!!");
-            Toast.makeText(getApplicationContext(), "Max number of calls to getInbox() reached!!", Toast.LENGTH_LONG).show();
+            Log.e(tag(), "Max number of calls to getInbox() reached!!");
+            toast("Max number of calls to getInbox() reached!!");
             recursiveGetInboxCallCounter=0;
         }
     }
@@ -228,7 +205,7 @@ public class MessageListActivity extends AppCompatActivity implements SwipeRefre
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_search) {
-            Toast.makeText(getApplicationContext(), "Search...", Toast.LENGTH_SHORT).show();
+            snack(recyclerView, "Search is not implemented yet");
             return true;
         }
 
@@ -276,7 +253,6 @@ public class MessageListActivity extends AppCompatActivity implements SwipeRefre
             Intent readMessageIntent = new Intent(this,ReadMessageActivity.class);
             readMessageIntent.putExtra("message",message);
             startActivity(readMessageIntent);
-            //Toast.makeText(getApplicationContext(), "Read: " + message.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -304,7 +280,6 @@ public class MessageListActivity extends AppCompatActivity implements SwipeRefre
             actionMode.invalidate();
         }
     }
-
 
     private class ActionModeCallback implements ActionMode.Callback {
         @Override
@@ -340,12 +315,9 @@ public class MessageListActivity extends AppCompatActivity implements SwipeRefre
             mAdapter.clearSelections();
             swipeRefreshLayout.setEnabled(true);
             actionMode = null;
-            recyclerView.post(new Runnable() {
-                @Override
-                public void run() {
-                    mAdapter.resetAnimationIndex();
-                    // mAdapter.notifyDataSetChanged();
-                }
+            recyclerView.post(() -> {
+                mAdapter.resetAnimationIndex();
+                // mAdapter.notifyDataSetChanged();
             });
         }
     }
@@ -360,4 +332,5 @@ public class MessageListActivity extends AppCompatActivity implements SwipeRefre
         }
         mAdapter.notifyDataSetChanged();
     }
+
 }

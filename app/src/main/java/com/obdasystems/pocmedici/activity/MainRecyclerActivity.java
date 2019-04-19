@@ -32,6 +32,7 @@ import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
 
+@Deprecated
 public class MainRecyclerActivity extends AppActivity
         implements OnMainRecyclerViewItemClickListener {
     public static final String ACTION_MAIN = "action MAIN";

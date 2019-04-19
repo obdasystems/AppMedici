@@ -17,7 +17,6 @@ import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
-import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -43,7 +42,8 @@ import static android.Manifest.permission.READ_CONTACTS;
 /**
  * Main application login activity.
  */
-public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<Cursor> {
+public class LoginActivity extends AppActivity
+        implements LoaderCallbacks<Cursor> {
     /** Id to identity READ_CONTACTS permission request. */
     private static final int REQUEST_READ_CONTACTS = 0;
 
@@ -64,10 +64,10 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         setContentView(R.layout.activity_login);
 
         // Set up the login form.
-        usernameView = findViewById(R.id.username);
+        usernameView = find(R.id.username);
         populateAutoComplete();
 
-        passwordView = findViewById(R.id.password);
+        passwordView = find(R.id.password);
         passwordView.setOnEditorActionListener((textView, id, keyEvent) -> {
             if (id == EditorInfo.IME_ACTION_DONE || id == EditorInfo.IME_NULL) {
                 attemptLogin();
@@ -76,11 +76,11 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             return false;
         });
 
-        Button mEmailSignInButton = findViewById(R.id.sign_in_button);
-        mEmailSignInButton.setOnClickListener(view -> attemptLogin());
+        Button signInButton = find(R.id.sign_in_button);
+        signInButton.setOnClickListener(view -> attemptLogin());
 
-        loginFormView = findViewById(R.id.login_form_layout);
-        progressView = findViewById(R.id.login_progress);
+        loginFormView = find(R.id.login_form_layout);
+        progressView = find(R.id.login_progress);
     }
 
     /**
@@ -205,7 +205,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         return new CursorLoader(this,
                 // Retrieve data rows for the device user's 'profile' contact.
                 Uri.withAppendedPath(ContactsContract.Profile.CONTENT_URI,
-                        ContactsContract.Contacts.Data.CONTENT_DIRECTORY), ProfileQuery.PROJECTION,
+                        ContactsContract.Contacts.Data.CONTENT_DIRECTORY),
+                ProfileQuery.PROJECTION,
 
                 // Select only email addresses.
                 ContactsContract.Contacts.Data.MIMETYPE +
@@ -253,17 +254,16 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             return true;
         }
-        if (checkSelfPermission(READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
+        if (hasPermission(READ_CONTACTS)) {
             return true;
         }
         if (shouldShowRequestPermissionRationale(READ_CONTACTS)) {
             Snackbar.make(usernameView,
                     R.string.permission_rationale, Snackbar.LENGTH_INDEFINITE)
                     .setAction(android.R.string.ok,
-                            v -> requestPermissions(new String[]{READ_CONTACTS},
-                                    REQUEST_READ_CONTACTS));
+                            v -> requestPermission(REQUEST_READ_CONTACTS, READ_CONTACTS));
         } else {
-            requestPermissions(new String[]{READ_CONTACTS}, REQUEST_READ_CONTACTS);
+            requestPermission(REQUEST_READ_CONTACTS, READ_CONTACTS);
         }
         return false;
     }
@@ -288,7 +288,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     }
 
     public void doRecoverPassword(View view) {
-        Log.i(getClass().getSimpleName(),"Starting password recovery activity");
+        Log.i(tag(), "Starting password recovery activity");
     }
 
     /**
@@ -316,7 +316,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 this.accessToken = response.body().getAccessToken();
                 return true;
             } catch (Exception e) {
-                Log.e("LoginTask", "Login attempt failed: " + e.getLocalizedMessage(), e);
+                Log.e(getLocalClassName(), "Login attempt failed", e);
                 return false;
             }
         }
