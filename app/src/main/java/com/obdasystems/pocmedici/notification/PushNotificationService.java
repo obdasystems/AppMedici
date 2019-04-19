@@ -4,8 +4,6 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.media.RingtoneManager;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
@@ -15,7 +13,6 @@ import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.jaredrummler.android.device.DeviceName;
-import com.obdasystems.pocmedici.R;
 import com.obdasystems.pocmedici.activity.CalendarActivity;
 import com.obdasystems.pocmedici.activity.FormListActivity;
 import com.obdasystems.pocmedici.activity.MainActivity;
@@ -75,7 +72,7 @@ public class PushNotificationService extends FirebaseMessagingService {
         Intent intent = new Intent(this, activityClass);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-        Bitmap icon = BitmapFactory.decodeResource(getResources(), R.drawable.icons8_caduceus_48);
+        //Bitmap icon = BitmapFactory.decodeResource(getResources(), R.drawable.icons8_caduceus_48);
 
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setContentTitle(remoteMessage.getNotification().getTitle())
@@ -83,8 +80,8 @@ public class PushNotificationService extends FirebaseMessagingService {
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setStyle(new NotificationCompat.BigTextStyle())
                 .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
-                .setSmallIcon(R.drawable.icons8_caduceus_48)
-                .setLargeIcon(Bitmap.createScaledBitmap(icon, 128, 128, false))
+                //.setSmallIcon(R.drawable.icons8_caduceus_48)
+                //.setLargeIcon(Bitmap.createScaledBitmap(icon, 128, 128, false))
                 .setAutoCancel(true)
                 .setContentIntent(pendingIntent);
 

@@ -105,14 +105,15 @@ public class GpsTrackingService extends Service {
         Notification notification = new NotificationCompat.Builder(this, channelId)
                 .setContentTitle(getString(R.string.app_name))
                 .setContentText(getString(R.string.tracking_enabled_notif))
-                .setSmallIcon(R.drawable.icons8_caduceus_48)
-                .setLargeIcon(Bitmap.createScaledBitmap(icon, 128, 128, false))
+                // TODO: notification icon disabled
+                //.setSmallIcon(R.drawable.icons8_caduceus_48)
+                //.setLargeIcon(Bitmap.createScaledBitmap(icon, 128, 128, false))
                 //.setContentIntent(broadcastIntent)
                 .setContentIntent(contentPendingIntent)
                 .setOngoing(true)
 //                .setDeleteIntent(contentPendingIntent)  // if needed
                 .build();
-        notification.flags = notification.flags | Notification.FLAG_NO_CLEAR;
+        notification.flags = notification.flags | Notification.FLAG_AUTO_CANCEL;
         startForeground(NOTIFICATION_ID, notification);
 
     }

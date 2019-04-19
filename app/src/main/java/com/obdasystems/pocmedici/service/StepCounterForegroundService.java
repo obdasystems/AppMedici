@@ -31,8 +31,8 @@ import com.obdasystems.pocmedici.stepdetector.CustomStepListener;
 
 import java.util.Calendar;
 
-public class StepCounterForegroundService extends Service implements SensorEventListener, CustomStepListener {
-
+public class StepCounterForegroundService extends Service
+        implements SensorEventListener, CustomStepListener {
     private final String CHANNEL_ID = "AppMedici_StepCounter";
     private final String CHANNEL_NAME = "AppMedici Step Counter Service";
     static final int NOTIFICATION_ID = 543;
@@ -48,7 +48,6 @@ public class StepCounterForegroundService extends Service implements SensorEvent
     private CustomStepDetector mCustomDetector;
 
     private StepCounterRepository repository;
-
 
     public StepCounterForegroundService() {
         super();
@@ -93,7 +92,6 @@ public class StepCounterForegroundService extends Service implements SensorEvent
         return null;
     }
 
-
     void startServiceWithNotification() {
         if (isServiceRunning) return;
         isServiceRunning = true;
@@ -122,7 +120,6 @@ public class StepCounterForegroundService extends Service implements SensorEvent
         notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         PendingIntent contentPendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
 
-        //Bitmap icon = BitmapFactory.decodeResource(getResources(), R.drawable.ic_pet);
         Bitmap icon = BitmapFactory.decodeResource(getResources(), R.drawable.icons8_caduceus_48);
 
         String channelId = "";
@@ -133,13 +130,15 @@ public class StepCounterForegroundService extends Service implements SensorEvent
                 .setContentTitle(getResources().getString(R.string.app_name))
                 .setTicker(getResources().getString(R.string.app_name))
                 .setContentText("Step Counter Service")
-                .setSmallIcon(R.drawable.icons8_caduceus_48)
-                .setLargeIcon(Bitmap.createScaledBitmap(icon, 128, 128, false))
+                // TODO: disabled notification icon
+                //.setSmallIcon(R.drawable.icons8_caduceus_48)
+                //.setLargeIcon(Bitmap.createScaledBitmap(icon, 128, 128, false))
                 .setContentIntent(contentPendingIntent)
                 .setOngoing(true)
 //                .setDeleteIntent(contentPendingIntent)  // if needed
                 .build();
-        notification.flags = notification.flags | Notification.FLAG_NO_CLEAR;     // NO_CLEAR makes the notification stay when the user performs a "delete all" command
+        // NO_CLEAR makes the notification stay when the user performs a "delete all" command
+        notification.flags = notification.flags | Notification.FLAG_AUTO_CANCEL;
         startForeground(NOTIFICATION_ID, notification);
 
         Log.i("appMedici", "["+this.getClass()+"]Foreground service started");
@@ -155,13 +154,11 @@ public class StepCounterForegroundService extends Service implements SensorEvent
         return channelId;
     }
 
-
     void stopMyService() {
         stopForeground(true);
         stopSelf();
         isServiceRunning = false;
     }
-
 
     @Override
     public void onSensorChanged(SensorEvent event) {
@@ -206,7 +203,6 @@ public class StepCounterForegroundService extends Service implements SensorEvent
         private int year, month , day , numSteps;
 
         private StepCounterRepository innerRepository;
-
 
         private Application app;
         private PageQuestionsAsyncResponse delegate;

@@ -26,16 +26,17 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class SendFinalizedStepCountersService extends Service implements StepCountersToSendAsyncResponse {
-
+public class SendFinalizedStepCountersService extends Service
+        implements StepCountersToSendAsyncResponse {
+    private static final String TAG = SendFinalizedStepCountersService.class.getSimpleName();
     private int counter;
-
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.i("appMedici", "["+this.getClass()+"] SendFinalizedStepCountersService started");
+        Log.i(TAG, "SendFinalizedStepCountersService started");
         counter = 0;
-        GetStepCounterToSendQueryAsyncTask task = new GetStepCounterToSendQueryAsyncTask(this,this);
+        GetStepCounterToSendQueryAsyncTask task =
+                new GetStepCounterToSendQueryAsyncTask(this, this);
         task.execute();
         return START_STICKY;
     }
@@ -58,7 +59,7 @@ public class SendFinalizedStepCountersService extends Service implements StepCou
     @Override
     public void getStepCounterToSendQueryAsyncTaskFinished(List<StepCounter> stepCounters) {
         if(counter<25) {
-            Log.i("appMedici", "Sending step counters ");
+            Log.i(TAG, "Sending step counters ");
             String usr = "james";
             String pwd = "bush";
             counter++;
@@ -82,7 +83,7 @@ public class SendFinalizedStepCountersService extends Service implements StepCou
                     @Override
                     public void onResponse(Call<JSONObject> call, Response<JSONObject> response) {
                         if (response.isSuccessful()) {
-                            Log.i("appMedici", "Step count sent to server." + response.body().toString());
+                            Log.i(TAG, "Step count sent to server." + response.body().toString());
                             counter=0;
                             FinalizeStepCounterQueryAsyncTask task = new FinalizeStepCounterQueryAsyncTask(ctx,sp);
                             task.execute();
@@ -90,25 +91,25 @@ public class SendFinalizedStepCountersService extends Service implements StepCou
                             switch (response.code()) {
                                 case 401:
                                     NetworkUtils.requestNewAuthorizationToken(pwd, usr, ctx);
-                                    Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to send Step count (401)");
+                                    Log.e(TAG, "Unable to send Step count (401)");
                                     if (!SaveSharedPreference.getAuthorizationIssue(ctx)) {
                                         getStepCounterToSendQueryAsyncTaskFinished(stepCounters);
                                     } else {
                                         String issueDescription = SaveSharedPreference.getAuthorizationIssueDescription(ctx);
                                         Toast.makeText(getApplicationContext(), "Unable to send Step count (401) [" + issueDescription + "]", Toast.LENGTH_LONG).show();
-                                        Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to send Step count (401) [" + issueDescription + "]");
+                                        Log.e(TAG, "Unable to send Step count (401) [" + issueDescription + "]");
                                     }
                                     break;
                                 case 404:
-                                    Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to send Step count (404)");
+                                    Log.e(TAG, "Unable to send Step count (404)");
                                     Toast.makeText(getApplicationContext(), "Unable to send position (404)", Toast.LENGTH_LONG).show();
                                     break;
                                 case 500:
-                                    Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to send Step count (500)");
+                                    Log.e(TAG, "Unable to send Step count (500)");
                                     Toast.makeText(getApplicationContext(), "Unable to send position (500)", Toast.LENGTH_LONG).show();
                                     break;
                                 default:
-                                    Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to send Step count (UNKNOWN)");
+                                    Log.e(TAG, "Unable to send Step count (UNKNOWN)");
                                     Toast.makeText(getApplicationContext(), "Unable to send Step count (UNKNOWN)", Toast.LENGTH_LONG).show();
                                     break;
                             }
@@ -117,21 +118,22 @@ public class SendFinalizedStepCountersService extends Service implements StepCou
 
                     @Override
                     public void onFailure(Call<JSONObject> call, Throwable t) {
-                        Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to send Step count : " + t.getMessage());
-                        Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to send Step count : " + t.getStackTrace());
+                        Log.e(TAG, "Unable to send Step count : " + t.getMessage());
+                        Log.e(TAG, "Unable to send Step count : " + t.getStackTrace());
                         Toast.makeText(ctx, "Unable to send Step count ..", Toast.LENGTH_LONG).show();
                     }
                 });
             }
         }
         else {
-            Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Max number of calls to sendPositionToServer() reached!!");
+            Log.e(TAG, "Max number of calls to sendPositionToServer() reached!!");
             Toast.makeText(getApplicationContext(), "Max number of calls to sendPositionToServer() reached!!", Toast.LENGTH_LONG).show();
             counter=0;
         }
     }
 
-    private static class FinalizeStepCounterQueryAsyncTask extends AsyncTask<Void, Void, Void> {
+    private static class FinalizeStepCounterQueryAsyncTask
+            extends AsyncTask<Void, Void, Void> {
         private Context ctx;
         private StepCounterRepository repository;
         private StepCounter sp;
@@ -159,8 +161,8 @@ public class SendFinalizedStepCountersService extends Service implements StepCou
         }
     }
 
-
-    private static class GetStepCounterToSendQueryAsyncTask extends AsyncTask<Void, Void, List<StepCounter>> {
+    private static class GetStepCounterToSendQueryAsyncTask
+            extends AsyncTask<Void, Void, List<StepCounter>> {
         private Context ctx;
         private StepCounterRepository repository;
         private StepCountersToSendAsyncResponse delegate;
@@ -186,9 +188,7 @@ public class SendFinalizedStepCountersService extends Service implements StepCou
             int month = cal.get(Calendar.MONTH) + 1;
             int day = cal.get(Calendar.DAY_OF_MONTH);
 
-            List<StepCounter> stepCounters = repository.getNotSentStepCountersMinusCurrent(year,month,day);
-
-            return stepCounters;
+            return repository.getNotSentStepCountersMinusCurrent(year, month, day);
         }
 
         @Override
@@ -197,4 +197,5 @@ public class SendFinalizedStepCountersService extends Service implements StepCou
             delegate.getStepCounterToSendQueryAsyncTaskFinished(stepCounters);
         }
     }
+
 }
