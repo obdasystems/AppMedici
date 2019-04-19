@@ -130,7 +130,9 @@ public class WriteMessageActivity extends AppActivity {
         }
 
         Toolbar toolbar = find(R.id.write_message_toolbar);
+        toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp);
         setSupportActionBar(toolbar);
+        toolbar.setNavigationOnClickListener(v -> backToMessageList());
     }
 
     private void backToMessageList() {
