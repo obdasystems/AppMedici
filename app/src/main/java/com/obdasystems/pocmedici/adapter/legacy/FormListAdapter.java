@@ -16,6 +16,7 @@ import com.obdasystems.pocmedici.persistence.entities.JoinFormWithMaxPageNumberD
 
 import java.util.List;
 
+@Deprecated
 public class FormListAdapter extends RecyclerView.Adapter<FormListAdapter.FormViewHolder> {
 
     private final LayoutInflater inflater;
@@ -45,8 +46,7 @@ public class FormListAdapter extends RecyclerView.Adapter<FormListAdapter.FormVi
             holder.formDescriptionView.setText(current.getFormInstructions());
 
             //holder.formTitleItemView.setText(current.getId() + " " + current.getFormClass() + " " + current.getFormPeriodicity());
-        }
-        else {
+        } else {
             holder.formImageView.setImageResource(R.drawable.ic_add_alarm_black_24dp);
             holder.formTitleView.setText("NO FORMS AVAILABLE!!");
             //holder.formTitleItemView.setText("No form found!!");

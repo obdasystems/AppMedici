@@ -136,14 +136,14 @@ public abstract class AppActivity extends AppCompatActivity {
      ********************************************/
 
     /**
-     * Return a localized, styled CharSequence from the application's package's
+     * Return a localized string from the application's package's
      * default string table. This methods is simply a shortcut for
      * {@link Context#getString(int)}.
      *
      * @param resId Resource id for the CharSequence text
      */
     @NonNull
-    public CharSequence t(@StringRes int resId) {
+    public String t(@StringRes int resId) {
         return super.getString(resId);
     }
 

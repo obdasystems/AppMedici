@@ -64,6 +64,7 @@
     <string name="message_write_content_label">Content:</string>
     <string name="message_write_content_hint">Write a message …</string>
     <string name="message_write_attachment_label">Attachments</string>
+    <string name="message_write_adverse_event_label">Mark as urgent</string>
 
     <!-- Read Message Activity -->
     <string name="message_read_sender">From:</string>

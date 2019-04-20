@@ -21,6 +21,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.CheckBox;
 import android.widget.EditText;
 
 import com.obdasystems.pocmedici.BuildConfig;
@@ -280,11 +281,12 @@ public class WriteMessageActivity extends AppActivity {
             msg.setRecipient("admin");
             msg.setDate(System.currentTimeMillis());
 
-            // FIXME: allow setting adverseEvent value
+            CheckBox adverseEventCheckBox =
+                    find(R.id.message_write_is_adverse_event);
             sendMessage(System.currentTimeMillis(),
                     body.getText().toString(),
                     subject.getText().toString(),
-                    true, "james", "admin",
+                    adverseEventCheckBox.isChecked(), "james", "admin",
                     recursiveSendMessageCounter);
             return true;
         }

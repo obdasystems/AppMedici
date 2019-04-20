@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Deprecated
 public class FormQuestionListAdapter extends RecyclerView.Adapter<FormQuestionListAdapter.FormQuestionViewHolder> {
 
     private final LayoutInflater inflater;
@@ -95,8 +96,7 @@ public class FormQuestionListAdapter extends RecyclerView.Adapter<FormQuestionLi
             if(foundChecked) {
                 holder.possAnswRadioGroupView.check(checkedRbId);
             }
-        }
-        else {
+        } else {
             //TODO manage emptiness
         }
     }

@@ -3,7 +3,7 @@ package com.obdasystems.pocmedici.network.request;
 import com.google.common.base.MoreObjects;
 import com.google.gson.annotations.SerializedName;
 
-import java.time.LocalDate;
+import java.util.Date;
 import java.util.Objects;
 
 import javax.annotation.Nonnull;
@@ -13,7 +13,7 @@ public class LoginResponse {
     @SerializedName("accessToken")
     protected String accessToken;
     @SerializedName("expires")
-    protected LocalDate expiration;
+    protected Date expiration;
 
     public LoginResponse() {
 
@@ -24,7 +24,7 @@ public class LoginResponse {
     }
 
     public LoginResponse(@Nonnull String accessToken,
-                         @Nullable LocalDate expiration) {
+                         @Nullable Date expiration) {
         this.setAccessToken(accessToken);
         this.setExpiration(expiration);
     }
@@ -38,11 +38,11 @@ public class LoginResponse {
         return this;
     }
 
-    public LocalDate getExpiration() {
+    public Date getExpiration() {
         return expiration;
     }
 
-    public LoginResponse setExpiration(@Nullable LocalDate expiration) {
+    public LoginResponse setExpiration(@Nullable Date expiration) {
         this.expiration = expiration;
         return this;
     }
