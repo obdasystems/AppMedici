@@ -29,10 +29,9 @@ import com.obdasystems.pocmedici.R;
 import com.obdasystems.pocmedici.adapter.WriteMessageAttachmentAdapter;
 import com.obdasystems.pocmedici.message.model.Message;
 import com.obdasystems.pocmedici.message.model.OutMessage;
-import com.obdasystems.pocmedici.network.MediciApi;
-import com.obdasystems.pocmedici.network.MediciApiClient;
-import com.obdasystems.pocmedici.network.NetworkUtils;
-import com.obdasystems.pocmedici.utils.SaveSharedPreference;
+import com.obdasystems.pocmedici.network.ApiClient;
+import com.obdasystems.pocmedici.network.ItcoService;
+import com.obdasystems.pocmedici.network.interceptors.AuthenticationInterceptor;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -40,6 +39,7 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
+import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -56,8 +56,6 @@ public class WriteMessageActivity extends AppActivity {
     private boolean cameraEnabled;
 
     private WriteMessageAttachmentAdapter attachmentAdapter;
-
-    private int recursiveSendMessageCounter = 0;
 
     private static File getOutputMediaFile() {
         File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "AppMedici");
@@ -105,7 +103,6 @@ public class WriteMessageActivity extends AppActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        recursiveSendMessageCounter = 0;
         setContentView(R.layout.activity_write_message);
 
         RecyclerView attachmentRecyclerView =
@@ -269,8 +266,7 @@ public class WriteMessageActivity extends AppActivity {
         if (id == R.id.write_message_action_attach) {
             showAttachmentDialog();
             return true;
-        }
-        if (id == R.id.write_message_action_send) {
+        } else if (id == R.id.write_message_action_send) {
             OutMessage msg = new OutMessage();
             EditText body = findViewById(R.id.write_message_edit_body);
             msg.setText(body.getText().toString());
@@ -286,79 +282,48 @@ public class WriteMessageActivity extends AppActivity {
             sendMessage(System.currentTimeMillis(),
                     body.getText().toString(),
                     subject.getText().toString(),
-                    adverseEventCheckBox.isChecked(), "james", "admin",
-                    recursiveSendMessageCounter);
+                    adverseEventCheckBox.isChecked(),
+                    "james",
+                    "admin");
             return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
 
-    public void sendMessage(Long date, String text,
-                            String subject, boolean adverseEvent,
-                            String sender, String recipient,
-                            int counter) {
-        if (counter < 15) {
-            recursiveSendMessageCounter++;
-            String usr = "james";
-            String pwd = "bush";
+    public void sendMessage(@NonNull Long date,
+                            @NonNull String text,
+                            @NonNull String subject,
+                            boolean adverseEvent,
+                            @NonNull String sender,
+                            @NonNull String recipient) {
+        ItcoService apiService = ApiClient
+                .forService(ItcoService.class)
+                .baseURL(ApiClient.BASE_URL)
+                .logging(HttpLoggingInterceptor.Level.BODY)
+                .addInterceptor(new AuthenticationInterceptor(this))
+                .build();
 
-            String authorizationToken = SaveSharedPreference.getAuthorizationToken(this);
-            if (authorizationToken == null) {
-                NetworkUtils.requestNewAuthorizationToken(pwd, usr, this);
-            }
-            authorizationToken = SaveSharedPreference.getAuthorizationToken(this);
-
-            MediciApi apiService = MediciApiClient.createService(MediciApi.class, authorizationToken);
-
-            apiService.sendMessage(date, text, subject, adverseEvent, sender, recipient).enqueue(new Callback<Message>() {
-                @Override
-                public void onResponse(Call<Message> call, Response<Message> response) {
-                    if (response.isSuccessful()) {
-                        Log.i(tag(), "Message sent to server." + response.body().toString());
-                        recursiveSendMessageCounter = 0;
-                        backToMessageList();
-                    } else {
-                        switch (response.code()) {
-                            case 401:
-                                NetworkUtils.requestNewAuthorizationToken(pwd, usr, context());
-                                Log.e(tag(), "Unable to fetch message list (401)");
-                                if (!SaveSharedPreference.getAuthorizationIssue(context())) {
-                                    sendMessage(date, text, subject, adverseEvent, sender, recipient, recursiveSendMessageCounter);
-                                } else {
-                                    String issueDescription = SaveSharedPreference.getAuthorizationIssueDescription(context());
-                                    toast("Unable to send message (401) [" + issueDescription + "]");
-                                    Log.e(tag(), "Unable to send message (401) [" + issueDescription + "]");
-                                }
-                                break;
-                            case 404:
-                                Log.e(tag(), "Unable to send message (404)");
-                                toast( "Unable to send message (404)");
-                                break;
-                            case 500:
-                                Log.e(tag(), "Unable to send message (500)");
-                                toast("Unable to send message (500)");
-                                break;
-                            default:
-                                Log.e(tag(), "Unable to send message (UNKNOWN)");
-                                toast("Unable to send message (UNKNOWN)");
-                                break;
+        apiService.sendMessage(date, text, subject, adverseEvent, sender, recipient)
+                .enqueue(new Callback<Message>() {
+                    @Override
+                    public void onResponse(Call<Message> call, Response<Message> response) {
+                        if (response.isSuccessful()) {
+                            Log.i(tag(), "Message sent successfully");
+                            backToMessageList();
+                        } else {
+                            Log.e(tag(), "Unable to send message");
+                            snack("Unable to send message", Snackbar.LENGTH_LONG);
                         }
                     }
-                }
 
-                @Override
-                public void onFailure(Call<Message> call, Throwable t) {
-                    Log.e(tag(), "Unable to send message: ", t);
-                    snack( R.string.message_send_failure, Snackbar.LENGTH_LONG);
-                    backToMessageList();
-                }
-            });
-
-        } else {
-            Log.e(tag(), "Max number of calls to sendMessage() reached!!");
-            recursiveSendMessageCounter = 0;
-        }
+                    @Override
+                    public void onFailure(Call<Message> call, Throwable t) {
+                        Log.e(tag(), "Unable to send message: ", t);
+                        snack(R.string.message_send_failure, Snackbar.LENGTH_LONG);
+                        //backToMessageList();
+                    }
+                });
     }
 
     private void showAttachmentDialog() {

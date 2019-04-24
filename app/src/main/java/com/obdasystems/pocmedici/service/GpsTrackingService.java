@@ -22,25 +22,20 @@ import android.support.annotation.RequiresApi;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FirebaseAuth;
 import com.obdasystems.pocmedici.R;
 import com.obdasystems.pocmedici.activity.MainActivity;
-import com.obdasystems.pocmedici.network.MediciApi;
-import com.obdasystems.pocmedici.network.MediciApiClient;
-import com.obdasystems.pocmedici.network.NetworkUtils;
+import com.obdasystems.pocmedici.network.ApiClient;
+import com.obdasystems.pocmedici.network.ItcoService;
 import com.obdasystems.pocmedici.network.RestPosition;
+import com.obdasystems.pocmedici.network.interceptors.AuthenticationInterceptor;
 import com.obdasystems.pocmedici.persistence.repository.PositionRepository;
-import com.obdasystems.pocmedici.utils.SaveSharedPreference;
+import com.obdasystems.pocmedici.utils.AppPreferences;
 
 import org.json.JSONObject;
 import org.locationtech.jts.geom.Coordinate;
@@ -50,15 +45,17 @@ import org.locationtech.jts.io.WKTWriter;
 
 import java.util.GregorianCalendar;
 
+import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
 public class GpsTrackingService extends Service {
-    static final int NOTIFICATION_ID = 195;
     private static final String TAG = GpsTrackingService.class.getSimpleName();
+    private static final int NOTIFICATION_ID = 195;
     private final String CHANNEL_ID = "AppMedici_PosTracking";
     private final String CHANNEL_NAME = "AppMedici Tracker Service";
+
     protected BroadcastReceiver stopReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -68,7 +65,6 @@ public class GpsTrackingService extends Service {
             stopSelf();
         }
     };
-    private int counter;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -78,20 +74,21 @@ public class GpsTrackingService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        counter = 0;
         buildNotification();
         requestLocationUpdates();
-        //loginToFirebase();
     }
 
-    //Create the persistent notification
+    /**
+     * Create a persistent notification.
+     */
     private void buildNotification() {
         String stop = "stop";
         registerReceiver(stopReceiver, new IntentFilter(stop));
-        //PendingIntent broadcastIntent = PendingIntent.getBroadcast(this, 0, new Intent(stop), PendingIntent.FLAG_UPDATE_CURRENT);
+//        PendingIntent broadcastIntent = PendingIntent.getBroadcast(
+//                this, 0, new Intent(stop), PendingIntent.FLAG_UPDATE_CURRENT);
 
         Intent notificationIntent = new Intent(getApplicationContext(), MainActivity.class);
-        notificationIntent.setAction(MainActivity.ACTION_MAIN);  // A string containing the action name
+        notificationIntent.setAction(MainActivity.ACTION_MAIN);
         notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         PendingIntent contentPendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
 
@@ -128,127 +125,56 @@ public class GpsTrackingService extends Service {
         return channelId;
     }
 
-    private void loginToFirebase() {
-        //Authenticate with Firebase, using the email and password we created earlier//
-        String email = getString(R.string.test_email);
-        String password = getString(R.string.test_password);
-
-        //Call OnCompleteListener if the user is signed in successfully//
-        Log.i("appMedici", "[" + this.getClass().getSimpleName() + "] Signing in to firebase usr=" + email + " pwd=" + password + "  ...");
-        FirebaseAuth.getInstance().signInWithEmailAndPassword(
-                email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-            @Override
-            public void onComplete(Task<AuthResult> task) {
-                //If the user has been authenticated...//
-                if (task.isSuccessful()) {
-                    //...then call requestLocationUpdates
-                    Log.i("appMedici", "[" + this.getClass().getSimpleName() + "] Firebase authentication granted");
-                    requestLocationUpdates();
-                } else {
-                    //If sign in fails, then log the error
-                    Log.i("appMedici", "[" + this.getClass().getSimpleName() + "] Firebase authentication failed");
-                }
-            }
-        });
-    }
-
-    //Initiate the request to track the device's location//
+    /**
+     * Initiate the request to track the device's location.
+     */
     private void requestLocationUpdates() {
         String email = getString(R.string.test_email);
 
-        Log.i("appMedici", "[" + this.getClass().getSimpleName() + "] Requesting location updates...");
+        Log.i(TAG, "Requesting location updates...");
         LocationRequest request = new LocationRequest();
 
-        //Specify how often your app should request the device’s location//
+        // Specify how often your app should request the device’s location//
+        // FIXME: setup configurable tracking interval
         request.setInterval(60000);
 
-        //Get the most accurate location data available//
+        // Get the most accurate location data available
         request.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         FusedLocationProviderClient client = LocationServices.getFusedLocationProviderClient(this);
         final String path = getString(R.string.firebase_path);
         int permission = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
 
-        //If the app currently has access to the location permission...//
+        // If the app currently has access to the location permission...
         if (permission == PackageManager.PERMISSION_GRANTED) {
-            Log.i("appMedici", "[" + this.getClass().getSimpleName() + "] Access to fine location granted");
-            //...then request location updates//
+            Log.i(TAG, "Access to fine location granted");
+            // ...then request location updates
             client.requestLocationUpdates(request, new LocationCallback() {
                 @Override
                 public void onLocationResult(LocationResult locationResult) {
-                    Log.i("appMedici", "[" + this.getClass().getSimpleName() + "] Getting location result");
-                    //Get a reference to the database, so your app can perform read and write operations//
-                    //DatabaseReference ref = FirebaseDatabase.getInstance().getReference(path);
-
-                    /*DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
-
-                    ValueEventListener insertListener = new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-                            // Get Post object and use the values to update the UI
-                            Object inserted = dataSnapshot.getValue();
-                            Log.i("appMedici", "["+this.getClass().getSimpleName()+"] Listener got datasnapshot= "+inserted.toString());
-                            // ...
-                        }
-
-                        @Override
-                        public void onCancelled(DatabaseError databaseError) {
-                            // Getting Post failed, log a message
-                            Log.w(TAG, "loadPost:onCancelled", databaseError.toException());
-                            // ...
-                        }
-                    };
-                    ref.addValueEventListener(insertListener);
-
-                    Log.i("appMedici", "["+this.getClass().getSimpleName()+"] Got reference to database " + ref.toString());*/
+                    Log.i(TAG, "Getting location result");
                     Location location = locationResult.getLastLocation();
+
                     if (location != null) {
-                        //Save the location data to the database//
+                        // Save the location data to the database
                         long timestamp = System.currentTimeMillis();
-
-                        int day;
-                        int month;
-                        int year;
-
                         Point geoPoint = getGeometryPoint(location);
                         sendPositionToServer(geoPoint, timestamp);
-
-                        /*if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.O) {
-                            LocalDate now = LocalDate.now();
-                            day = now.getDayOfMonth();
-                            month = now.getMonthValue();
-                            year = now.getYear();
-                        }
-                        else {
-                            Calendar gc = new GregorianCalendar();
-                            gc.setTimeInMillis(timestamp);
-                            day = gc.get(Calendar.DAY_OF_MONTH);
-                            month = gc.get(Calendar.MONTH);
-                            year = gc.get(Calendar.YEAR);
-                        }
-
-                        ref.child("positions")
-                                .child("james_bush")
-                                .child(""+year)
-                                .child(""+month)
-                                .child(""+day)
-                                .child(""+timestamp)
-                                .setValue(location, new DatabaseReference.CompletionListener() {
-                                    @Override
-                                    public void onComplete(@Nullable DatabaseError databaseError, @NonNull DatabaseReference databaseReference) {
-
-                                        Log.i("appMedici", "["+this.getClass().getSimpleName()+"] Value was set??. Error = "+databaseError);
-                                    }
-                                });*/
                     } else {
-                        Log.i("appMedici", "[" + this.getClass().getSimpleName() + "] Got null location data");
+                        Log.i(TAG, "Got null location data");
                     }
                 }
             }, null);
         } else {
-            Log.i("appMedici", "[" + this.getClass().getSimpleName() + "] Access to fine location failed");
+            Log.i(TAG, "Access to fine location failed");
         }
     }
 
+    /**
+     * Transforms a {@link Location} into a {@link Point}.
+     *
+     * @param location the location
+     * @return the point corresponding to the specified location
+     */
     private Point getGeometryPoint(Location location) {
         double longitude = location.getLongitude();
         double latitude = location.getLatitude();
@@ -259,77 +185,44 @@ public class GpsTrackingService extends Service {
     }
 
     private void sendPositionToServer(Point point, long timestamp) {
-        if (counter < 15) {
-
-            String usr = "james";
-            String pwd = "bush";
-            counter++;
-            Context ctx = this;
-            String authorizationToken = SaveSharedPreference.getAuthorizationToken(this);
-            if (authorizationToken == null) {
-                NetworkUtils.requestNewAuthorizationToken(pwd, usr, this);
-            }
-            authorizationToken = SaveSharedPreference.getAuthorizationToken(this);
-
-            MediciApi apiService = MediciApiClient.createService(MediciApi.class, authorizationToken);
-
-            WKTWriter wktw = new WKTWriter();
-            Log.i("appMedici", "Sending position " + wktw.write(point) + " [counter=" + counter + "]");
-            RestPosition rp = new RestPosition(wktw.write(point), timestamp);
-
-            apiService.sendPosition(rp).enqueue(new Callback<JSONObject>() {
-                @Override
-                public void onResponse(Call<JSONObject> call, Response<JSONObject> response) {
-                    if (response.isSuccessful()) {
-                        Log.i("appMedici", "Position sent to server." + response.body().toString());
-                        counter = 0;
-                    } else {
-                        switch (response.code()) {
-                            case 401:
-                                NetworkUtils.requestNewAuthorizationToken(pwd, usr, ctx);
-                                Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to send position (401)");
-                                if (!SaveSharedPreference.getAuthorizationIssue(ctx)) {
-                                    sendPositionToServer(point, timestamp);
-                                } else {
-                                    String issueDescription = SaveSharedPreference.getAuthorizationIssueDescription(ctx);
-                                    Toast.makeText(getApplicationContext(), "Unable to send position (401) [" + issueDescription + "]", Toast.LENGTH_LONG).show();
-                                    Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to send position (401) [" + issueDescription + "]");
-                                }
-                                break;
-                            case 404:
-                                Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to send position (404)");
-                                Toast.makeText(getApplicationContext(), "Unable to send position (404)", Toast.LENGTH_LONG).show();
-                                break;
-                            case 500:
-                                Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to send position (500)");
-                                Toast.makeText(getApplicationContext(), "Unable to send position (500)", Toast.LENGTH_LONG).show();
-                                break;
-                            default:
-                                Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to send position (UNKNOWN)");
-                                Toast.makeText(getApplicationContext(), "Unable to send position (UNKNOWN)", Toast.LENGTH_LONG).show();
-                                break;
-                        }
-                    }
-                }
-
-                @Override
-                public void onFailure(Call<JSONObject> call, Throwable t) {
-                    Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to send position : " + t.getMessage());
-                    Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to send position : " + t.getStackTrace());
-                    Toast.makeText(ctx, "Unable to send position ..", Toast.LENGTH_LONG).show();
-                }
-            });
-        } else {
-            Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Max number of calls to sendPositionToServer() reached!!");
-            Toast.makeText(getApplicationContext(), "Max number of calls to sendPositionToServer() reached!!", Toast.LENGTH_LONG).show();
-            counter = 0;
+        if (!AppPreferences.with(this).contains("authorization_token")) {
+            Log.w(TAG, "Location not sent: unauthenticated");
+            return;
         }
+
+        ItcoService apiService = (ItcoService) ApiClient
+                .forService(ItcoService.class)
+                .logging(HttpLoggingInterceptor.Level.BODY)
+                .baseURL(ApiClient.BASE_URL)
+                .addInterceptor(new AuthenticationInterceptor(this))
+                .build();
+
+        WKTWriter wktw = new WKTWriter();
+        Log.i(TAG, "Sending position " + wktw.write(point));
+        RestPosition rp = new RestPosition(wktw.write(point), timestamp);
+
+        apiService.sendPosition(rp).enqueue(new Callback<JSONObject>() {
+            @Override
+            public void onResponse(Call<JSONObject> call, Response<JSONObject> response) {
+                if (response.isSuccessful()) {
+                    Log.i(TAG, "Position sent to server." + response.body().toString());
+                } else {
+                    Log.e(TAG, "Unable to send position (" + response.code() + ")");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<JSONObject> call, Throwable t) {
+                Log.e(TAG, "Unable to send position : " + t.getMessage());
+            }
+        });
     }
 
-    //Insert location in local database
+    /**
+     * Async task used to insert location in local database.
+     */
     private static class QueryAsyncTask extends AsyncTask<Void, Void, Void> {
-        double innLat, innLong;
-        private Context ctx;
+        private double innLat, innLong;
         private PositionRepository innerRepository;
 
         QueryAsyncTask(double longitude, double latitude, PositionRepository rep) {
@@ -349,7 +242,7 @@ public class GpsTrackingService extends Service {
             GregorianCalendar gc = new GregorianCalendar();
             gc.setTimeInMillis(System.currentTimeMillis());
             innerRepository.insertPosition(gc, innLat, innLong);
-            Log.i("appMedici", "[" + this.getClass().getSimpleName() + "] POSITION INSERTED");
+            Log.i(TAG, "Position inserted");
             return null;
         }
 

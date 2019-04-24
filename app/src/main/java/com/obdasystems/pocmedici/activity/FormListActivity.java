@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -14,19 +15,18 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
-import android.widget.Toast;
 
 import com.obdasystems.pocmedici.R;
 import com.obdasystems.pocmedici.adapter.FormListAdapter;
 import com.obdasystems.pocmedici.asyncresponse.InsertQuestionnairesAsyncResponse;
 import com.obdasystems.pocmedici.message.helper.DividerItemDecoration;
-import com.obdasystems.pocmedici.network.MediciApi;
-import com.obdasystems.pocmedici.network.MediciApiClient;
-import com.obdasystems.pocmedici.network.NetworkUtils;
+import com.obdasystems.pocmedici.network.ApiClient;
+import com.obdasystems.pocmedici.network.ItcoService;
 import com.obdasystems.pocmedici.network.RestForm;
 import com.obdasystems.pocmedici.network.RestFormPage;
 import com.obdasystems.pocmedici.network.RestFormQuestion;
 import com.obdasystems.pocmedici.network.RestPossibleAnswer;
+import com.obdasystems.pocmedici.network.interceptors.AuthenticationInterceptor;
 import com.obdasystems.pocmedici.persistence.entities.CtcaeForm;
 import com.obdasystems.pocmedici.persistence.entities.CtcaeFormPage;
 import com.obdasystems.pocmedici.persistence.entities.CtcaeFormQuestion;
@@ -34,12 +34,12 @@ import com.obdasystems.pocmedici.persistence.entities.CtcaePossibleAnswer;
 import com.obdasystems.pocmedici.persistence.entities.JoinFormWithMaxPageNumberData;
 import com.obdasystems.pocmedici.persistence.repository.CtcaeFormRepository;
 import com.obdasystems.pocmedici.persistence.viewmodel.CtcaeFormListViewModel;
-import com.obdasystems.pocmedici.utils.SaveSharedPreference;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -49,7 +49,7 @@ public class FormListActivity extends AppActivity implements
         FormListAdapter.FormAdapterListener,
         InsertQuestionnairesAsyncResponse {
     private CtcaeFormListViewModel formListViewModel;
-    private List<JoinFormWithMaxPageNumberData> forms= new ArrayList<>();
+    private List<JoinFormWithMaxPageNumberData> forms = new ArrayList<>();
     private RecyclerView recyclerView;
     private FormListAdapter mAdapter;
     private SwipeRefreshLayout swipeRefreshLayout;
@@ -115,19 +115,19 @@ public class FormListActivity extends AppActivity implements
         startActivity(mainIntent);
     }
 
-    /************************
+    /* **********************
      * SWIPE REFRESH METHODS
-     *
      ************************/
+
     @Override
     public void onRefresh() {
         downloadAssignedForms();
     }
 
-    /**************************
+    /* ************************
      * ADAPTER LISTENER METHODS
-     *
      **************************/
+
     @Override
     public void onIconClicked(int position) {
 
@@ -136,8 +136,8 @@ public class FormListActivity extends AppActivity implements
     @Override
     public void onFormRowClicked(int position) {
         JoinFormWithMaxPageNumberData clickedForm = mAdapter.getFormAtPosition(position);
-        if(clickedForm!=null) {
-            Intent intent = new Intent(this,CtcaeFormActivity.class);
+        if (clickedForm != null) {
+            Intent intent = new Intent(this, CtcaeFormActivity.class);
             intent.putExtra("clickedForm", clickedForm);
             //startActivityForResult(intent, CTCAE_FORM_SUBMITTED_CODE);
             startActivity(intent);
@@ -150,88 +150,46 @@ public class FormListActivity extends AppActivity implements
 
     private void downloadAssignedForms() {
         swipeRefreshLayout.setRefreshing(true);
-        Context ctx = this;
-        if(restCounter<25) {
-            restCounter++;
-            String usr = "james";
-            String pwd = "bush";
 
-            String authorizationToken = SaveSharedPreference.getAuthorizationToken(this);
-            if (authorizationToken == null) {
-                NetworkUtils.requestNewAuthorizationToken(pwd, usr, this);
-            }
-            authorizationToken = SaveSharedPreference.getAuthorizationToken(this);
+        ItcoService apiService = ApiClient
+                .forService(ItcoService.class)
+                .baseURL(ApiClient.BASE_URL)
+                .logging(HttpLoggingInterceptor.Level.BODY)
+                .addInterceptor(new AuthenticationInterceptor(this))
+                .build();
 
-            MediciApi apiService = MediciApiClient.createService(MediciApi.class, authorizationToken);
-
-            Call<List<RestForm>> call = apiService.getQuestionnaires();
-            call.enqueue(new Callback<List<RestForm>>() {
-                @Override
-                public void onResponse(Call<List<RestForm>> call, Response<List<RestForm>> response) {
-                    if (response.isSuccessful()) {
-                        Log.i("appMedici", "[" + this.getClass().getSimpleName() + "] Forms downloaded!! ("+response.body().size()+")");
-                        insertInLocalDatabase(response.body());
-                        restCounter = 0;
-                    } else {
-                        switch (response.code()) {
-                            case 401:
-                                NetworkUtils.requestNewAuthorizationToken(pwd, usr, ctx);
-                                Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to download forms (401)");
-                                if (!SaveSharedPreference.getAuthorizationIssue(ctx)) {
-                                    downloadAssignedForms();
-                                } else {
-                                    String issueDescription = SaveSharedPreference.getAuthorizationIssueDescription(ctx);
-                                    Toast.makeText(getApplicationContext(), "Unable to download forms  (401) [" + issueDescription + "]", Toast.LENGTH_LONG).show();
-                                    Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to download forms  (401) [" + issueDescription + "]");
-                                    swipeRefreshLayout.setRefreshing(false);
-                                }
-                                break;
-                            case 404:
-                                Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to download forms  (404)");
-                                Toast.makeText(getApplicationContext(), "Unable to download forms  (404)", Toast.LENGTH_LONG).show();
-                                swipeRefreshLayout.setRefreshing(false);
-                                break;
-                            case 500:
-                                Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to download forms  (500)");
-                                Toast.makeText(getApplicationContext(), "Unable to download forms  (500)", Toast.LENGTH_LONG).show();
-                                swipeRefreshLayout.setRefreshing(false);
-                                break;
-                            default:
-                                Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to download forms  (UNKNOWN)");
-                                Toast.makeText(getApplicationContext(), "Unable to download forms (UNKNOWN)", Toast.LENGTH_LONG).show();
-                                swipeRefreshLayout.setRefreshing(false);
-                                break;
+        apiService.getQuestionnaires()
+                .enqueue(new Callback<List<RestForm>>() {
+                    @Override
+                    public void onResponse(Call<List<RestForm>> call,
+                                           Response<List<RestForm>> response) {
+                        if (response.isSuccessful()) {
+                            Log.w(tag(), "Forms downloaded!!");
+                            insertInLocalDatabase(response.body());
+                        } else {
+                            Log.e(tag(), "Unable to download forms");
+                            swipeRefreshLayout.setRefreshing(false);
                         }
                     }
-                }
 
-                @Override
-                public void onFailure(Call<List<RestForm>> call, Throwable t) {
-                    Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to download forms : " + t.getMessage());
-                    Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Unable to download forms : " + t.getStackTrace());
-                    Toast.makeText(getApplicationContext(), "Unable to download forms ..", Toast.LENGTH_LONG).show();
-                    swipeRefreshLayout.setRefreshing(false);
-                }
-            });
-        }
-        else {
-            swipeRefreshLayout.setRefreshing(false);
-            Log.e("appMedici", "[" + this.getClass().getSimpleName() + "] Max number of calls to downloadAssignedForms() reached!!");
-            Toast.makeText(getApplicationContext(), "Max number of calls to downloadAssignedForms() reached!!", Toast.LENGTH_LONG).show();
-            restCounter = 0;
-        }
+                    @Override
+                    public void onFailure(Call<List<RestForm>> call, Throwable t) {
+                        Log.e(tag(), "Unable to download forms: ", t);
+                        swipeRefreshLayout.setRefreshing(false);
+                    }
+                });
     }
 
     private void insertInLocalDatabase(List<RestForm> restForms) {
-        Log.i("appMedici", "insertInLocalDatabase "+restForms.size());
-        if(!restForms.isEmpty()) {
+        Log.i(tag(), "insertInLocalDatabase " + restForms.size());
+        if (!restForms.isEmpty()) {
             List<CtcaeForm> forms = new LinkedList<>();
             List<CtcaeFormPage> pages = new LinkedList<>();
             List<CtcaeFormQuestion> questions = new LinkedList<>();
             List<CtcaePossibleAnswer> answers = new LinkedList<>();
-            for(RestForm rf:restForms) {
+            for (RestForm rf : restForms) {
                 CtcaeForm form = new CtcaeForm(rf);
-                form.setFormInstructions(t(R.string.form_instructions).toString());
+                form.setFormInstructions(t(R.string.form_instructions));
                 forms.add(form);
                 List<RestFormPage> restFormPages = rf.getPages();
                 for (RestFormPage rfp : restFormPages) {
@@ -249,7 +207,7 @@ public class FormListActivity extends AppActivity implements
                     }
                 }
             }
-            FormListActivity.InsertQuestionnairesQueryAsyncTask task = new FormListActivity.InsertQuestionnairesQueryAsyncTask(this,forms, pages, questions, answers,this);
+            FormListActivity.InsertQuestionnairesQueryAsyncTask task = new FormListActivity.InsertQuestionnairesQueryAsyncTask(this, forms, pages, questions, answers, this);
             task.execute();
         }
     }
@@ -270,9 +228,12 @@ public class FormListActivity extends AppActivity implements
 
         private InsertQuestionnairesAsyncResponse delegate;
 
-        InsertQuestionnairesQueryAsyncTask(Context context, List<CtcaeForm> forms, List<CtcaeFormPage> pages,
-                                           List<CtcaeFormQuestion> questions, List<CtcaePossibleAnswer> answers,
-                                           InsertQuestionnairesAsyncResponse delegate) {
+        InsertQuestionnairesQueryAsyncTask(@NonNull Context context,
+                                           @NonNull List<CtcaeForm> forms,
+                                           @NonNull List<CtcaeFormPage> pages,
+                                           @NonNull List<CtcaeFormQuestion> questions,
+                                           @NonNull List<CtcaePossibleAnswer> answers,
+                                           @NonNull InsertQuestionnairesAsyncResponse delegate) {
             ctx = context;
             this.forms = forms;
             this.pages = pages;
@@ -289,25 +250,25 @@ public class FormListActivity extends AppActivity implements
         @Override
         protected Void doInBackground(Void... voids) {
             repository = new CtcaeFormRepository(ctx);
-            for(CtcaeForm form:forms) {
+            for (CtcaeForm form : forms) {
                 repository.insertForm(form);
             }
-            for(CtcaeFormPage page:pages) {
+            for (CtcaeFormPage page : pages) {
                 repository.insertFormPage(page);
             }
-            for(CtcaeFormQuestion quest:questions) {
+            for (CtcaeFormQuestion quest : questions) {
                 repository.insertFormQuestion(quest);
             }
-            for(CtcaePossibleAnswer answ:answers) {
+            for (CtcaePossibleAnswer answ : answers) {
                 repository.insertFormAnswer(answ);
             }
             return null;
         }
 
         @Override
-        protected void onPostExecute(Void v){
-                super.onPostExecute(v);
-                delegate.insertQuestionnairesQueryAsyncTaskFinished();
+        protected void onPostExecute(Void v) {
+            super.onPostExecute(v);
+            delegate.insertQuestionnairesQueryAsyncTaskFinished();
         }
     }
 }

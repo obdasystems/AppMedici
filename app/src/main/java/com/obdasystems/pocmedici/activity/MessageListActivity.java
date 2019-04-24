@@ -5,6 +5,7 @@ import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.view.ActionMode;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -19,14 +20,14 @@ import com.obdasystems.pocmedici.R;
 import com.obdasystems.pocmedici.adapter.MessagesAdapter;
 import com.obdasystems.pocmedici.message.helper.DividerItemDecoration;
 import com.obdasystems.pocmedici.message.model.Message;
-import com.obdasystems.pocmedici.network.MediciApi;
-import com.obdasystems.pocmedici.network.MediciApiClient;
-import com.obdasystems.pocmedici.network.NetworkUtils;
-import com.obdasystems.pocmedici.utils.SaveSharedPreference;
+import com.obdasystems.pocmedici.network.ApiClient;
+import com.obdasystems.pocmedici.network.ItcoService;
+import com.obdasystems.pocmedici.network.interceptors.AuthenticationInterceptor;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -40,7 +41,6 @@ public class MessageListActivity extends AppActivity implements
     private SwipeRefreshLayout swipeRefreshLayout;
     private ActionModeCallback actionModeCallback;
     private ActionMode actionMode;
-    private int recursiveGetInboxCallCounter = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,7 +72,7 @@ public class MessageListActivity extends AppActivity implements
         actionModeCallback = new ActionModeCallback();
 
         // show loader and fetch messages
-        swipeRefreshLayout.post(() -> getInbox(0));
+        swipeRefreshLayout.post(this::getMessages);
     }
 
     private void backToMain() {
@@ -86,91 +86,43 @@ public class MessageListActivity extends AppActivity implements
     }
 
     /**
-     * Fetches mail messages by making HTTP request
-     * url: https://api.androidhive.info/json/inbox.json
+     * Fetches mail messages for the current user
      */
-    private void getInbox(int counter) {
+    private void getMessages() {
         swipeRefreshLayout.setRefreshing(true);
 
-        if(counter<15) {
-            String usr = "james";
-            String pwd = "bush";
+        ItcoService apiService = ApiClient
+                .forService(ItcoService.class)
+                .baseURL(ApiClient.BASE_URL)
+                .logging(HttpLoggingInterceptor.Level.BODY)
+                .addInterceptor(new AuthenticationInterceptor(this))
+                .build();
 
-            String authorizationToken = SaveSharedPreference.getAuthorizationToken(this);
-            if (authorizationToken == null) {
-                NetworkUtils.requestNewAuthorizationToken(pwd, usr, this);
-            }
-            authorizationToken = SaveSharedPreference.getAuthorizationToken(this);
-
-            MediciApi apiService = MediciApiClient.createService(MediciApi.class, authorizationToken);
-
-            Call<List<Message>> call = apiService.getInbox();
-            call.enqueue(new Callback<List<Message>>() {
-                @Override
-                public void onResponse(Call<List<Message>> call, Response<List<Message>> response) {
-
-                    if (response.isSuccessful()) {
-                        // clear the inbox
-                        messages.clear();
-                        // add all the messages
-                        // messages.addAll(response.body());
-                        // TODO - avoid looping
-                        // the loop was performed to add colors to each message
-                        for (Message message : response.body()) {
-                            // generate a random color
-                            message.setColor(getRandomMaterialColor("400"));
-                            messages.add(message);
-                        }
-                        recursiveGetInboxCallCounter=0;
-                        mAdapter.notifyDataSetChanged();
-                        swipeRefreshLayout.setRefreshing(false);
-                    } else {
-                        switch (response.code()) {
-                            case 401:
-                                NetworkUtils.requestNewAuthorizationToken(pwd, usr, context());
-                                Log.e(tag(), "Unable to fetch message list (401)");
-                                if (!SaveSharedPreference.getAuthorizationIssue(context())) {
-                                    getInbox(recursiveGetInboxCallCounter++);
-                                } else {
-                                    String issueDescription = SaveSharedPreference.getAuthorizationIssueDescription(context());
-                                    toast("Unable to fetch message list (401) [" + issueDescription + "]");
-                                    Log.e(tag(), "Unable to fetch message list (401) [" + issueDescription + "]");
-                                    swipeRefreshLayout.setRefreshing(false);
-                                }
-                                break;
-                            case 404:
-                                Log.e(tag(), "Unable to fetch message list (404)");
-                                toast("Unable to fetch message list (404)");
-                                swipeRefreshLayout.setRefreshing(false);
-                                break;
-                            case 500:
-                                Log.e(tag(), "Unable to fetch message list (500)");
-                                toast("Unable to fetch message list (500)");
-                                swipeRefreshLayout.setRefreshing(false);
-                                break;
-                            default:
-                                Log.e(tag(), "Unable to fetch message list (UNKNOWN)");
-                                toast("Unable to fetch message list (UNKNOWN)");
-                                swipeRefreshLayout.setRefreshing(false);
-                                break;
+        apiService.getInbox()
+                .enqueue(new Callback<List<Message>>() {
+                    @Override
+                    public void onResponse(Call<List<Message>> call,
+                                           Response<List<Message>> response) {
+                        if (response.isSuccessful()) {
+                            messages.clear();
+                            // add all the messages
+                            messages.addAll(response.body());
+                            mAdapter.notifyDataSetChanged();
+                            swipeRefreshLayout.setRefreshing(false);
+                        } else {
+                            Log.e(tag(), "Unable to fetch message list");
+                            snack("Unable to fetch message list", Snackbar.LENGTH_LONG);
+                            swipeRefreshLayout.setRefreshing(false);
                         }
                     }
-                }
 
-                @Override
-                public void onFailure(Call<List<Message>> call, Throwable t) {
-                    Log.e(tag(), "Unable to fetch message list: " + t.getMessage());
-                    Log.e(tag(), "Unable to fetch message list: " + t.getStackTrace());
-                    toast("Unable to fetch message list..");
-                    swipeRefreshLayout.setRefreshing(false);
-                }
-            });
-        }
-        else {
-            Log.e(tag(), "Max number of calls to getInbox() reached!!");
-            toast("Max number of calls to getInbox() reached!!");
-            recursiveGetInboxCallCounter=0;
-        }
+                    @Override
+                    public void onFailure(Call<List<Message>> call, Throwable t) {
+                        Log.e(tag(), "Unable to fetch message list: ", t);
+                        snack("Unable to fetch message list..", Snackbar.LENGTH_LONG);
+                        swipeRefreshLayout.setRefreshing(false);
+                    }
+                });
     }
 
     /**
@@ -178,7 +130,8 @@ public class MessageListActivity extends AppActivity implements
      */
     private int getRandomMaterialColor(String typeColor) {
         int returnColor = Color.GRAY;
-        int arrayId = getResources().getIdentifier("mdcolor_" + typeColor, "array", getPackageName());
+        int arrayId = getResources()
+                .getIdentifier("mdcolor_" + typeColor, "array", getPackageName());
 
         if (arrayId != 0) {
             TypedArray colors = getResources().obtainTypedArray(arrayId);
@@ -215,7 +168,7 @@ public class MessageListActivity extends AppActivity implements
     @Override
     public void onRefresh() {
         // swipe refresh is performed, fetch the messages again
-        getInbox(0);
+        getMessages();
     }
 
     @Override
@@ -250,8 +203,8 @@ public class MessageListActivity extends AppActivity implements
             messages.set(position, message);
             mAdapter.notifyDataSetChanged();
 
-            Intent readMessageIntent = new Intent(this,ReadMessageActivity.class);
-            readMessageIntent.putExtra("message",message);
+            Intent readMessageIntent = new Intent(this, ReadMessageActivity.class);
+            readMessageIntent.putExtra("message", message);
             startActivity(readMessageIntent);
         }
     }
@@ -281,6 +234,19 @@ public class MessageListActivity extends AppActivity implements
         }
     }
 
+    /*
+     * Delete messages from recycler view
+     */
+    private void deleteMessages() {
+        mAdapter.resetAnimationIndex();
+        List<Integer> selectedItemPositions =
+                mAdapter.getSelectedItems();
+        for (int i = selectedItemPositions.size() - 1; i >= 0; i--) {
+            mAdapter.removeData(selectedItemPositions.get(i));
+        }
+        mAdapter.notifyDataSetChanged();
+    }
+
     private class ActionModeCallback implements ActionMode.Callback {
         @Override
         public boolean onCreateActionMode(ActionMode mode, Menu menu) {
@@ -304,7 +270,6 @@ public class MessageListActivity extends AppActivity implements
                     deleteMessages();
                     mode.finish();
                     return true;
-
                 default:
                     return false;
             }
@@ -320,17 +285,6 @@ public class MessageListActivity extends AppActivity implements
                 // mAdapter.notifyDataSetChanged();
             });
         }
-    }
-
-    // deleting the messages from recycler view
-    private void deleteMessages() {
-        mAdapter.resetAnimationIndex();
-        List<Integer> selectedItemPositions =
-                mAdapter.getSelectedItems();
-        for (int i = selectedItemPositions.size() - 1; i >= 0; i--) {
-            mAdapter.removeData(selectedItemPositions.get(i));
-        }
-        mAdapter.notifyDataSetChanged();
     }
 
 }

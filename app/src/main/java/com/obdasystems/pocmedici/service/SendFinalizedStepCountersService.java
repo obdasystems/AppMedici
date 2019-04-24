@@ -6,22 +6,21 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.IBinder;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.obdasystems.pocmedici.asyncresponse.StepCountersToSendAsyncResponse;
-import com.obdasystems.pocmedici.network.MediciApi;
-import com.obdasystems.pocmedici.network.MediciApiClient;
-import com.obdasystems.pocmedici.network.NetworkUtils;
+import com.obdasystems.pocmedici.network.ApiClient;
+import com.obdasystems.pocmedici.network.ItcoService;
 import com.obdasystems.pocmedici.network.RestStepCounter;
+import com.obdasystems.pocmedici.network.interceptors.AuthenticationInterceptor;
 import com.obdasystems.pocmedici.persistence.entities.StepCounter;
 import com.obdasystems.pocmedici.persistence.repository.StepCounterRepository;
-import com.obdasystems.pocmedici.utils.SaveSharedPreference;
 
 import org.json.JSONObject;
 
 import java.util.Calendar;
 import java.util.List;
 
+import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -29,12 +28,10 @@ import retrofit2.Response;
 public class SendFinalizedStepCountersService extends Service
         implements StepCountersToSendAsyncResponse {
     private static final String TAG = SendFinalizedStepCountersService.class.getSimpleName();
-    private int counter;
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.i(TAG, "SendFinalizedStepCountersService started");
-        counter = 0;
         GetStepCounterToSendQueryAsyncTask task =
                 new GetStepCounterToSendQueryAsyncTask(this, this);
         task.execute();
@@ -58,77 +55,43 @@ public class SendFinalizedStepCountersService extends Service
 
     @Override
     public void getStepCounterToSendQueryAsyncTaskFinished(List<StepCounter> stepCounters) {
-        if(counter<25) {
-            Log.i(TAG, "Sending step counters ");
-            String usr = "james";
-            String pwd = "bush";
-            counter++;
-            Context ctx = this;
-            String authorizationToken = SaveSharedPreference.getAuthorizationToken(this);
-            if (authorizationToken == null) {
-                NetworkUtils.requestNewAuthorizationToken(pwd, usr, this);
-            }
-            authorizationToken = SaveSharedPreference.getAuthorizationToken(this);
+        Log.i(TAG, "Sending step counters ");
 
-            MediciApi apiService = MediciApiClient.createService(MediciApi.class, authorizationToken);
+        ItcoService apiService = ApiClient
+                .forService(ItcoService.class)
+                .baseURL(ApiClient.BASE_URL)
+                .logging(HttpLoggingInterceptor.Level.BODY)
+                .addInterceptor(new AuthenticationInterceptor(this))
+                .build();
 
-            for(StepCounter sp: stepCounters) {
-                Calendar cal = Calendar.getInstance();
-                cal.set(sp.getYear(), sp.getMonth(), sp.getDay());
-                long timestamp = cal.getTimeInMillis();
+        for (StepCounter sp : stepCounters) {
+            Calendar cal = Calendar.getInstance();
+            cal.set(sp.getYear(), sp.getMonth(), sp.getDay());
+            long timestamp = cal.getTimeInMillis();
+            RestStepCounter rsc = new RestStepCounter(sp.getStepCount(), timestamp);
+            Context context = this;
 
-                RestStepCounter rsc = new RestStepCounter(sp.getStepCount(), timestamp);
-
-                apiService.sendStepCount(rsc).enqueue(new Callback<JSONObject>() {
-                    @Override
-                    public void onResponse(Call<JSONObject> call, Response<JSONObject> response) {
-                        if (response.isSuccessful()) {
-                            Log.i(TAG, "Step count sent to server." + response.body().toString());
-                            counter=0;
-                            FinalizeStepCounterQueryAsyncTask task = new FinalizeStepCounterQueryAsyncTask(ctx,sp);
-                            task.execute();
-                        } else {
-                            switch (response.code()) {
-                                case 401:
-                                    NetworkUtils.requestNewAuthorizationToken(pwd, usr, ctx);
-                                    Log.e(TAG, "Unable to send Step count (401)");
-                                    if (!SaveSharedPreference.getAuthorizationIssue(ctx)) {
-                                        getStepCounterToSendQueryAsyncTaskFinished(stepCounters);
-                                    } else {
-                                        String issueDescription = SaveSharedPreference.getAuthorizationIssueDescription(ctx);
-                                        Toast.makeText(getApplicationContext(), "Unable to send Step count (401) [" + issueDescription + "]", Toast.LENGTH_LONG).show();
-                                        Log.e(TAG, "Unable to send Step count (401) [" + issueDescription + "]");
-                                    }
-                                    break;
-                                case 404:
-                                    Log.e(TAG, "Unable to send Step count (404)");
-                                    Toast.makeText(getApplicationContext(), "Unable to send position (404)", Toast.LENGTH_LONG).show();
-                                    break;
-                                case 500:
-                                    Log.e(TAG, "Unable to send Step count (500)");
-                                    Toast.makeText(getApplicationContext(), "Unable to send position (500)", Toast.LENGTH_LONG).show();
-                                    break;
-                                default:
-                                    Log.e(TAG, "Unable to send Step count (UNKNOWN)");
-                                    Toast.makeText(getApplicationContext(), "Unable to send Step count (UNKNOWN)", Toast.LENGTH_LONG).show();
-                                    break;
+            apiService.sendStepCount(rsc)
+                    .enqueue(new Callback<JSONObject>() {
+                        @Override
+                        public void onResponse(Call<JSONObject> call,
+                                               Response<JSONObject> response) {
+                            if (response.isSuccessful()) {
+                                Log.i(TAG, "Step count sent to server."
+                                        + response.body().toString());
+                                FinalizeStepCounterQueryAsyncTask task =
+                                        new FinalizeStepCounterQueryAsyncTask(context, sp);
+                                task.execute();
+                            } else {
+                                Log.e(TAG, "Unable to send step count");
                             }
                         }
-                    }
 
-                    @Override
-                    public void onFailure(Call<JSONObject> call, Throwable t) {
-                        Log.e(TAG, "Unable to send Step count : " + t.getMessage());
-                        Log.e(TAG, "Unable to send Step count : " + t.getStackTrace());
-                        Toast.makeText(ctx, "Unable to send Step count ..", Toast.LENGTH_LONG).show();
-                    }
-                });
-            }
-        }
-        else {
-            Log.e(TAG, "Max number of calls to sendPositionToServer() reached!!");
-            Toast.makeText(getApplicationContext(), "Max number of calls to sendPositionToServer() reached!!", Toast.LENGTH_LONG).show();
-            counter=0;
+                        @Override
+                        public void onFailure(Call<JSONObject> call, Throwable t) {
+                            Log.e(TAG, "Unable to send Step count: ", t);
+                        }
+                    });
         }
     }
 
@@ -167,7 +130,7 @@ public class SendFinalizedStepCountersService extends Service
         private StepCounterRepository repository;
         private StepCountersToSendAsyncResponse delegate;
 
-        GetStepCounterToSendQueryAsyncTask(Context context,StepCountersToSendAsyncResponse delegate) {
+        GetStepCounterToSendQueryAsyncTask(Context context, StepCountersToSendAsyncResponse delegate) {
             ctx = context;
             this.delegate = delegate;
         }

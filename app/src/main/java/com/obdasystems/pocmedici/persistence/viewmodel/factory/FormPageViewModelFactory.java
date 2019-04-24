@@ -8,7 +8,6 @@ import android.support.annotation.NonNull;
 import com.obdasystems.pocmedici.persistence.viewmodel.CtcaeFormPageViewModel;
 
 public class FormPageViewModelFactory implements ViewModelProvider.Factory {
-
     private Application mApplication;
     private int mPageId;
 
@@ -19,7 +18,9 @@ public class FormPageViewModelFactory implements ViewModelProvider.Factory {
 
     @NonNull
     @Override
+    @SuppressWarnings("unchecked")
     public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
         return (T) new CtcaeFormPageViewModel(mApplication, mPageId);
     }
+
 }

@@ -18,6 +18,7 @@ import android.hardware.SensorManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.IBinder;
+import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
@@ -30,38 +31,22 @@ import com.obdasystems.pocmedici.stepdetector.CustomStepDetector;
 import com.obdasystems.pocmedici.stepdetector.CustomStepListener;
 
 import java.util.Calendar;
+import java.util.Objects;
 
 public class StepCounterForegroundService extends Service
         implements SensorEventListener, CustomStepListener {
-    private final String CHANNEL_ID = "AppMedici_StepCounter";
-    private final String CHANNEL_NAME = "AppMedici Step Counter Service";
-    static final int NOTIFICATION_ID = 543;
+    private static final String TAG = StepCounterForegroundService.class.getSimpleName();
+    private static final String CHANNEL_ID = "ITCO_StepCounter";
+    private static final String CHANNEL_NAME = "ITCO Step Counter Service";
+    private static final int NOTIFICATION_ID = 543;
 
-    public static boolean isServiceRunning = false;
-
+    private boolean isServiceRunning = false;
     private boolean hwStepDetectorEnabled;
-
-    private SensorManager mSensorManager;
-    private Sensor mStepDetectorSensor;
-
-    private Sensor mAccelerometerSensor;
-    private CustomStepDetector mCustomDetector;
-
+    private SensorManager sensorManager;
+    private Sensor stepDetectorSensor;
+    private Sensor accelerometerSensor;
+    private CustomStepDetector customDetector;
     private StepCounterRepository repository;
-
-    public StepCounterForegroundService() {
-        super();
-        /*repository = new StepCounterRepository(app);
-        mSensorManager = (SensorManager) app.getSystemService(Context.SENSOR_SERVICE);;
-        if(mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR) != null) {
-            mStepDetectorSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR);
-        }*/
-    }
-
-    public StepCounterForegroundService(Context app) {
-        super();
-
-    }
 
     @Override
     public void onCreate() {
@@ -71,11 +56,12 @@ public class StepCounterForegroundService extends Service
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if (intent != null && intent.getAction().equals(MainActivity.ACTION_START_SERVICE)) {
+        if (intent != null
+                && Objects.equals(intent.getAction(), MainActivity.ACTION_START_SERVICE)) {
             startServiceWithNotification();
         }
         startServiceWithNotification();
-        //else stopMyService();
+        //else stopService();
         return START_STICKY;
     }
 
@@ -92,41 +78,45 @@ public class StepCounterForegroundService extends Service
         return null;
     }
 
-    void startServiceWithNotification() {
+    private void startServiceWithNotification() {
         if (isServiceRunning) return;
         isServiceRunning = true;
 
         repository = new StepCounterRepository(this);
-        mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        if(mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR) != null) {
-            mStepDetectorSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR);
-            mSensorManager.registerListener(this, mStepDetectorSensor, SensorManager.SENSOR_DELAY_NORMAL);
+        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        if (sensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR) != null) {
+            stepDetectorSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR);
+            sensorManager.registerListener(
+                    this, stepDetectorSensor, SensorManager.SENSOR_DELAY_NORMAL);
             hwStepDetectorEnabled = true;
-            Log.i("appMedici", "["+this.getClass()+"] HW Step counter service created");
-        }
-        else {
+            Log.i(TAG, "HW Step counter service created");
+        } else {
             hwStepDetectorEnabled = false;
-            mCustomDetector = new CustomStepDetector();
-            mCustomDetector.registerListener(this);
-            mAccelerometerSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-            mSensorManager.registerListener(this, mAccelerometerSensor, SensorManager.SENSOR_DELAY_FASTEST);
-            Log.i("appMedici", "["+this.getClass()+"] SW Step counter service created");
+            customDetector = new CustomStepDetector();
+            customDetector.registerListener(this);
+            accelerometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+            sensorManager.registerListener(
+                    this, accelerometerSensor, SensorManager.SENSOR_DELAY_FASTEST);
+            Log.i(TAG, "SW Step counter service created");
         }
 
-        Log.i("appMedici", "["+this.getClass()+"]Starting foreground service");
+        Log.i(TAG, "Starting foreground service");
 
         Intent notificationIntent = new Intent(getApplicationContext(), MainActivity.class);
-        notificationIntent.setAction(MainActivity.ACTION_MAIN);  // A string containing the action name
-        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        PendingIntent contentPendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
+        notificationIntent.setAction(MainActivity.ACTION_MAIN);
+        notificationIntent.setFlags(
+                Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        PendingIntent contentPendingIntent =
+                PendingIntent.getActivity(this, 0, notificationIntent, 0);
 
         Bitmap icon = BitmapFactory.decodeResource(getResources(), R.drawable.icons8_caduceus_48);
 
         String channelId = "";
-        if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.O) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             channelId = createNotificationChannel(CHANNEL_ID, CHANNEL_NAME);
         }
-        Notification notification = new NotificationCompat.Builder(this,channelId)
+
+        Notification notification = new NotificationCompat.Builder(this, channelId)
                 .setContentTitle(getResources().getString(R.string.app_name))
                 .setTicker(getResources().getString(R.string.app_name))
                 .setContentText("Step Counter Service")
@@ -141,43 +131,50 @@ public class StepCounterForegroundService extends Service
         notification.flags = notification.flags | Notification.FLAG_AUTO_CANCEL;
         startForeground(NOTIFICATION_ID, notification);
 
-        Log.i("appMedici", "["+this.getClass()+"]Foreground service started");
+        Log.i(TAG, "Foreground service started");
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
-    private String createNotificationChannel(String channelId, String channelName) {
-        NotificationChannel nc = new NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_NONE);
-        nc.setLightColor(Color.BLUE);
-        //nc.setLockscreenVisibility(Notification.VISIBILITY_SECRET);
-        nc.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
-        ((NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE)).createNotificationChannel(nc);
-        return channelId;
-    }
-
-    void stopMyService() {
+    private void stopService() {
         stopForeground(true);
         stopSelf();
         isServiceRunning = false;
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
+    private String createNotificationChannel(String channelId, String channelName) {
+        NotificationChannel nc =
+                new NotificationChannel(channelId,
+                        channelName, NotificationManager.IMPORTANCE_NONE);
+        nc.setLightColor(Color.BLUE);
+        //nc.setLockscreenVisibility(Notification.VISIBILITY_SECRET);
+        nc.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
+        ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE))
+                .createNotificationChannel(nc);
+        return channelId;
+    }
+
     @Override
     public void onSensorChanged(SensorEvent event) {
-
         Calendar cal = Calendar.getInstance();
         int year = cal.get(Calendar.YEAR);
-        int month = cal.get(Calendar.MONTH)+1;
+        int month = cal.get(Calendar.MONTH) + 1;
         int day = cal.get(Calendar.DAY_OF_MONTH);
         switch (event.sensor.getType()) {
             case Sensor.TYPE_STEP_DETECTOR:
                 float detStep = event.values[0];
-                if(detStep==1) {
-                    Log.i("appMedici", "["+this.getClass()+"]Step  detected HW");
-                    StepCounterForegroundService.QueryAsyncTask task = new StepCounterForegroundService.QueryAsyncTask(year, month, day, (int)detStep, repository);
+                if (detStep == 1) {
+                    Log.i(TAG, "Step  detected HW");
+                    QueryAsyncTask task =
+                            new QueryAsyncTask(year, month, day, (int) detStep, repository);
                     task.execute();
                 }
                 break;
-            case  Sensor.TYPE_ACCELEROMETER:
-                mCustomDetector.updateAccel(event.timestamp, event.values[0], event.values[1], event.values[2] );
+            case Sensor.TYPE_ACCELEROMETER:
+                customDetector.updateAccel(event.timestamp,
+                        event.values[0], event.values[1], event.values[2]);
+                break;
+            default:
+                Log.i(TAG, "Unhandled sensor event: " + event.sensor.getType());
                 break;
         }
     }
@@ -189,18 +186,18 @@ public class StepCounterForegroundService extends Service
 
     @Override
     public void step(long timeNs) {
-        Log.i("appMedici", "["+this.getClass()+"]Step  detected SW");
+        Log.i(TAG, "Step  detected SW");
         Calendar cal = Calendar.getInstance();
         int year = cal.get(Calendar.YEAR);
-        int month = cal.get(Calendar.MONTH) +1;
+        int month = cal.get(Calendar.MONTH) + 1;
         int day = cal.get(Calendar.DAY_OF_MONTH);
-        StepCounterForegroundService.QueryAsyncTask task = new StepCounterForegroundService.QueryAsyncTask(year, month, day, 1, repository);
+        QueryAsyncTask task = new QueryAsyncTask(year, month, day, 1, repository);
         task.execute();
     }
 
     private static class QueryAsyncTask extends AsyncTask<Void, Void, Void> {
         private Context ctx;
-        private int year, month , day , numSteps;
+        private int year, month, day, numSteps;
 
         private StepCounterRepository innerRepository;
 
@@ -218,7 +215,6 @@ public class StepCounterForegroundService extends Service
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-
         }
 
         @Override
@@ -232,4 +228,5 @@ public class StepCounterForegroundService extends Service
             super.onPostExecute(aVoid);
         }
     }
+
 }

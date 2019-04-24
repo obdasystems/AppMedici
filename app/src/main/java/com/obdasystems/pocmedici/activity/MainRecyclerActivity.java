@@ -25,12 +25,16 @@ import com.obdasystems.pocmedici.service.DownloadAssignedFormsService;
 import com.obdasystems.pocmedici.service.GpsTrackingService;
 import com.obdasystems.pocmedici.service.SendFinalizedStepCountersService;
 import com.obdasystems.pocmedici.service.StepCounterForegroundService;
-import com.obdasystems.pocmedici.utils.SaveSharedPreference;
+import com.obdasystems.pocmedici.utils.AppPreferences;
 import com.obdasystems.pocmedici.utils.TimeUtils;
 
 import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
+
+import static com.obdasystems.pocmedici.utils.AppPreferences.AUTHORIZATION_TOKEN;
+import static com.obdasystems.pocmedici.utils.AppPreferences.LAST_TIME_QUEST_REQ;
+import static com.obdasystems.pocmedici.utils.AppPreferences.LAST_TIME_STEP_COUNT_SENT;
 
 @Deprecated
 public class MainRecyclerActivity extends AppActivity
@@ -103,10 +107,10 @@ public class MainRecyclerActivity extends AppActivity
 
         checkAuthorizationToken();
 
+        AppPreferences prefs = AppPreferences.with(this);
         Calendar cal = Calendar.getInstance();
         String todayRepr = TimeUtils.getSimpleDateStringRepresentation(cal);
-        String lastDateStepCountersSent =
-                SaveSharedPreference.getLastTimeStepcountersSent(this);
+        String lastDateStepCountersSent = prefs.getString(LAST_TIME_STEP_COUNT_SENT);
         if (lastDateStepCountersSent != null) {
             Log.i(tag(), "lastDateStepCountersSent=" + lastDateStepCountersSent);
         } else {
@@ -118,11 +122,10 @@ public class MainRecyclerActivity extends AppActivity
             Intent sendStepCountersIntent =
                     new Intent(this, SendFinalizedStepCountersService.class);
             startService(sendStepCountersIntent);
-            SaveSharedPreference.setLastTimeStepcountersSent(this, todayRepr);
+            prefs.set(LAST_TIME_STEP_COUNT_SENT, todayRepr);
         }
 
-        String lastDateFormsRequested =
-                SaveSharedPreference.getLastTimeQuestionnairesRequested(this);
+        String lastDateFormsRequested = prefs.getString(LAST_TIME_QUEST_REQ);
         if (lastDateStepCountersSent != null) {
             Log.i(tag(), "lastDateFormsRequested=" + lastDateFormsRequested);
         } else {
@@ -133,7 +136,7 @@ public class MainRecyclerActivity extends AppActivity
             Intent downloadFormsIntent =
                     new Intent(this, DownloadAssignedFormsService.class);
             startService(downloadFormsIntent);
-            SaveSharedPreference.setLastTimeQuestionnairesRequested(this, todayRepr);
+            prefs.set(LAST_TIME_QUEST_REQ, todayRepr);
         }
 
     }
@@ -256,7 +259,8 @@ public class MainRecyclerActivity extends AppActivity
     private void checkAuthorizationToken() {
         String usr = "james";
         String pwd = "bush";
-        String authorizationToken = SaveSharedPreference.getAuthorizationToken(this);
+        String authorizationToken = AppPreferences.with(this)
+                .getString(AUTHORIZATION_TOKEN);
         if (authorizationToken == null) {
             NetworkUtils.requestNewAuthorizationToken(pwd, usr, this);
         }

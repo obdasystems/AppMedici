@@ -13,21 +13,20 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.jaredrummler.android.device.DeviceName;
 import com.obdasystems.pocmedici.R;
-import com.obdasystems.pocmedici.network.MediciApi;
-import com.obdasystems.pocmedici.network.MediciApiClient;
-import com.obdasystems.pocmedici.network.NetworkUtils;
+import com.obdasystems.pocmedici.network.ApiClient;
+import com.obdasystems.pocmedici.network.ItcoService;
+import com.obdasystems.pocmedici.network.interceptors.AuthenticationInterceptor;
 import com.obdasystems.pocmedici.network.request.UserDeviceRegistrationRequest;
 import com.obdasystems.pocmedici.service.DownloadAssignedFormsService;
 import com.obdasystems.pocmedici.service.GpsTrackingService;
 import com.obdasystems.pocmedici.service.SendFinalizedStepCountersService;
 import com.obdasystems.pocmedici.service.StepCounterForegroundService;
-import com.obdasystems.pocmedici.utils.SaveSharedPreference;
+import com.obdasystems.pocmedici.utils.AppPreferences;
 import com.obdasystems.pocmedici.utils.TimeUtils;
 import com.squareup.picasso.Picasso;
 
@@ -35,18 +34,20 @@ import org.json.JSONObject;
 
 import java.util.Calendar;
 
+import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+
+import static com.obdasystems.pocmedici.utils.AppPreferences.LAST_TIME_QUEST_REQ;
+import static com.obdasystems.pocmedici.utils.AppPreferences.LAST_TIME_STEP_COUNT_SENT;
 
 public class MainActivity extends AppActivity {
     public static final String ACTION_MAIN = "action MAIN";
     public static final String ACTION_START_SERVICE = "action start service";
 
     // Core used to start login activity for results
-    private static final int MAIN_LOGIN_CODE = 10000;
-
-    private int authCounter = 0;
+    private static final int REQ_LOGIN_CODE = 10000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,8 +59,13 @@ public class MainActivity extends AppActivity {
         Toolbar toolbar = find(R.id.main_toolbar);
         setSupportActionBar(toolbar);
 
+        if (isLoggedIn()) {
+            doPostLogin();
+        }
+    }
+
+    private void doPostLogin() {
         checkServices();
-        checkAuthorizationToken();
         checkInfosToServer();
         authOnFirebase();
     }
@@ -135,6 +141,12 @@ public class MainActivity extends AppActivity {
         int id = item.getItemId();
         if (id == R.id.form_page_action_profile) {
             // TODO: launch profile intent
+            AppPreferences.with(this)
+                    .remove("authorization_token");
+            //Intent intent = new Intent(Intent.ACTION_MAIN);
+            //intent.addCategory(Intent.CATEGORY_HOME);
+            //intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(new Intent(this, MainActivity.class));
             return true;
         }
         if (id == R.id.form_page_action_settings) {
@@ -148,13 +160,18 @@ public class MainActivity extends AppActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        //if (requestCode == MAIN_LOGIN_CODE) {
-        //
-        //}
+        if (requestCode == REQ_LOGIN_CODE) {
+            if (resultCode == RESULT_OK) {
+                Log.i(tag(), "Back from successful login");
+                doPostLogin();
+            } else {
+                Log.w(tag(), "Back from failed login");
+            }
+        }
     }
 
     public void cardViewSelected(View view) {
-        Class activityClass;
+        Class<?> activityClass;
 
         switch (view.getId()) {
             case R.id.card_form:
@@ -231,10 +248,11 @@ public class MainActivity extends AppActivity {
     }
 
     private void checkInfosToServer() {
+        AppPreferences prefs = AppPreferences.with(this);
         Calendar cal = Calendar.getInstance();
         String todayRepr = TimeUtils.getSimpleDateStringRepresentation(cal);
         String lastDateStepCountersSent =
-                SaveSharedPreference.getLastTimeStepcountersSent(this);
+                prefs.get(LAST_TIME_STEP_COUNT_SENT, null);
         if (lastDateStepCountersSent != null) {
             Log.i(tag(), "lastDateStepCountersSent = " + lastDateStepCountersSent);
         } else {
@@ -246,11 +264,10 @@ public class MainActivity extends AppActivity {
             Intent sendStepCountersIntent =
                     new Intent(this, SendFinalizedStepCountersService.class);
             startService(sendStepCountersIntent);
-            SaveSharedPreference.setLastTimeStepcountersSent(this, todayRepr);
+            prefs.set(LAST_TIME_STEP_COUNT_SENT, todayRepr);
         }
 
-        String lastDateFormsRequested =
-                SaveSharedPreference.getLastTimeQuestionnairesRequested(this);
+        String lastDateFormsRequested = prefs.get(LAST_TIME_QUEST_REQ, null);
         if (lastDateStepCountersSent != null) {
             Log.i(tag(), "lastDateFormsRequested = " + lastDateFormsRequested);
         } else {
@@ -262,14 +279,8 @@ public class MainActivity extends AppActivity {
             Intent downloadFormsIntent =
                     new Intent(this, DownloadAssignedFormsService.class);
             startService(downloadFormsIntent);
-            SaveSharedPreference.setLastTimeQuestionnairesRequested(this, todayRepr);
+            prefs.set(LAST_TIME_QUEST_REQ, todayRepr);
         }
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-
     }
 
     /* ******************************************
@@ -299,70 +310,43 @@ public class MainActivity extends AppActivity {
     }
 
     private void sendFirebaseTokenToServer(String token) {
-        String usr = "james";
-        String pwd = "bush";
+        UserDeviceRegistrationRequest registrationRequest =
+                new UserDeviceRegistrationRequest()
+                        .setDeviceDescription(DeviceName.getDeviceName())
+                        .setRegistrationToken(token);
 
-        if(authCounter<30) {
-            authCounter++;
-            String deviceDescription = DeviceName.getDeviceName();
-            String authToken = SaveSharedPreference.getAuthorizationToken(this);
-            MediciApi apiInterface = MediciApiClient.createService(MediciApi.class, authToken);
-            UserDeviceRegistrationRequest registrationRequest = new UserDeviceRegistrationRequest();
-            registrationRequest.setDeviceDescription(deviceDescription);
-            registrationRequest.setRegistrationToken(token);
-            apiInterface.registerInstanceId(registrationRequest)
-                    .enqueue(new Callback<JSONObject>() {
-                        @Override
-                        public void onResponse(Call<JSONObject> call, Response<JSONObject> response) {
-                            if (response.isSuccessful()) {
-                                Log.e(tag(), "Firebase token sent");
-                                authCounter = 0;
-                            } else {
-                                switch (response.code()) {
-                                    case 401:
-                                        NetworkUtils.requestNewAuthorizationToken(pwd, usr, context());
-                                        Log.e(tag(), "Unable to send firebase token to server (401)");
-                                        if (!SaveSharedPreference.getAuthorizationIssue(context())) {
-                                            sendFirebaseTokenToServer(token);
-                                        } else {
-                                            String issueDescription = SaveSharedPreference.getAuthorizationIssueDescription(context());
-                                            toast("Unable to send firebase token to server (401) [" + issueDescription + "]", Toast.LENGTH_LONG);
-                                            Log.e(tag(), "Unable to send firebase token to server (401) [" + issueDescription + "]");
-                                        }
-                                        break;
-                                    case 404:
-                                        Log.e(tag(), "Unable to send firebase token to server (404)");
-                                        toast("Unable to send firebase token to server (404)", Toast.LENGTH_LONG);
-                                        break;
-                                    case 500:
-                                        Log.e(tag(), "Unable to send firebase token to server (500)");
-                                        toast("Unable to send firebase token to server (500)", Toast.LENGTH_LONG);
-                                        break;
-                                    default:
-                                        Log.e(tag(), "Unable to send firebase token to server (UNKNOWN)");
-                                        toast("Unable to send firebase token to server (UNKNOWN)", Toast.LENGTH_LONG);
-                                        break;
-                                }
-                            }
+        ItcoService service = ApiClient.forService(ItcoService.class)
+                .addInterceptor(new AuthenticationInterceptor(context()))
+                .logging(HttpLoggingInterceptor.Level.BODY)
+                .baseURL(ApiClient.BASE_URL)
+                .build();
+
+        service.registerInstanceId(registrationRequest)
+                .enqueue(new Callback<JSONObject>() {
+                    @Override
+                    public void onResponse(Call<JSONObject> call,
+                                           Response<JSONObject> response) {
+                        if (response.isSuccessful()) {
+                            Log.i(tag(), "Firebase token sent");
+                        } else {
+                            Log.e(tag(), "Unable to send firebase token");
                         }
+                    }
 
-                        @Override
-                        public void onFailure(Call<JSONObject> call, Throwable t) {
-
-                        }
-                    });
-        } else {
-            authCounter = 0;
-        }
+                    @Override
+                    public void onFailure(Call<JSONObject> call, Throwable t) {
+                        Log.e(tag(), "Unable to send firebase token", t);
+                    }
+                });
     }
 
-    private void checkAuthorizationToken() {
-        String usr = "james";
-        String pwd = "bush";
-        String authorizationToken = SaveSharedPreference.getAuthorizationToken(this);
-        if(authorizationToken == null) {
-            NetworkUtils.requestNewAuthorizationToken(pwd, usr, this);
+    private boolean isLoggedIn() {
+        if (!AppPreferences.with(this).contains("authorization_token")) {
+            startActivityForResult(
+                    new Intent(this, LoginActivity.class), REQ_LOGIN_CODE);
+            return false;
         }
+        return true;
     }
 
 }

@@ -27,14 +27,16 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import com.obdasystems.pocmedici.R;
-import com.obdasystems.pocmedici.network.ApiManager;
+import com.obdasystems.pocmedici.network.ApiClient;
+import com.obdasystems.pocmedici.network.ItcoService;
 import com.obdasystems.pocmedici.network.request.LoginResponse;
-import com.obdasystems.pocmedici.utils.SaveSharedPreference;
+import com.obdasystems.pocmedici.utils.AppPreferences;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Response;
 
 import static android.Manifest.permission.READ_CONTACTS;
@@ -158,6 +160,15 @@ public class LoginActivity extends AppActivity
     private boolean isPasswordValid(String password) {
         // TODO: replace with a better logic
         return password.length() > 1;
+    }
+
+    @Override
+    public void onBackPressed() {
+        // Back to Home screen
+        Intent intent = new Intent(Intent.ACTION_MAIN);
+        intent.addCategory(Intent.CATEGORY_HOME);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
     }
 
     /**
@@ -310,7 +321,12 @@ public class LoginActivity extends AppActivity
         @Override
         protected Boolean doInBackground(Void... params) {
             try {
-                Response<LoginResponse> response = ApiManager.mediciApi()
+                ItcoService service = ApiClient
+                        .forService(ItcoService.class)
+                        .baseURL(ApiClient.BASE_URL)
+                        .logging(HttpLoggingInterceptor.Level.BODY)
+                        .build();
+                Response<LoginResponse> response = service
                         .requestAuthentication(password, username)
                         .execute();
                 this.accessToken = response.body().getAccessToken();
@@ -327,7 +343,9 @@ public class LoginActivity extends AppActivity
             showProgress(false);
 
             if (success) {
-                SaveSharedPreference.setAuthorizationToken(context, this.accessToken);
+                //AppPreferences.setAuthorizationToken(context, this.accessToken);
+                AppPreferences.with(context)
+                        .set("authorization_token", this.accessToken);
                 Intent intent = new Intent();
                 ((LoginActivity)context).setResult(RESULT_OK, intent);
                 finish();

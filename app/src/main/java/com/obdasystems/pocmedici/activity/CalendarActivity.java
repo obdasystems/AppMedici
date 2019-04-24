@@ -2,20 +2,20 @@ package com.obdasystems.pocmedici.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 
 import com.applandeo.materialcalendarview.CalendarView;
 import com.applandeo.materialcalendarview.EventDay;
 import com.obdasystems.pocmedici.R;
-import com.obdasystems.pocmedici.network.MediciApi;
-import com.obdasystems.pocmedici.network.MediciApiClient;
-import com.obdasystems.pocmedici.network.NetworkUtils;
+import com.obdasystems.pocmedici.network.ApiClient;
+import com.obdasystems.pocmedici.network.ItcoService;
 import com.obdasystems.pocmedici.network.RestCalendarEvent;
 import com.obdasystems.pocmedici.network.RestCalendarEventList;
+import com.obdasystems.pocmedici.network.interceptors.AuthenticationInterceptor;
 import com.obdasystems.pocmedici.utils.DateUtils;
 import com.obdasystems.pocmedici.utils.DrawableUtils;
-import com.obdasystems.pocmedici.utils.SaveSharedPreference;
 
 import java.util.Calendar;
 import java.util.HashMap;
@@ -23,6 +23,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -31,7 +32,6 @@ public class CalendarActivity extends AppActivity {
     private CalendarView calendarView;
     private Map<Long, RestCalendarEvent> timestampToEvent = new HashMap<>();
     private List<EventDay> eventDays = new LinkedList<>();
-    private int recursiveCallCounter = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -193,67 +193,31 @@ public class CalendarActivity extends AppActivity {
     }
 
     private void getCalendarEvents() {
-        if (recursiveCallCounter < 15) {
-            recursiveCallCounter++;
-            String usr = "james";
-            String pwd = "bush";
+        ItcoService apiService = ApiClient
+                .forService(ItcoService.class)
+                .baseURL(ApiClient.BASE_URL)
+                .logging(HttpLoggingInterceptor.Level.BODY)
+                .addInterceptor(new AuthenticationInterceptor(this))
+                .build();
 
-            String authorizationToken = SaveSharedPreference.getAuthorizationToken(this);
-            if (authorizationToken == null) {
-                NetworkUtils.requestNewAuthorizationToken(pwd, usr, this);
-            }
-            authorizationToken = SaveSharedPreference.getAuthorizationToken(this);
-
-            MediciApi apiService = MediciApiClient.createService(MediciApi.class, authorizationToken);
-
-            Call<RestCalendarEventList> call = apiService.getCalendarEvents();
-            call.enqueue(new Callback<RestCalendarEventList>() {
-                @Override
-                public void onResponse(Call<RestCalendarEventList> call, Response<RestCalendarEventList> response) {
-                    if (response.isSuccessful()) {
-                        addEventsToCalendar(response.body());
-                        recursiveCallCounter = 0;
-                    } else {
-                        switch (response.code()) {
-                            case 401:
-                                NetworkUtils.requestNewAuthorizationToken(pwd, usr, context());
-                                Log.e(tag(), "Unable to fetch calendar events (401)");
-                                if (!SaveSharedPreference.getAuthorizationIssue(context())) {
-                                    getCalendarEvents();
-                                } else {
-                                    String issueDescription = SaveSharedPreference.getAuthorizationIssueDescription(context());
-                                    toast("Unable to fetch calendar events (401) [" + issueDescription + "]");
-                                    Log.e(tag(), "[" + this.getClass().getSimpleName() + "] Unable to fetch calendar events (401) [" + issueDescription + "]");
-                                }
-                                break;
-                            case 404:
-                                Log.e(tag(), "Unable to fetch calendar events (404)");
-                                toast("Unable to fetch calendar events (404)");
-                                break;
-                            case 500:
-                                Log.e(tag(), "Unable to fetch calendar events (500)");
-                                toast("Unable to fetch calendar events (500)");
-                                break;
-                            default:
-                                Log.e(tag(), "Unable to fetch calendar events (UNKNOWN)");
-                                toast("Unable to fetch calendar events (UNKNOWN)");
-                                break;
+        apiService.getCalendarEvents()
+                .enqueue(new Callback<RestCalendarEventList>() {
+                    @Override
+                    public void onResponse(Call<RestCalendarEventList> call,
+                                           Response<RestCalendarEventList> response) {
+                        if (response.isSuccessful()) {
+                            addEventsToCalendar(response.body());
+                        } else {
+                            Log.e(tag(), "Unable to fetch calendar events");
                         }
                     }
-                }
 
-                @Override
-                public void onFailure(Call<RestCalendarEventList> call, Throwable t) {
-                    Log.e(tag(), "Unable to fetch calendar events: " + t.getMessage());
-                    Log.e(tag(), "Unable to fetch calendar events: " + t.getStackTrace());
-                    toast("Unable to fetch calendar events..");
-                }
-            });
-        } else {
-            Log.e(tag(), "Max number of calls to getCalendarEvents() reached!!");
-            toast("Max number of calls to getCalendarEvents() reached!!");
-            recursiveCallCounter = 0;
-        }
+                    @Override
+                    public void onFailure(Call<RestCalendarEventList> call, Throwable t) {
+                        Log.e(tag(), "Unable to fetch calendar events: ", t);
+                        snack("Unable to fetch calendar events..", Snackbar.LENGTH_LONG);
+                    }
+                });
     }
 
 }

@@ -21,10 +21,10 @@ import com.obdasystems.pocmedici.R;
 import com.obdasystems.pocmedici.adapter.FormQuestionListAdapter;
 import com.obdasystems.pocmedici.asyncresponse.PageQuestionsAsyncResponse;
 import com.obdasystems.pocmedici.message.helper.DividerItemDecoration;
-import com.obdasystems.pocmedici.network.MediciApi;
-import com.obdasystems.pocmedici.network.MediciApiClient;
-import com.obdasystems.pocmedici.network.NetworkUtils;
+import com.obdasystems.pocmedici.network.ApiClient;
+import com.obdasystems.pocmedici.network.ItcoService;
 import com.obdasystems.pocmedici.network.RestFilledForm;
+import com.obdasystems.pocmedici.network.interceptors.AuthenticationInterceptor;
 import com.obdasystems.pocmedici.persistence.entities.CtcaeFormPage;
 import com.obdasystems.pocmedici.persistence.entities.CtcaeFormQuestion;
 import com.obdasystems.pocmedici.persistence.entities.CtcaeFormQuestionAnswered;
@@ -33,7 +33,6 @@ import com.obdasystems.pocmedici.persistence.repository.CtcaeFillingProcessAnswe
 import com.obdasystems.pocmedici.persistence.repository.CtcaeFillingProcessRepository;
 import com.obdasystems.pocmedici.persistence.repository.CtcaeFormQuestionsRepository;
 import com.obdasystems.pocmedici.persistence.repository.CtcaeIncompleteFillingProcessRepository;
-import com.obdasystems.pocmedici.utils.SaveSharedPreference;
 
 import org.json.JSONObject;
 
@@ -42,6 +41,7 @@ import java.util.GregorianCalendar;
 import java.util.LinkedList;
 import java.util.List;
 
+import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -273,90 +273,38 @@ public class FormPageActivity extends AppActivity
     public void finalizeFillingProcessTaskFinished(RestFilledForm result) {
         Log.i(tag(), "finalized fillingProcessId=" + fillingProcessId + " " +
                 "update return value=" + result);
-        if (recursiveSubmitFormCounter < 0) {
-            recursiveSubmitFormCounter = 0;
-        }
 
-        Context ctx = this;
         PageQuestionsAsyncResponse delegate = this;
 
-        if (result != null) {
-            if (recursiveSubmitFormCounter < 15) {
-                recursiveSubmitFormCounter++;
-                String usr = "james";
-                String pwd = "bush";
+        ItcoService apiService = (ItcoService) ApiClient
+                .forService(ItcoService.class)
+                .addInterceptor(new AuthenticationInterceptor(this))
+                .logging(HttpLoggingInterceptor.Level.BODY)
+                .baseURL(ApiClient.BASE_URL)
+                .build();
 
-                String authorizationToken = SaveSharedPreference.getAuthorizationToken(this);
-                if (authorizationToken == null) {
-                    NetworkUtils.requestNewAuthorizationToken(pwd, usr, this);
-                }
-                authorizationToken = SaveSharedPreference.getAuthorizationToken(this);
-
-                MediciApi apiService = MediciApiClient.createService(MediciApi.class, authorizationToken);
-
-                apiService.sendFilledForm(formId, result).enqueue(new Callback<JSONObject>() {
+        apiService.sendFilledForm(formId, result)
+                .enqueue(new Callback<JSONObject>() {
                     @Override
-                    public void onResponse(Call<JSONObject> call, Response<JSONObject> response) {
+                    public void onResponse(Call<JSONObject> call,
+                                           Response<JSONObject> response) {
                         if (response.isSuccessful()) {
-                            Log.i(tag(), "Questionnaire sent to server." + response.body().toString());
+                            Log.i(tag(), "Questionnaire sent to server");
                             snack(recyclerView, R.string.form_submit_success, Snackbar.LENGTH_LONG);
                             DeleteFillingProcessQueryAsyncTask task =
-                                    new DeleteFillingProcessQueryAsyncTask(fillingProcessId, ctx, delegate);
+                                    new DeleteFillingProcessQueryAsyncTask(
+                                            fillingProcessId, context(), delegate);
                             task.execute();
-                            recursiveSubmitFormCounter = 0;
                         } else {
-                            switch (response.code()) {
-                                case 401:
-                                    NetworkUtils.requestNewAuthorizationToken(pwd, usr, ctx);
-                                    Log.e(tag(), "Unable to fetch message list (401)");
-                                    if (!SaveSharedPreference.getAuthorizationIssue(ctx)) {
-                                        finalizeFillingProcessTaskFinished(result);
-                                    } else {
-                                        String issueDescription = SaveSharedPreference.getAuthorizationIssueDescription(ctx);
-                                        toast("Unable to submit questionnaire (401) [" + issueDescription + "]");
-                                        Log.e(tag(), "Unable to submit questionnaire (401) [" + issueDescription + "]");
-                                    }
-                                    break;
-                                case 404:
-                                    Log.e(tag(), "Unable to submit questionnaire (404)");
-                                    toast("Unable to submit questionnaire (404)");
-                                    break;
-                                case 500:
-                                    Log.e(tag(), "Unable to submit questionnaire (500)");
-                                    toast("Unable to submit questionnaire (500)");
-                                    break;
-                                default:
-                                    Log.e(tag(), "Unable to submit questionnaire (UNKNOWN)");
-                                    toast("Unable to submit questionnaire (UNKNOWN)");
-                                    break;
-                            }
+                            Log.e(tag(), "Unable to submit questionnaire");
                         }
                     }
 
                     @Override
                     public void onFailure(Call<JSONObject> call, Throwable t) {
-                        Log.e(tag(), "Unable to submit questionnaire : " + t.getMessage());
-                        Log.e(tag(), "Unable to submit questionnaire : " + t.getStackTrace());
-                        toast("Unable to submit questionnaire ..");
+                        Log.e(tag(), "Unable to submit questionnaire : ", t);
                     }
                 });
-
-            } else {
-                Log.e(tag(), "Max number of calls to submitQuestionnaire() reached!!");
-                toast("Max number of calls to submitQuestionnaire() reached!!");
-            }
-
-        } else {
-            //warning message
-            String msg = "Problems encountered while submitting filled questionnaire. Please try again";
-            AlertDialog dialog = new AlertDialog.Builder(FormPageActivity.this).create();
-            dialog.setTitle("Submit filled form alert");
-            dialog.setMessage(msg);
-            dialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
-                    (dialog1, which) -> dialog1.dismiss());
-            dialog.show();
-            recursiveSubmitFormCounter = 0;
-        }
     }
 
     @Override

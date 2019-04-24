@@ -16,7 +16,7 @@ import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
 
-public interface MediciApi {
+public interface ItcoService {
 
     @POST("auth/login")
     @FormUrlEncoded
